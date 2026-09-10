@@ -33,11 +33,11 @@ POSITION_ORDER = [
 ]
 
 RADAR_COLORS = [
-    "#00B8FF",  # cyan
-    "#FF5A5F",  # red
-    "#00D084",  # green
+    "#00AEEF",  # bright blue
+    "#FF3B5C",  # vivid red/pink
+    "#00C875",  # emerald green
     "#FFB000",  # amber
-    "#B784FF",  # purple
+    "#8B5CF6",  # violet
 ]
 
 # Only metrics where a lower raw value is clearly more favorable are reversed.
@@ -468,11 +468,11 @@ def make_radar(
     compact_legend: bool = True,
 ):
     """
-    Cleaner scouting-style percentile radar.
-
-    - 50th percentile is highlighted as the league-median reference.
-    - Fill is intentionally very subtle and disabled automatically for 3+ players.
-    - First metric starts at 12 o'clock and metrics continue clockwise.
+    Classic scouting radar:
+    - light inner radar area
+    - high-contrast player colours
+    - readable dark percentile scale
+    - hover shows percentile + raw Wyscout value
     """
 
     fig = go.Figure()
@@ -482,37 +482,30 @@ def make_radar(
         for metric in metrics
     ]
 
-    # Reference: league median (50th percentile)
-    if metrics:
-        fig.add_trace(
-            go.Scatterpolar(
-                r=[50] * (len(metrics) + 1),
-                theta=metric_labels + [metric_labels[0]],
-                mode="lines",
-                line=dict(
-                    color="rgba(170,170,170,0.55)",
-                    width=1.5,
-                    dash="dot",
-                ),
-                hoverinfo="skip",
-                showlegend=False,
-            )
-        )
-
-    # With 3+ players, fills make the chart harder to read.
-    use_fill = show_fill and len(players) <= 2
-    fill_alpha = 0.10 if len(players) == 1 else 0.065
+    # Slightly stronger fill for 1v1, lighter for 3-4 players.
+    if len(players) <= 2:
+        fill_alpha = 0.17
+    else:
+        fill_alpha = 0.085
 
     for index, player in enumerate(players):
         row = frame.loc[frame["Name"] == player].iloc[0]
         color = RADAR_COLORS[index % len(RADAR_COLORS)]
 
-        values = [
+        percentiles = [
             float(row[f"PCTL__{metric}"])
             for metric in metrics
         ]
 
-        if not values:
+        raw_values = [
+            pd.to_numeric(
+                pd.Series([row[metric]]),
+                errors="coerce",
+            ).iloc[0]
+            for metric in metrics
+        ]
+
+        if not percentiles:
             continue
 
         trace_name = (
@@ -523,28 +516,30 @@ def make_radar(
 
         fig.add_trace(
             go.Scatterpolar(
-                r=values + [values[0]],
+                r=percentiles + [percentiles[0]],
                 theta=metric_labels + [metric_labels[0]],
+                customdata=raw_values + [raw_values[0]],
                 mode="lines+markers",
                 line=dict(
                     color=color,
-                    width=3.6,
+                    width=3.2,
                 ),
                 marker=dict(
                     color=color,
-                    size=5.5,
+                    size=6,
                     line=dict(
-                        color="rgba(255,255,255,0.55)",
-                        width=0.7,
+                        color="#FFFFFF",
+                        width=0.8,
                     ),
                 ),
-                fill="toself" if use_fill else "none",
+                fill="toself" if show_fill else "none",
                 fillcolor=hex_to_rgba(color, fill_alpha),
                 name=trace_name,
                 hovertemplate=(
                     "<b>%{fullData.name}</b>"
                     "<br>%{theta}"
-                    "<br>Percentile: %{r:.0f}"
+                    "<br>Percentile: <b>%{r:.0f}</b>"
+                    "<br>Raw value: <b>%{customdata:.2f}</b>"
                     "<extra></extra>"
                 ),
             )
@@ -552,27 +547,32 @@ def make_radar(
 
     fig.update_layout(
         polar=dict(
-            bgcolor="rgba(0,0,0,0)",
+            # Similar to the original radar, but slightly softer than pure white.
+            bgcolor="#F2F3F5",
             radialaxis=dict(
                 visible=True,
                 range=[0, 100],
                 tickmode="array",
-                tickvals=[25, 50, 75, 100],
-                ticktext=["25", "50", "75", "100"],
+                tickvals=[20, 40, 60, 80, 100],
+                ticktext=["20", "40", "60", "80", "100"],
+                tickangle=0,
                 angle=90,
-                gridcolor="rgba(145,145,145,0.20)",
-                linecolor="rgba(145,145,145,0.22)",
+                gridcolor="rgba(70,75,82,0.28)",
+                linecolor="rgba(70,75,82,0.32)",
                 tickfont=dict(
-                    size=10,
-                    color="rgba(185,185,185,0.85)",
+                    size=11,
+                    color="#353A40",
                 ),
             ),
             angularaxis=dict(
                 rotation=90,
                 direction="clockwise",
-                gridcolor="rgba(145,145,145,0.13)",
-                linecolor="rgba(145,145,145,0.22)",
-                tickfont=dict(size=12),
+                gridcolor="rgba(70,75,82,0.18)",
+                linecolor="rgba(70,75,82,0.28)",
+                tickfont=dict(
+                    size=12,
+                    color="#F4F6F8",
+                ),
             ),
         ),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -581,27 +581,30 @@ def make_radar(
         legend=dict(
             orientation="h",
             yanchor="top",
-            y=-0.10,
+            y=-0.14,
             xanchor="center",
             x=0.5,
             font=dict(size=11),
             itemsizing="constant",
         ),
         hoverlabel=dict(
-            bgcolor="rgba(20,20,20,0.95)",
-            font_size=12,
+            bgcolor="#171B21",
+            bordercolor="rgba(255,255,255,0.20)",
+            font=dict(
+                color="#FFFFFF",
+                size=12,
+            ),
         ),
-        height=610,
+        height=625,
         margin=dict(
             l=105,
             r=105,
             t=35,
-            b=90,
+            b=105,
         ),
     )
 
     return fig
-
 
 def make_percentile_bars(
     frame: pd.DataFrame,
@@ -1183,17 +1186,14 @@ with tab_compare:
         )
 
         if visual_mode == "Radar":
-            if len(compare_players) <= 2:
-                show_fill = st.toggle(
-                    "Soft radar fill",
-                    value=True,
-                    help="Use a subtle fill for easier 1v1 comparison.",
-                )
-            else:
-                show_fill = False
-                st.caption(
-                    "Fill is automatically disabled for 3–4 players to keep the radar readable."
-                )
+            show_fill = st.toggle(
+                "Radar fill",
+                value=True,
+                help=(
+                    "Keep the classic filled radar look. "
+                    "The fill is automatically made lighter when 3–4 players are selected."
+                ),
+            )
 
             radar = make_radar(
                 position_df,
@@ -1209,7 +1209,7 @@ with tab_compare:
             )
 
             st.caption(
-                "Dotted ring = 50th league percentile. Outer edge = 100th percentile."
+                "Hover over a point to see both league percentile and the raw Wyscout value."
             )
 
         elif visual_mode == "Percentile bars":
