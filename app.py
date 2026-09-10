@@ -12,14 +12,202 @@ import streamlit as st
 # PAGE
 # ============================================================
 
+APP_DIR = Path(__file__).parent
+DATA_DIR = APP_DIR / "data"
+LOGO_PATH = APP_DIR / "assets" / "jihlava_logo.png"
+
 st.set_page_config(
-    page_title="Vysočina Scouting Benchmark",
-    page_icon="⚽",
+    page_title="FC Vysočina Scouting",
+    page_icon=str(LOGO_PATH),
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 OWN_TEAM = "Vysočina Jihlava"
-DATA_DIR = Path(__file__).parent / "data"
+
+
+# ============================================================
+# CLUB UI
+# ============================================================
+
+st.markdown(
+    """
+    <style>
+    :root {
+        --fcv-navy: #142E63;
+        --fcv-navy-deep: #081426;
+        --fcv-yellow: #FFD900;
+        --fcv-surface: #101B2B;
+        --fcv-surface-2: #15243A;
+        --fcv-border: rgba(255,255,255,0.09);
+        --fcv-muted: #9DABBE;
+    }
+
+    /* Main page */
+    .stApp {
+        background:
+            radial-gradient(circle at 75% 0%, rgba(20,46,99,.22), transparent 34rem),
+            linear-gradient(180deg, #091321 0%, #0A1422 100%);
+    }
+
+    .block-container {
+        max-width: 1500px;
+        padding-top: 1.6rem;
+        padding-bottom: 4rem;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0B1728 0%, #0A1320 100%);
+        border-right: 1px solid rgba(255,217,0,.10);
+    }
+
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] label {
+        color: #DCE5F0;
+    }
+
+    /* Headings */
+    h1, h2, h3 {
+        letter-spacing: -0.025em;
+    }
+
+    h1 {
+        font-weight: 750 !important;
+    }
+
+    h2, h3 {
+        color: #F6F8FB !important;
+    }
+
+    /* Club header */
+    .fcv-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.0rem 1.25rem;
+        margin: 0 0 1.35rem 0;
+        border: 1px solid rgba(255,255,255,.08);
+        border-left: 4px solid var(--fcv-yellow);
+        border-radius: 16px;
+        background: linear-gradient(105deg, rgba(20,46,99,.96), rgba(13,27,48,.94));
+        box-shadow: 0 10px 30px rgba(0,0,0,.16);
+    }
+
+    .fcv-kicker {
+        color: var(--fcv-yellow);
+        font-size: .75rem;
+        font-weight: 800;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        margin-bottom: .12rem;
+    }
+
+    .fcv-title {
+        color: #FFFFFF;
+        font-size: 1.85rem;
+        line-height: 1.1;
+        font-weight: 760;
+        letter-spacing: -.035em;
+        margin: 0;
+    }
+
+    .fcv-subtitle {
+        color: #BFCBDD;
+        font-size: .92rem;
+        margin-top: .28rem;
+    }
+
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: linear-gradient(180deg, rgba(21,36,58,.94), rgba(15,27,44,.94));
+        border: 1px solid var(--fcv-border);
+        border-radius: 14px;
+        padding: .9rem 1rem;
+        box-shadow: 0 5px 18px rgba(0,0,0,.10);
+    }
+
+    [data-testid="stMetricLabel"] {
+        color: var(--fcv-muted);
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #FFFFFF;
+    }
+
+    /* Tabs */
+    [data-baseweb="tab-list"] {
+        gap: .4rem;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    button[data-baseweb="tab"] {
+        border-radius: 10px 10px 0 0;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        background: rgba(255,217,0,.09);
+        color: #FFFFFF;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] p {
+        color: #FFFFFF !important;
+        font-weight: 700;
+    }
+
+    /* Inputs / controls */
+    div[data-baseweb="select"] > div,
+    [data-baseweb="input"] {
+        background-color: rgba(19,34,54,.88);
+        border-color: rgba(255,255,255,.10);
+    }
+
+    /* Buttons */
+    .stButton > button {
+        border-radius: 10px;
+        border: 1px solid rgba(255,217,0,.35);
+        background: rgba(255,217,0,.08);
+        transition: all .16s ease;
+    }
+
+    .stButton > button:hover {
+        border-color: var(--fcv-yellow);
+        color: #FFFFFF;
+        background: rgba(255,217,0,.14);
+    }
+
+    /* Dataframes / cards */
+    [data-testid="stDataFrame"] {
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    /* Captions */
+    .stCaption, [data-testid="stCaptionContainer"] {
+        color: var(--fcv-muted) !important;
+    }
+
+    /* Divider */
+    hr {
+        border-color: rgba(255,255,255,.07) !important;
+    }
+
+    /* Hide default Streamlit footer */
+    footer {
+        visibility: hidden;
+    }
+
+    /* Make top decoration club yellow */
+    [data-testid="stDecoration"] {
+        background-image: linear-gradient(90deg, #FFD900, #1B4285);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 POSITION_ORDER = [
     "GK",
@@ -1701,10 +1889,10 @@ available_positions += sorted(
 # ============================================================
 
 with st.sidebar:
-    st.header("Application mode")
+    st.header("Workspace")
 
     app_mode = st.radio(
-        "Workspace",
+        "Mode",
         ["Player Analysis", "Club vs Opponent"],
         index=0,
         key="app_mode",
@@ -1714,8 +1902,31 @@ with st.sidebar:
         ),
     )
 
-st.title("⚽ Vysočina Scouting Benchmark")
-st.caption("Chance National League • Wyscout data")
+header_logo, header_text = st.columns(
+    [0.7, 8.3],
+    vertical_alignment="center",
+)
+
+with header_logo:
+    if LOGO_PATH.exists():
+        st.image(
+            str(LOGO_PATH),
+            width=76,
+        )
+
+with header_text:
+    st.markdown(
+        """
+        <div class="fcv-header">
+            <div>
+                <div class="fcv-kicker">FC Vysočina Jihlava</div>
+                <div class="fcv-title">Scouting & Analysis</div>
+                <div class="fcv-subtitle">Chance National League · Wyscout benchmarking</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 if app_mode == "Club vs Opponent":
     st.subheader("Club vs Opponent — best XI")
@@ -2183,7 +2394,7 @@ with st.sidebar:
 # HEADER
 # ============================================================
 
-st.subheader(f"Player Analysis · {selected_position}")
+st.subheader(f"{selected_position} Analysis")
 
 a, b, c, d = st.columns(4)
 a.metric("Position", selected_position)
