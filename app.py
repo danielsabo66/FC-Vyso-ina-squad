@@ -15,6 +15,7 @@ import streamlit as st
 APP_DIR = Path(__file__).parent
 DATA_DIR = APP_DIR / "data"
 LOGO_PATH = APP_DIR / "assets" / "jihlava_logo.png"
+HERO_PATH = APP_DIR / "assets" / "jihlava_hero.png"
 
 st.set_page_config(
     page_title="FC Vysočina Scouting",
@@ -52,7 +53,7 @@ st.markdown(
 
     .block-container {
         max-width: 1500px;
-        padding-top: 1.6rem;
+        padding-top: 1.0rem;
         padding-bottom: 4rem;
     }
 
@@ -78,44 +79,6 @@ st.markdown(
 
     h2, h3 {
         color: #F6F8FB !important;
-    }
-
-    /* Club header */
-    .fcv-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1.0rem 1.25rem;
-        margin: 0 0 1.35rem 0;
-        border: 1px solid rgba(255,255,255,.08);
-        border-left: 4px solid var(--fcv-yellow);
-        border-radius: 16px;
-        background: linear-gradient(105deg, rgba(20,46,99,.96), rgba(13,27,48,.94));
-        box-shadow: 0 10px 30px rgba(0,0,0,.16);
-    }
-
-    .fcv-kicker {
-        color: var(--fcv-yellow);
-        font-size: .75rem;
-        font-weight: 800;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-        margin-bottom: .12rem;
-    }
-
-    .fcv-title {
-        color: #FFFFFF;
-        font-size: 1.85rem;
-        line-height: 1.1;
-        font-weight: 760;
-        letter-spacing: -.035em;
-        margin: 0;
-    }
-
-    .fcv-subtitle {
-        color: #BFCBDD;
-        font-size: .92rem;
-        margin-top: .28rem;
     }
 
     /* Metrics */
@@ -1902,31 +1865,16 @@ with st.sidebar:
         ),
     )
 
-header_logo, header_text = st.columns(
-    [0.7, 8.3],
-    vertical_alignment="center",
-)
-
-with header_logo:
-    if LOGO_PATH.exists():
-        st.image(
-            str(LOGO_PATH),
-            width=76,
-        )
-
-with header_text:
-    st.markdown(
-        """
-        <div class="fcv-header">
-            <div>
-                <div class="fcv-kicker">FC Vysočina Jihlava</div>
-                <div class="fcv-title">Scouting & Analysis</div>
-                <div class="fcv-subtitle">Chance National League · Wyscout benchmarking</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+if HERO_PATH.exists():
+    st.image(
+        str(HERO_PATH),
+        use_container_width=True,
     )
+
+st.markdown(
+    "<div style='height:0.35rem'></div>",
+    unsafe_allow_html=True,
+)
 
 if app_mode == "Club vs Opponent":
     st.subheader("Club vs Opponent — best XI")
