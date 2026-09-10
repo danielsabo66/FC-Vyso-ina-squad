@@ -182,6 +182,317 @@ PREFERRED_METRICS = {
 }
 
 
+
+# ============================================================
+# ROLE PRESETS
+# ============================================================
+
+ROLE_PRESETS = {
+    "GK": {
+        "Balanced GK": {
+            "Save rate, %": 1.5,
+            "Prevented goals per 90": 1.5,
+            "Accurate passes, %": 1.0,
+            "Accurate long passes, %": 1.0,
+            "Exits per 90": 0.8,
+            "Aerial duels per 90": 0.7,
+        },
+        "Shot stopper": {
+            "Save rate, %": 2.0,
+            "Prevented goals per 90": 2.0,
+            "Conceded goals per 90": 1.2,
+            "Clean sheets": 0.8,
+        },
+        "Distributor": {
+            "Accurate passes, %": 2.0,
+            "Accurate long passes, %": 1.8,
+            "Passes per 90": 0.8,
+            "Long passes per 90": 0.8,
+            "Back passes received as GK per 90": 0.7,
+            "Save rate, %": 1.0,
+        },
+        "Sweeper keeper": {
+            "Exits per 90": 1.8,
+            "Back passes received as GK per 90": 1.2,
+            "Accurate passes, %": 1.2,
+            "Accurate long passes, %": 1.0,
+            "Save rate, %": 1.2,
+            "Prevented goals per 90": 1.0,
+        },
+    },
+
+    "LB": {
+        "Balanced full-back": {
+            "Defensive duels won, %": 1.5,
+            "PAdj Interceptions": 1.2,
+            "Accurate crosses, %": 1.0,
+            "Successful dribbles, %": 1.0,
+            "Progressive runs per 90": 1.2,
+            "Accurate passes, %": 0.9,
+            "xA per 90": 1.0,
+            "Passes to penalty area per 90": 1.0,
+        },
+        "Defensive full-back": {
+            "Defensive duels won, %": 2.0,
+            "PAdj Interceptions": 1.7,
+            "Aerial duels won, %": 1.3,
+            "PAdj Sliding tackles": 1.2,
+            "Successful defensive actions per 90": 1.0,
+            "Accurate passes, %": 0.8,
+        },
+        "Attacking wing-back": {
+            "Progressive runs per 90": 1.8,
+            "Crosses per 90": 1.2,
+            "Accurate crosses, %": 1.5,
+            "Successful dribbles, %": 1.4,
+            "xA per 90": 1.5,
+            "Passes to penalty area per 90": 1.3,
+            "Successful attacking actions per 90": 1.0,
+        },
+    },
+
+    "RB": {
+        "Balanced full-back": {
+            "Defensive duels won, %": 1.5,
+            "PAdj Interceptions": 1.2,
+            "Accurate crosses, %": 1.0,
+            "Successful dribbles, %": 1.0,
+            "Progressive runs per 90": 1.2,
+            "Accurate passes, %": 0.9,
+            "xA per 90": 1.0,
+            "Passes to penalty area per 90": 1.0,
+        },
+        "Defensive full-back": {
+            "Defensive duels won, %": 2.0,
+            "PAdj Interceptions": 1.7,
+            "Aerial duels won, %": 1.3,
+            "PAdj Sliding tackles": 1.2,
+            "Successful defensive actions per 90": 1.0,
+            "Accurate passes, %": 0.8,
+        },
+        "Attacking wing-back": {
+            "Progressive runs per 90": 1.8,
+            "Crosses per 90": 1.2,
+            "Accurate crosses, %": 1.5,
+            "Successful dribbles, %": 1.4,
+            "xA per 90": 1.5,
+            "Passes to penalty area per 90": 1.3,
+            "Successful attacking actions per 90": 1.0,
+        },
+    },
+
+    "CB": {
+        "Balanced centre-back": {
+            "Defensive duels won, %": 1.7,
+            "Aerial duels won, %": 1.5,
+            "PAdj Interceptions": 1.2,
+            "Accurate passes, %": 1.0,
+            "Accurate forward passes, %": 1.0,
+            "Progressive passes per 90": 1.0,
+            "Accurate progressive passes, %": 1.0,
+            "Fouls per 90": 0.8,
+        },
+        "Stopper": {
+            "Defensive duels won, %": 2.0,
+            "Aerial duels won, %": 1.8,
+            "PAdj Interceptions": 1.5,
+            "Shots blocked per 90": 1.0,
+            "Fouls per 90": 0.9,
+            "Successful defensive actions per 90": 1.0,
+        },
+        "Ball-playing CB": {
+            "Accurate passes, %": 1.5,
+            "Accurate forward passes, %": 1.5,
+            "Progressive passes per 90": 1.7,
+            "Accurate progressive passes, %": 1.5,
+            "Passes to final third per 90": 1.3,
+            "Accurate long passes, %": 1.1,
+            "Defensive duels won, %": 1.1,
+            "Aerial duels won, %": 1.0,
+        },
+    },
+
+    "CM/CDM": {
+        "Balanced midfielder": {
+            "Defensive duels won, %": 1.1,
+            "PAdj Interceptions": 1.0,
+            "Accurate passes, %": 1.0,
+            "Progressive passes per 90": 1.2,
+            "Accurate progressive passes, %": 1.0,
+            "Progressive runs per 90": 1.0,
+            "xA per 90": 1.0,
+            "Passes to final third per 90": 1.0,
+        },
+        "Holding 6": {
+            "Defensive duels won, %": 1.8,
+            "PAdj Interceptions": 1.8,
+            "Aerial duels won, %": 1.1,
+            "Accurate passes, %": 1.2,
+            "Accurate forward passes, %": 1.0,
+            "Progressive passes per 90": 1.0,
+        },
+        "Deep playmaker": {
+            "Accurate passes, %": 1.4,
+            "Accurate forward passes, %": 1.3,
+            "Progressive passes per 90": 1.8,
+            "Accurate progressive passes, %": 1.5,
+            "Passes to final third per 90": 1.4,
+            "Accurate long passes, %": 1.1,
+            "Through passes per 90": 0.8,
+        },
+        "Box-to-box 8": {
+            "Progressive runs per 90": 1.6,
+            "Successful attacking actions per 90": 1.2,
+            "Defensive duels won, %": 1.2,
+            "PAdj Interceptions": 1.0,
+            "Goals per 90": 0.9,
+            "Assists per 90": 0.9,
+            "xA per 90": 1.0,
+            "Progressive passes per 90": 1.0,
+        },
+    },
+
+    "CAM": {
+        "Classic 10": {
+            "xA per 90": 1.8,
+            "Shot assists per 90": 1.6,
+            "Key passes per 90": 1.6,
+            "Smart passes per 90": 1.3,
+            "Through passes per 90": 1.2,
+            "Assists per 90": 1.2,
+            "Progressive passes per 90": 1.0,
+        },
+        "Goal-scoring 10": {
+            "Goals per 90": 1.8,
+            "xG per 90": 1.6,
+            "Shots per 90": 1.2,
+            "Shots on target, %": 1.2,
+            "Touches in box per 90": 1.1,
+            "Successful attacking actions per 90": 1.0,
+            "xA per 90": 0.8,
+        },
+        "Dynamic 10": {
+            "Progressive runs per 90": 1.5,
+            "Successful dribbles, %": 1.3,
+            "Offensive duels won, %": 1.2,
+            "Successful attacking actions per 90": 1.3,
+            "xA per 90": 1.2,
+            "Shot assists per 90": 1.1,
+            "Passes to penalty area per 90": 1.0,
+        },
+    },
+
+    "RW/LW": {
+        "1v1 winger": {
+            "Dribbles per 90": 1.4,
+            "Successful dribbles, %": 1.8,
+            "Offensive duels won, %": 1.4,
+            "Progressive runs per 90": 1.5,
+            "Accelerations per 90": 1.1,
+            "Successful attacking actions per 90": 1.2,
+        },
+        "Creator winger": {
+            "xA per 90": 1.8,
+            "Shot assists per 90": 1.6,
+            "Key passes per 90": 1.5,
+            "Passes to penalty area per 90": 1.3,
+            "Accurate crosses, %": 1.2,
+            "Smart passes per 90": 1.0,
+            "Progressive passes per 90": 1.0,
+        },
+        "Inside forward": {
+            "Goals per 90": 1.8,
+            "xG per 90": 1.5,
+            "Shots per 90": 1.2,
+            "Shots on target, %": 1.2,
+            "Touches in box per 90": 1.3,
+            "Progressive runs per 90": 1.2,
+            "Successful dribbles, %": 1.0,
+        },
+        "Balanced winger": {
+            "Goals per 90": 1.1,
+            "xA per 90": 1.1,
+            "Successful dribbles, %": 1.2,
+            "Progressive runs per 90": 1.2,
+            "Offensive duels won, %": 1.0,
+            "Shot assists per 90": 1.0,
+            "Successful attacking actions per 90": 1.1,
+        },
+    },
+
+    "ST": {
+        "Poacher": {
+            "Goals per 90": 2.0,
+            "Non-penalty goals per 90": 1.8,
+            "xG per 90": 1.6,
+            "Shots on target, %": 1.2,
+            "Goal conversion, %": 1.3,
+            "Touches in box per 90": 1.3,
+        },
+        "Target forward": {
+            "Aerial duels won, %": 1.8,
+            "Aerial duels per 90": 1.2,
+            "Offensive duels won, %": 1.4,
+            "Received passes per 90": 1.0,
+            "Goals per 90": 1.3,
+            "Head goals per 90": 1.3,
+            "Accurate passes, %": 0.8,
+        },
+        "Complete forward": {
+            "Goals per 90": 1.5,
+            "xG per 90": 1.2,
+            "Assists per 90": 1.0,
+            "xA per 90": 1.0,
+            "Successful dribbles, %": 1.0,
+            "Offensive duels won, %": 1.1,
+            "Touches in box per 90": 1.1,
+            "Progressive runs per 90": 1.0,
+            "Shot assists per 90": 0.8,
+        },
+        "Pressing forward": {
+            "Successful defensive actions per 90": 1.5,
+            "Defensive duels won, %": 1.2,
+            "Interceptions per 90": 0.9,
+            "Offensive duels won, %": 1.1,
+            "Goals per 90": 1.2,
+            "Touches in box per 90": 1.0,
+        },
+    },
+}
+
+
+def get_role_names(position: str) -> list[str]:
+    return list(ROLE_PRESETS.get(position, {}).keys())
+
+
+def get_role_config(
+    position: str,
+    role_name: str,
+    available_metrics: list[str],
+):
+    role = ROLE_PRESETS.get(position, {}).get(role_name, {})
+
+    filtered = {
+        metric: weight
+        for metric, weight in role.items()
+        if metric in available_metrics
+    }
+
+    if filtered:
+        return filtered
+
+    fallback = preferred_metrics(
+        position,
+        available_metrics,
+        maximum=min(8, len(available_metrics)),
+    )
+
+    return {
+        metric: 1.0
+        for metric in fallback
+    }
+
+
 # ============================================================
 # DATA
 # ============================================================
@@ -1323,433 +1634,6 @@ def make_pitch_figure(
 
 
 # ============================================================
-# PLAYER PROFILE
-# ============================================================
-
-def player_position_summary(
-    all_data: pd.DataFrame,
-    player_name: str,
-):
-    rows = all_data[
-        all_data["Name"].astype(str).eq(player_name)
-    ].copy()
-
-    summary = []
-
-    for _, row in rows.iterrows():
-        minutes = pd.to_numeric(
-            pd.Series([
-                row.get("Minutes played", np.nan)
-            ]),
-            errors="coerce",
-        ).iloc[0]
-
-        summary.append(
-            {
-                "Position": row.get("PositionGroup", ""),
-                "Team": row.get("Team", ""),
-                "Minutes": (
-                    int(minutes)
-                    if pd.notna(minutes)
-                    else np.nan
-                ),
-            }
-        )
-
-    return pd.DataFrame(summary)
-
-
-def profile_position_data(
-    all_data: pd.DataFrame,
-    player_name: str,
-    position: str,
-    min_minutes: int = 1,
-):
-    position_full = all_data[
-        all_data["PositionGroup"] == position
-    ].copy()
-
-    if position_full.empty:
-        return pd.DataFrame(), []
-
-    reference = position_full.copy()
-
-    if "Minutes played" in reference.columns:
-        mins = pd.to_numeric(
-            reference["Minutes played"],
-            errors="coerce",
-        ).fillna(0)
-
-        reference = reference[
-            mins >= min_minutes
-        ].copy()
-
-    metrics = get_metrics(
-        position_full
-    )
-
-    if not metrics or reference.empty:
-        return pd.DataFrame(), metrics
-
-    scored_all = prepare_position_data(
-        position_full,
-        metrics,
-        reference_frame=reference,
-    )
-
-    player_row = scored_all[
-        scored_all["Name"] == player_name
-    ].copy()
-
-    return player_row, metrics
-
-
-def profile_strengths_weaknesses(
-    row: pd.Series,
-    metrics: list[str],
-    top_n: int = 5,
-):
-    values = []
-
-    for metric in metrics:
-        percentile = row.get(
-            f"PCTL__{metric}",
-            np.nan,
-        )
-
-        if pd.notna(percentile):
-            values.append(
-                (
-                    metric,
-                    float(percentile),
-                    row.get(metric, np.nan),
-                )
-            )
-
-    values = sorted(
-        values,
-        key=lambda x: x[1],
-        reverse=True,
-    )
-
-    strengths = values[:top_n]
-    weaknesses = list(reversed(values[-top_n:]))
-
-    return strengths, weaknesses
-
-
-def render_player_profile(
-    all_data: pd.DataFrame,
-    player_name: str,
-):
-    player_rows = all_data[
-        all_data["Name"].astype(str).eq(player_name)
-    ].copy()
-
-    if player_rows.empty:
-        st.warning("Player not found.")
-        return
-
-    teams = [
-        str(team)
-        for team in player_rows["Team"].dropna().unique()
-    ]
-
-    team_text = " / ".join(teams)
-
-    st.subheader(player_name)
-    st.caption(team_text)
-
-    position_summary = player_position_summary(
-        all_data,
-        player_name,
-    )
-
-    positions = position_summary[
-        "Position"
-    ].dropna().astype(str).tolist()
-
-    total_minutes = pd.to_numeric(
-        position_summary["Minutes"],
-        errors="coerce",
-    ).dropna()
-
-    k1, k2, k3 = st.columns(3)
-
-    k1.metric(
-        "Positions in database",
-        len(positions),
-    )
-
-    k2.metric(
-        "Max minutes on a position",
-        (
-            f"{int(total_minutes.max())}"
-            if not total_minutes.empty
-            else "—"
-        ),
-    )
-
-    k3.metric(
-        "Position groups",
-        ", ".join(positions),
-    )
-
-    st.markdown("### Minutes by position")
-
-    if not position_summary.empty:
-        position_chart = go.Figure(
-            go.Bar(
-                x=position_summary["Position"],
-                y=position_summary["Minutes"],
-                text=position_summary["Minutes"],
-                textposition="outside",
-                marker=dict(
-                    color="#23A8F2",
-                ),
-                hovertemplate=(
-                    "<b>%{x}</b>"
-                    "<br>Minutes: %{y}"
-                    "<extra></extra>"
-                ),
-            )
-        )
-
-        position_chart.update_layout(
-            yaxis_title="Minutes",
-            xaxis_title="",
-            height=330,
-            margin=dict(
-                l=30,
-                r=20,
-                t=20,
-                b=40,
-            ),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-        )
-
-        st.plotly_chart(
-            position_chart,
-            use_container_width=True,
-            theme="streamlit",
-        )
-
-        st.dataframe(
-            position_summary,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-    if not positions:
-        return
-
-    st.markdown("### Positional profile")
-
-    profile_position = st.selectbox(
-        "Position profile",
-        positions,
-        key=f"profile_position_{player_name}",
-    )
-
-    position_full = all_data[
-        all_data["PositionGroup"] == profile_position
-    ].copy()
-
-    max_minutes = 1
-
-    if "Minutes played" in position_full.columns:
-        all_minutes = pd.to_numeric(
-            position_full["Minutes played"],
-            errors="coerce",
-        ).dropna()
-
-        if not all_minutes.empty:
-            max_minutes = max(
-                1,
-                int(all_minutes.max()),
-            )
-
-    profile_min_minutes = st.slider(
-        "Reference sample minimum minutes",
-        min_value=1,
-        max_value=max_minutes,
-        value=min(450, max_minutes),
-        step=1,
-        key=f"profile_minutes_{player_name}_{profile_position}",
-        help=(
-            "This changes the reference sample used for the player's percentiles."
-        ),
-    )
-
-    player_position_row, profile_metrics = profile_position_data(
-        all_data,
-        player_name,
-        profile_position,
-        profile_min_minutes,
-    )
-
-    if player_position_row.empty:
-        st.warning(
-            "Player is not available in this positional profile."
-        )
-        return
-
-    row = player_position_row.iloc[0]
-
-    strengths, weaknesses = profile_strengths_weaknesses(
-        row,
-        profile_metrics,
-        top_n=min(5, len(profile_metrics)),
-    )
-
-    left, right = st.columns(2)
-
-    with left:
-        st.markdown("#### Strongest attributes")
-
-        for metric, percentile, raw in strengths:
-            st.write(
-                f"**{metric}** — {percentile:.0f}p"
-                + (
-                    f" · raw {float(raw):.2f}"
-                    if pd.notna(raw)
-                    else ""
-                )
-            )
-
-            st.progress(
-                int(
-                    max(
-                        0,
-                        min(
-                            100,
-                            round(percentile),
-                        ),
-                    )
-                )
-            )
-
-    with right:
-        st.markdown("#### Weakest attributes")
-
-        for metric, percentile, raw in weaknesses:
-            st.write(
-                f"**{metric}** — {percentile:.0f}p"
-                + (
-                    f" · raw {float(raw):.2f}"
-                    if pd.notna(raw)
-                    else ""
-                )
-            )
-
-            st.progress(
-                int(
-                    max(
-                        0,
-                        min(
-                            100,
-                            round(percentile),
-                        ),
-                    )
-                )
-            )
-
-    default_profile_metrics = preferred_metrics(
-        profile_position,
-        profile_metrics,
-        maximum=min(
-            8,
-            len(profile_metrics),
-        ),
-    )
-
-    selected_profile_metrics = st.multiselect(
-        "Radar metrics",
-        profile_metrics,
-        default=default_profile_metrics,
-        key=f"profile_radar_metrics_{player_name}_{profile_position}",
-    )
-
-    if selected_profile_metrics:
-        profile_radar = make_radar(
-            player_position_row,
-            [player_name],
-            selected_profile_metrics,
-            show_fill=True,
-        )
-
-        st.plotly_chart(
-            profile_radar,
-            use_container_width=True,
-            theme=None,
-        )
-
-        profile_table = []
-
-        for metric in selected_profile_metrics:
-            raw = row.get(metric, np.nan)
-            percentile = row.get(
-                f"PCTL__{metric}",
-                np.nan,
-            )
-
-            profile_table.append(
-                {
-                    "Metric": metric,
-                    "Raw": (
-                        round(float(raw), 3)
-                        if pd.notna(raw)
-                        else np.nan
-                    ),
-                    "Percentile": (
-                        round(float(percentile), 1)
-                        if pd.notna(percentile)
-                        else np.nan
-                    ),
-                    "Interpretation": metric_note(metric),
-                }
-            )
-
-        st.dataframe(
-            pd.DataFrame(profile_table),
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Percentile": st.column_config.ProgressColumn(
-                    "Percentile",
-                    min_value=0,
-                    max_value=100,
-                    format="%.0f",
-                ),
-            },
-        )
-
-
-def open_profile_from_table(
-    event,
-    displayed_frame: pd.DataFrame,
-):
-    try:
-        selected_rows = event.selection.rows
-    except Exception:
-        return
-
-    if not selected_rows:
-        return
-
-    row_index = selected_rows[0]
-
-    if row_index >= len(displayed_frame):
-        return
-
-    player = displayed_frame.iloc[row_index]["Name"]
-
-    st.session_state["selected_profile_player"] = player
-    st.session_state["app_mode"] = "Player Profile"
-    st.rerun()
-
-# ============================================================
 # TABLES
 # ============================================================
 
@@ -1821,7 +1705,7 @@ with st.sidebar:
 
     app_mode = st.radio(
         "Workspace",
-        ["Player Analysis", "Player Profile", "Club vs Opponent"],
+        ["Player Analysis", "Club vs Opponent"],
         index=0,
         key="app_mode",
         help=(
@@ -1832,40 +1716,6 @@ with st.sidebar:
 
 st.title("⚽ Vysočina Scouting Benchmark")
 st.caption("Chance National League • Wyscout data")
-
-if app_mode == "Player Profile":
-    all_players = sorted(
-        all_data["Name"].dropna().astype(str).unique()
-    )
-
-    default_player = st.session_state.get(
-        "selected_profile_player",
-        all_players[0] if all_players else None,
-    )
-
-    if default_player not in all_players and all_players:
-        default_player = all_players[0]
-
-    selected_profile_player = st.selectbox(
-        "Player",
-        all_players,
-        index=(
-            all_players.index(default_player)
-            if default_player in all_players
-            else 0
-        ),
-        key="profile_player_selector",
-    )
-
-    st.session_state["selected_profile_player"] = selected_profile_player
-
-    render_player_profile(
-        all_data,
-        selected_profile_player,
-    )
-
-    st.stop()
-
 
 if app_mode == "Club vs Opponent":
     st.subheader("Club vs Opponent — best XI")
@@ -2122,6 +1972,37 @@ if not metrics:
     st.error("No numeric scouting metrics were detected for this position.")
     st.stop()
 
+role_names = get_role_names(selected_position)
+
+if role_names:
+    with st.sidebar:
+        selected_role = st.selectbox(
+            "Player role",
+            role_names,
+            help=(
+                "Role changes the recommended metrics and their weights "
+                "for radar and overall ranking."
+            ),
+        )
+
+    role_config = get_role_config(
+        selected_position,
+        selected_role,
+        metrics,
+    )
+else:
+    selected_role = "Default"
+    role_config = {
+        metric: 1.0
+        for metric in preferred_metrics(
+            selected_position,
+            metrics,
+            maximum=min(8, len(metrics)),
+        )
+    }
+
+role_metrics = list(role_config.keys())
+
 
 # ============================================================
 # GLOBAL MINUTES FILTER
@@ -2368,25 +2249,13 @@ with tab_overview:
         overview_base_columns + quick_metrics
     ].reset_index(drop=True)
 
-    overview_event = st.dataframe(
+    st.dataframe(
         overview_display,
         use_container_width=True,
         hide_index=True,
         column_config={
             "Our player": st.column_config.CheckboxColumn("OUR"),
         },
-        on_select="rerun",
-        selection_mode="single-row",
-        key=f"overview_table_{selected_position}",
-    )
-
-    open_profile_from_table(
-        overview_event,
-        overview_display,
-    )
-
-    st.caption(
-        "Click a row to open the player's full profile."
     )
 
     st.markdown("### Metric explorer")
@@ -2430,7 +2299,7 @@ with tab_overview:
 
     ranking = ranking.reset_index(drop=True)
 
-    ranking_event = st.dataframe(
+    st.dataframe(
         ranking,
         use_container_width=True,
         hide_index=True,
@@ -2443,14 +2312,6 @@ with tab_overview:
                 format="%.0f",
             ),
         },
-        on_select="rerun",
-        selection_mode="single-row",
-        key=f"metric_explorer_table_{selected_position}",
-    )
-
-    open_profile_from_table(
-        ranking_event,
-        ranking,
     )
 
 
@@ -2476,12 +2337,8 @@ with tab_our:
         selected_metrics = st.multiselect(
             "Radar metrics",
             metrics,
-            default=preferred_metrics(
-                selected_position,
-                metrics,
-                maximum=min(8, len(metrics)),
-            ),
-            key="our_radar_metrics",
+            default=role_metrics,
+            key=f"our_radar_metrics_{selected_position}_{selected_role}",
         )
 
         if selected_metrics:
@@ -2642,12 +2499,8 @@ with tab_compare:
     compare_metrics = st.multiselect(
         "Comparison metrics",
         metrics,
-        default=preferred_metrics(
-            selected_position,
-            metrics,
-            maximum=min(8, len(metrics)),
-        ),
-        key="comparison_metrics",
+        default=role_metrics,
+        key=f"comparison_metrics_{selected_position}_{selected_role}",
     )
 
     if compare_players and "Minutes played" in comparison_df.columns:
@@ -2675,27 +2528,6 @@ with tab_compare:
                 + ". They are still available for manual comparison, "
                 "but their sample is smaller than the benchmark threshold."
             )
-
-    if compare_players:
-        profile_button_columns = st.columns(
-            min(
-                len(compare_players),
-                4,
-            )
-        )
-
-        for idx, player in enumerate(compare_players):
-            with profile_button_columns[
-                idx % len(profile_button_columns)
-            ]:
-                if st.button(
-                    f"Open {player}",
-                    key=f"open_profile_compare_{selected_position}_{player}",
-                    use_container_width=True,
-                ):
-                    st.session_state["selected_profile_player"] = player
-                    st.session_state["app_mode"] = "Player Profile"
-                    st.rerun()
 
     if len(compare_players) >= 2 and compare_metrics:
         st.markdown("### Comparison profile")
@@ -2879,11 +2711,12 @@ with tab_ranking:
     # --------------------------------------------------------
 
     if ranking_mode == "Multi-metric overall":
-        default_ranking_metrics = preferred_metrics(
-            selected_position,
-            metrics,
-            maximum=min(8, len(metrics)),
+        st.caption(
+            f"Role preset: **{selected_role}**. "
+            "Metrics and default weights are tuned for this role."
         )
+
+        default_ranking_metrics = role_metrics
 
         ranking_metrics = st.multiselect(
             "Metrics included in overall ranking",
@@ -2909,7 +2742,7 @@ with tab_ranking:
                 )
 
             weights = {
-                metric: 1.0
+                metric: float(role_config.get(metric, 1.0))
                 for metric in ranking_metrics
             }
 
@@ -2934,7 +2767,7 @@ with tab_ranking:
                                 metric,
                                 min_value=0.0,
                                 max_value=10.0,
-                                value=1.0,
+                                value=float(role_config.get(metric, 1.0)),
                                 step=0.25,
                                 key=f"weight_{selected_position}_{metric}",
                             )
@@ -3060,23 +2893,11 @@ with tab_ranking:
                 + metric_display_columns
             ].reset_index(drop=True)
 
-            overall_event = st.dataframe(
+            st.dataframe(
                 overall_display,
                 use_container_width=True,
                 hide_index=True,
                 column_config=column_config,
-                on_select="rerun",
-                selection_mode="single-row",
-                key=f"overall_ranking_table_{selected_position}",
-            )
-
-            open_profile_from_table(
-                overall_event,
-                overall_display,
-            )
-
-            st.caption(
-                "Click a player row to open the full profile."
             )
 
             top_n = min(10, len(overall_df))
@@ -3160,7 +2981,7 @@ with tab_ranking:
 
         ranking_df = ranking_df.reset_index(drop=True)
 
-        single_ranking_event = st.dataframe(
+        st.dataframe(
             ranking_df,
             use_container_width=True,
             hide_index=True,
@@ -3173,14 +2994,6 @@ with tab_ranking:
                     format="%.0f",
                 ),
             },
-            on_select="rerun",
-            selection_mode="single-row",
-            key=f"single_ranking_table_{selected_position}",
-        )
-
-        open_profile_from_table(
-            single_ranking_event,
-            ranking_df,
         )
 
         values = pd.to_numeric(
