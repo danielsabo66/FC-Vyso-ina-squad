@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import textwrap
 
 import numpy as np
 import pandas as pd
@@ -31,22 +32,23 @@ POSITION_ORDER = [
     "ST",
 ]
 
+RADAR_COLORS = [
+    "#00B8FF",  # cyan
+    "#FF5A5F",  # red
+    "#00D084",  # green
+    "#FFB000",  # amber
+    "#B784FF",  # purple
+]
 
-# ============================================================
-# METRIC INTERPRETATION
-# ============================================================
-
-# Only clearly inverse metrics are reversed.
-# All other metrics keep the natural Wyscout direction:
-# higher raw value -> higher percentile.
+# Only metrics where a lower raw value is clearly more favorable are reversed.
 LOWER_IS_MORE_FAVORABLE = {
     "Conceded goals",
     "Conceded goals per 90",
     "Fouls per 90",
 }
 
-# Metrics where a higher value is often contextual/profile-based rather than
-# automatically "better". We still calculate the raw percentile, but label it.
+# These can describe role, workload or playing style. A high percentile should
+# not automatically be interpreted as "better".
 CONTEXT_METRICS = {
     "Shots against",
     "Shots against per 90",
@@ -85,9 +87,101 @@ NON_METRIC_COLUMNS = {
     "id",
 }
 
+# Suggested defaults only. Every metric from each Wyscout export remains selectable.
+PREFERRED_METRICS = {
+    "GK": [
+        "Save rate, %",
+        "Prevented goals per 90",
+        "Conceded goals per 90",
+        "Clean sheets",
+        "Exits per 90",
+        "Aerial duels per 90",
+        "Back passes received as GK per 90",
+    ],
+    "LB": [
+        "Defensive duels won, %",
+        "Aerial duels won, %",
+        "PAdj Interceptions",
+        "Accurate crosses, %",
+        "Successful dribbles, %",
+        "Progressive runs per 90",
+        "xA per 90",
+        "Passes to penalty area per 90",
+    ],
+    "RB": [
+        "Defensive duels won, %",
+        "Aerial duels won, %",
+        "PAdj Interceptions",
+        "Accurate crosses, %",
+        "Successful dribbles, %",
+        "Progressive runs per 90",
+        "xA per 90",
+        "Passes to penalty area per 90",
+    ],
+    "CB": [
+        "Defensive duels won, %",
+        "Aerial duels won, %",
+        "PAdj Interceptions",
+        "Fouls per 90",
+        "Successful defensive actions per 90",
+        "Progressive runs per 90",
+        "Passes to final third per 90",
+    ],
+    "CM/CDM": [
+        "Defensive duels won, %",
+        "Aerial duels won, %",
+        "PAdj Interceptions",
+        "Assists per 90",
+        "Progressive runs per 90",
+        "Accurate passes, %",
+        "Accurate forward passes, %",
+        "Accurate passes to final third, %",
+    ],
+    "CAM": [
+        "xA",
+        "Successful attacking actions per 90",
+        "Goals per 90",
+        "xG per 90",
+        "Shots on target, %",
+        "Assists per 90",
+        "Successful dribbles, %",
+        "Progressive runs per 90",
+        "Smart passes per 90",
+        "Key passes per 90",
+    ],
+    "RW/LW": [
+        "Successful attacking actions per 90",
+        "Goals per 90",
+        "xG per 90",
+        "Shots on target, %",
+        "Goal conversion, %",
+        "Assists per 90",
+        "Accurate crosses, %",
+        "Successful dribbles, %",
+        "Offensive duels won, %",
+        "Progressive runs per 90",
+        "xA per 90",
+        "Shot assists per 90",
+    ],
+    "ST": [
+        "Successful attacking actions per 90",
+        "Goals per 90",
+        "Non-penalty goals per 90",
+        "xG per 90",
+        "Shots on target, %",
+        "Goal conversion, %",
+        "Assists per 90",
+        "Successful dribbles, %",
+        "Offensive duels won, %",
+        "Touches in box per 90",
+        "xA per 90",
+        "Shot assists per 90",
+    ],
+}
+
 
 # ============================================================
-# DATA LOADING
+# DATA
 # ============================================================
 
 def infer_position(filename: str) -> str:
@@ -131,7 +225,7 @@ def load_all_data():
             frame = frame.rename(columns={"Player": "Name"})
 
         if "Name" not in frame.columns:
-            warnings.append(f"{file.name}: chybí sloupec Player/Name.")
+            warnings.append(f"{file.name}: missing Player/Name column")
             continue
 
         if "Team" not in frame.columns:
@@ -154,16 +248,33 @@ def get_metrics(frame: pd.DataFrame) -> list[str]:
         if col in NON_METRIC_COLUMNS:
             continue
 
-        converted = pd.to_numeric(frame[col], errors="coerce")
+        numeric = pd.to_numeric(frame[col], errors="coerce")
 
-        if converted.notna().sum() >= 2:
+        if numeric.notna().sum() >= 2:
             metrics.append(col)
 
     return metrics
 
 
+def preferred_metrics(position: str, available: list[str], maximum: int = 8) -> list[str]:
+    preferred = [
+        metric
+        for metric in PREFERRED_METRICS.get(position, [])
+        if metric in available
+    ]
+
+    if len(preferred) < min(maximum, len(available)):
+        for metric in available:
+            if metric not in preferred:
+                preferred.append(metric)
+            if len(preferred) >= maximum:
+                break
+
+    return preferred[:maximum]
+
+
 # ============================================================
-# PERCENTILES
+# PERCENTILES / RANKS
 # ============================================================
 
 def raw_percentile(value, series):
@@ -187,15 +298,15 @@ def raw_percentile(value, series):
 
 
 def display_percentile(metric: str, value, frame: pd.DataFrame):
-    p = raw_percentile(value, frame[metric])
+    percentile = raw_percentile(value, frame[metric])
 
-    if pd.isna(p):
+    if pd.isna(percentile):
         return np.nan
 
     if metric in LOWER_IS_MORE_FAVORABLE:
-        return 100.0 - p
+        return 100.0 - percentile
 
-    return p
+    return percentile
 
 
 def league_rank(metric: str, value, frame: pd.DataFrame):
@@ -212,22 +323,73 @@ def league_rank(metric: str, value, frame: pd.DataFrame):
 
 
 def prepare_position_data(frame: pd.DataFrame, metrics: list[str]):
-    out = frame.copy()
+    output = frame.copy()
 
     for metric in metrics:
-        out[f"PCTL__{metric}"] = out[metric].apply(
-            lambda x, m=metric: display_percentile(m, x, out)
+        output[f"PCTL__{metric}"] = output[metric].apply(
+            lambda x, m=metric: display_percentile(m, x, output)
         )
 
-    out["Our player"] = out["Team"].astype(str).eq(OWN_TEAM)
-    return out
+    output["Our player"] = output["Team"].astype(str).eq(OWN_TEAM)
+
+    return output
+
+
+def overall_score(row, metrics: list[str], weights: dict[str, float]):
+    numer = 0.0
+    denom = 0.0
+
+    for metric in metrics:
+        value = row.get(f"PCTL__{metric}", np.nan)
+        weight = float(weights.get(metric, 1.0))
+
+        if pd.notna(value) and weight > 0:
+            numer += float(value) * weight
+            denom += weight
+
+    if denom == 0:
+        return np.nan
+
+    return numer / denom
+
+
+def average_metric_rank(row, metrics: list[str], frame: pd.DataFrame):
+    ranks = []
+
+    for metric in metrics:
+        value = pd.to_numeric(
+            pd.Series([row[metric]]),
+            errors="coerce",
+        ).iloc[0]
+
+        if pd.notna(value):
+            ranks.append(
+                league_rank(metric, value, frame)
+            )
+
+    if not ranks:
+        return np.nan
+
+    return float(np.mean(ranks))
 
 
 # ============================================================
-# HELPERS
+# DISPLAY HELPERS
 # ============================================================
 
-def player_label(frame, player_name):
+def short_team(team: str) -> str:
+    team = str(team or "").strip()
+
+    if team == OWN_TEAM:
+        return "Jihlava"
+
+    if len(team) <= 18:
+        return team
+
+    return team[:17] + "…"
+
+
+def player_label(frame: pd.DataFrame, player_name: str):
     row = frame.loc[frame["Name"] == player_name].iloc[0]
     team = str(row.get("Team", "") or "").strip()
     our_tag = " • OUR" if team == OWN_TEAM else ""
@@ -235,7 +397,12 @@ def player_label(frame, player_name):
     return f"{player_name} — {team or 'Unknown team'}{our_tag}"
 
 
-def metric_note(metric):
+def radar_player_label(frame: pd.DataFrame, player_name: str):
+    row = frame.loc[frame["Name"] == player_name].iloc[0]
+    return f"{player_name} · {short_team(row.get('Team', ''))}"
+
+
+def metric_note(metric: str):
     if metric in LOWER_IS_MORE_FAVORABLE:
         return "Lower raw value = higher percentile"
 
@@ -245,29 +412,73 @@ def metric_note(metric):
     return "Higher raw value = higher percentile"
 
 
-def make_radar(frame, players, metrics):
+def short_metric_label(metric: str):
+    replacements = {
+        "Successful defensive actions": "Defensive actions",
+        "Successful attacking actions": "Attacking actions",
+        "Defensive duels won": "Def. duels won",
+        "Defensive duels": "Def. duels",
+        "Offensive duels won": "Off. duels won",
+        "Offensive duels": "Off. duels",
+        "Aerial duels won": "Aerial won",
+        "Successful dribbles": "Dribbles won",
+        "Accurate crosses": "Cross accuracy",
+        "Accurate forward passes": "Forward pass acc.",
+        "Accurate passes to final third": "Final 3rd pass acc.",
+        "Accurate passes to penalty area": "Box pass accuracy",
+        "Passes to final third": "Final 3rd passes",
+        "Passes to penalty area": "Passes to box",
+        "Back passes received as GK": "Back passes received",
+        "Non-penalty goals": "Non-penalty goals",
+        "Progressive runs": "Progressive runs",
+        "PAdj Interceptions": "PAdj interceptions",
+        "PAdj Sliding tackles": "PAdj tackles",
+    }
 
-    COLORS = [
-        "#00BFFF",  # světle modrá
-        "#FF4B4B",  # červená
-        "#00C853",  # zelená
-        "#FFB300",  # oranžová
-    ]
+    label = metric
 
-    FILLS = [
-        "rgba(0,191,255,0.18)",
-        "rgba(255,75,75,0.18)",
-        "rgba(0,200,83,0.18)",
-        "rgba(255,179,0,0.18)",
-    ]
+    for old, new in replacements.items():
+        label = label.replace(old, new)
 
+    label = label.replace(" per 90", " /90")
+    label = label.replace(", %", " %")
+
+    # Wrap long labels onto two/three lines around the radar.
+    return "<br>".join(textwrap.wrap(label, width=18))
+
+
+def hex_to_rgba(hex_color: str, alpha: float):
+    hex_color = hex_color.lstrip("#")
+    red = int(hex_color[0:2], 16)
+    green = int(hex_color[2:4], 16)
+    blue = int(hex_color[4:6], 16)
+
+    return f"rgba({red},{green},{blue},{alpha})"
+
+
+# ============================================================
+# RADAR
+# ============================================================
+
+def make_radar(
+    frame: pd.DataFrame,
+    players: list[str],
+    metrics: list[str],
+    show_fill: bool = True,
+    compact_legend: bool = True,
+):
     fig = go.Figure()
 
-    for i, player in enumerate(players):
+    metric_labels = [
+        short_metric_label(metric)
+        for metric in metrics
+    ]
 
-        row = frame.loc[
-            frame["Name"] == player
-        ].iloc[0]
+    fill_alpha = 0.13 if len(players) <= 2 else 0.045
+
+    for index, player in enumerate(players):
+        row = frame.loc[frame["Name"] == player].iloc[0]
+        color = RADAR_COLORS[index % len(RADAR_COLORS)]
 
         values = [
             float(row[f"PCTL__{metric}"])
@@ -277,31 +488,29 @@ def make_radar(frame, players, metrics):
         if not values:
             continue
 
-        color = COLORS[i % len(COLORS)]
-        fill_color = FILLS[i % len(FILLS)]
+        trace_name = (
+            radar_player_label(frame, player)
+            if compact_legend
+            else player_label(frame, player)
+        )
 
         fig.add_trace(
             go.Scatterpolar(
                 r=values + [values[0]],
-                theta=metrics + [metrics[0]],
-
+                theta=metric_labels + [metric_labels[0]],
                 mode="lines+markers",
-
                 line=dict(
                     color=color,
-                    width=3
+                    width=3.2,
                 ),
-
                 marker=dict(
                     color=color,
-                    size=7
+                    size=7,
+                    line=dict(width=1),
                 ),
-
-                fill="toself",
-                fillcolor=fill_color,
-
-                name=player_label(frame, player),
-
+                fill="toself" if show_fill else "none",
+                fillcolor=hex_to_rgba(color, fill_alpha),
+                name=trace_name,
                 hovertemplate=(
                     "<b>%{fullData.name}</b>"
                     "<br>%{theta}"
@@ -312,39 +521,89 @@ def make_radar(frame, players, metrics):
         )
 
     fig.update_layout(
-
         polar=dict(
+            bgcolor="rgba(0,0,0,0)",
             radialaxis=dict(
                 visible=True,
                 range=[0, 100],
                 tickvals=[20, 40, 60, 80, 100],
-            )
+                ticktext=["20", "40", "60", "80", "100"],
+                angle=90,
+                gridcolor="rgba(150,150,150,0.25)",
+                linecolor="rgba(150,150,150,0.30)",
+                tickfont=dict(size=10),
+            ),
+            angularaxis=dict(
+                gridcolor="rgba(150,150,150,0.20)",
+                linecolor="rgba(150,150,150,0.30)",
+                tickfont=dict(size=11),
+            ),
         ),
-
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         showlegend=True,
-
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=-0.24,
+            yanchor="top",
+            y=-0.12,
             xanchor="center",
             x=0.5,
+            font=dict(size=11),
         ),
-
-        height=670,
-
+        height=620,
         margin=dict(
-            l=70,
-            r=70,
-            t=40,
-            b=115,
+            l=90,
+            r=90,
+            t=35,
+            b=95,
         ),
     )
 
     return fig
 
 
-def build_player_table(frame, player, metrics):
+def show_individual_radars(
+    frame: pd.DataFrame,
+    players: list[str],
+    metrics: list[str],
+):
+    columns = st.columns(2)
+
+    for index, player in enumerate(players):
+        with columns[index % 2]:
+            st.markdown(f"**{player_label(frame, player)}**")
+
+            chart = make_radar(
+                frame,
+                [player],
+                metrics,
+                show_fill=True,
+                compact_legend=True,
+            )
+
+            chart.update_layout(
+                height=470,
+                showlegend=False,
+                margin=dict(l=60, r=60, t=20, b=40),
+            )
+
+            st.plotly_chart(
+                chart,
+                use_container_width=True,
+                theme="streamlit",
+                key=f"individual_radar_{player}_{index}",
+            )
+
+
+# ============================================================
+# TABLES
+# ============================================================
+
+def build_player_table(
+    frame: pd.DataFrame,
+    player: str,
+    metrics: list[str],
+):
     row = frame.loc[frame["Name"] == player].iloc[0]
     records = []
 
@@ -378,14 +637,14 @@ def build_player_table(frame, player, metrics):
 
 
 # ============================================================
-# LOAD
+# LOAD POSITION
 # ============================================================
 
 all_data, load_warnings = load_all_data()
 
 if all_data.empty:
     st.error(
-        "Ve složce data/ nebyly nalezeny žádné použitelné Wyscout Excel soubory."
+        "No usable Wyscout Excel files were found in the data/ folder."
     )
     st.stop()
 
@@ -395,16 +654,9 @@ available_positions = [
     if position in all_data["PositionGroup"].unique()
 ]
 
-other_positions = sorted(
+available_positions += sorted(
     set(all_data["PositionGroup"].unique()) - set(available_positions)
 )
-
-available_positions += other_positions
-
-
-# ============================================================
-# SIDEBAR
-# ============================================================
 
 with st.sidebar:
     st.header("Scouting database")
@@ -414,7 +666,6 @@ with st.sidebar:
         available_positions,
     )
 
-
 position_df = all_data[
     all_data["PositionGroup"] == selected_position
 ].copy()
@@ -422,13 +673,14 @@ position_df = all_data[
 metrics = get_metrics(position_df)
 
 if not metrics:
-    st.error("Pro tuto pozici nebyly nalezeny numerické scoutingové metriky.")
+    st.error("No numeric scouting metrics were detected for this position.")
     st.stop()
 
-
-# Optional minutes filter if future exports contain minutes.
 if "Minutes" in position_df.columns:
-    minutes = pd.to_numeric(position_df["Minutes"], errors="coerce")
+    minutes = pd.to_numeric(
+        position_df["Minutes"],
+        errors="coerce",
+    )
 
     if minutes.notna().any():
         with st.sidebar:
@@ -446,7 +698,6 @@ if "Minutes" in position_df.columns:
             minutes.fillna(0) >= minimum_minutes
         ].copy()
 
-
 position_df = prepare_position_data(
     position_df,
     metrics,
@@ -463,7 +714,6 @@ teams = sorted(
     if team.strip()
 )
 
-
 with st.sidebar:
     team_filter = st.multiselect(
         "Team filter",
@@ -471,14 +721,13 @@ with st.sidebar:
     )
 
     st.divider()
-
     st.caption("OUR TEAM")
     st.write(OWN_TEAM)
 
     st.caption("REFERENCE")
     st.write(f"{len(position_df)} players")
     st.write(f"{position_df['Team'].nunique()} clubs")
-    st.write(f"{len(metrics)} selected Wyscout metrics")
+    st.write(f"{len(metrics)} Wyscout metrics")
 
 
 # ============================================================
@@ -486,22 +735,17 @@ with st.sidebar:
 # ============================================================
 
 st.title("⚽ Vysočina Scouting Benchmark")
-
-st.caption(
-    "Chance National League • Wyscout positional benchmarking"
-)
+st.caption("Chance National League • Wyscout positional benchmarking")
 
 a, b, c, d = st.columns(4)
-
 a.metric("Position", selected_position)
 b.metric("League players", len(position_df))
 c.metric("Our players", len(our_players))
 d.metric("Metrics", len(metrics))
 
 st.info(
-    "Každá pozice používá pouze metriky obsažené v jejím Wyscout exportu. "
-    "Percentil se vždy počítá pouze proti hráčům stejné poziční skupiny v tomto datasetu. "
-    "U jasně inverzních metrik (např. inkasované góly nebo fauly) je škála otočena."
+    "Each position uses only the metrics contained in its own Wyscout export. "
+    "Percentiles are calculated only against players in the selected position group."
 )
 
 if load_warnings:
@@ -538,16 +782,16 @@ with tab_overview:
             view["Team"].isin(team_filter)
         ]
 
-    base_cols = [
-        "Name",
-        "Team",
-        "Our player",
-    ]
-
-    quick_metrics = metrics[: min(8, len(metrics))]
+    quick_metrics = preferred_metrics(
+        selected_position,
+        metrics,
+        maximum=min(8, len(metrics)),
+    )
 
     st.dataframe(
-        view[base_cols + quick_metrics],
+        view[
+            ["Name", "Team", "Our player"] + quick_metrics
+        ],
         use_container_width=True,
         hide_index=True,
         column_config={
@@ -619,10 +863,8 @@ with tab_our:
 
     if not our_players:
         st.warning(
-            f"V exportu pro {selected_position} nebyl nalezen žádný hráč "
-            f"s Team = {OWN_TEAM}."
+            f"No {selected_position} player with Team = {OWN_TEAM} was found."
         )
-
     else:
         selected_player = st.selectbox(
             "Our player",
@@ -634,7 +876,11 @@ with tab_our:
         selected_metrics = st.multiselect(
             "Radar metrics",
             metrics,
-            default=metrics[: min(8, len(metrics))],
+            default=preferred_metrics(
+                selected_position,
+                metrics,
+                maximum=min(8, len(metrics)),
+            ),
             key="our_radar_metrics",
         )
 
@@ -681,11 +927,13 @@ with tab_our:
                 position_df,
                 [selected_player],
                 selected_metrics,
+                show_fill=True,
             )
 
             st.plotly_chart(
                 radar,
                 use_container_width=True,
+                theme="streamlit",
             )
 
             st.dataframe(
@@ -788,23 +1036,58 @@ with tab_compare:
     compare_metrics = st.multiselect(
         "Comparison metrics",
         metrics,
-        default=metrics[: min(8, len(metrics))],
+        default=preferred_metrics(
+            selected_position,
+            metrics,
+            maximum=min(8, len(metrics)),
+        ),
         key="comparison_metrics",
     )
 
     if len(compare_players) >= 2 and compare_metrics:
-        st.markdown("### Radar comparison")
+        chart_controls = st.columns([1.3, 1])
 
-        radar = make_radar(
-            position_df,
-            compare_players,
-            compare_metrics,
-        )
+        with chart_controls[0]:
+            radar_view = st.radio(
+                "Radar view",
+                ["Overlay", "Individual"],
+                horizontal=True,
+                help=(
+                    "Overlay is best for direct 1v1 comparison. "
+                    "Individual is clearer when comparing 3–4 players."
+                ),
+            )
 
-        st.plotly_chart(
-            radar,
-            use_container_width=True,
-        )
+        with chart_controls[1]:
+            show_fill = st.toggle(
+                "Fill radar areas",
+                value=len(compare_players) <= 2,
+                help=(
+                    "For 3–4 players, turning fill off usually makes the radar easier to read."
+                ),
+            )
+
+        st.markdown("### Percentile radar")
+
+        if radar_view == "Overlay":
+            radar = make_radar(
+                position_df,
+                compare_players,
+                compare_metrics,
+                show_fill=show_fill,
+            )
+
+            st.plotly_chart(
+                radar,
+                use_container_width=True,
+                theme="streamlit",
+            )
+        else:
+            show_individual_radars(
+                position_df,
+                compare_players,
+                compare_metrics,
+            )
 
         comparison_rows = []
 
@@ -904,79 +1187,285 @@ with tab_compare:
 with tab_ranking:
     st.subheader(f"{selected_position} league ranking")
 
-    ranking_metric = st.selectbox(
-        "Ranking metric",
-        metrics,
-        key="league_ranking_metric",
+    ranking_mode = st.radio(
+        "Ranking type",
+        [
+            "Multi-metric overall",
+            "Single metric",
+        ],
+        horizontal=True,
     )
 
-    rank_data = []
+    # --------------------------------------------------------
+    # MULTI-METRIC RANKING
+    # --------------------------------------------------------
 
-    for _, row in position_df.iterrows():
-        raw = pd.to_numeric(
-            pd.Series([row[ranking_metric]]),
-            errors="coerce",
-        ).iloc[0]
-
-        rank_data.append(
-            {
-                "Name": row["Name"],
-                "Team": row["Team"],
-                "Our player": row["Our player"],
-                "Raw": raw,
-                "Percentile": row[f"PCTL__{ranking_metric}"],
-                "Rank": league_rank(
-                    ranking_metric,
-                    raw,
-                    position_df,
-                ),
-            }
+    if ranking_mode == "Multi-metric overall":
+        default_ranking_metrics = preferred_metrics(
+            selected_position,
+            metrics,
+            maximum=min(8, len(metrics)),
         )
 
-    ranking_df = pd.DataFrame(rank_data).sort_values(
-        ["Rank", "Name"]
-    )
+        ranking_metrics = st.multiselect(
+            "Metrics included in overall ranking",
+            metrics,
+            default=default_ranking_metrics,
+            key="overall_ranking_metrics",
+        )
 
-    st.caption(metric_note(ranking_metric))
+        if not ranking_metrics:
+            st.info("Select at least one metric.")
+        else:
+            selected_context = [
+                metric
+                for metric in ranking_metrics
+                if metric in CONTEXT_METRICS
+            ]
 
-    st.dataframe(
-        ranking_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Our player": st.column_config.CheckboxColumn("OUR"),
-            "Percentile": st.column_config.ProgressColumn(
-                "Percentile",
-                min_value=0,
-                max_value=100,
-                format="%.0f",
-            ),
-        },
-    )
+            if selected_context:
+                st.warning(
+                    "The selected set contains profile/volume metrics. "
+                    "Their high percentile is included in the overall score, "
+                    "but it should not automatically be interpreted as higher quality."
+                )
 
-    values = pd.to_numeric(
-        position_df[ranking_metric],
-        errors="coerce",
-    ).dropna()
+            weights = {
+                metric: 1.0
+                for metric in ranking_metrics
+            }
 
-    r1, r2, r3, r4 = st.columns(4)
+            with st.expander("Advanced weights"):
+                use_weights = st.toggle(
+                    "Use custom metric weights",
+                    value=False,
+                    key="use_custom_weights",
+                )
 
-    r1.metric(
-        "League average",
-        f"{values.mean():.3f}",
-    )
+                if use_weights:
+                    st.caption(
+                        "Weights are relative and automatically normalized. "
+                        "For example, 2.0 counts twice as much as 1.0."
+                    )
 
-    r2.metric(
-        "League median",
-        f"{values.median():.3f}",
-    )
+                    weight_columns = st.columns(2)
 
-    r3.metric(
-        "25th raw percentile",
-        f"{values.quantile(.25):.3f}",
-    )
+                    for index, metric in enumerate(ranking_metrics):
+                        with weight_columns[index % 2]:
+                            weights[metric] = st.number_input(
+                                metric,
+                                min_value=0.0,
+                                max_value=10.0,
+                                value=1.0,
+                                step=0.25,
+                                key=f"weight_{selected_position}_{metric}",
+                            )
 
-    r4.metric(
-        "75th raw percentile",
-        f"{values.quantile(.75):.3f}",
-    )
+            overall_rows = []
+
+            for _, row in position_df.iterrows():
+                score = overall_score(
+                    row,
+                    ranking_metrics,
+                    weights,
+                )
+
+                avg_rank = average_metric_rank(
+                    row,
+                    ranking_metrics,
+                    position_df,
+                )
+
+                record = {
+                    "Name": row["Name"],
+                    "Team": row["Team"],
+                    "Our player": row["Our player"],
+                    "Overall percentile": score,
+                    "Average metric rank": avg_rank,
+                }
+
+                for metric in ranking_metrics:
+                    record[short_metric_label(metric).replace("<br>", " ")] = (
+                        row[f"PCTL__{metric}"]
+                    )
+
+                overall_rows.append(record)
+
+            overall_df = pd.DataFrame(overall_rows)
+
+            overall_df = overall_df.sort_values(
+                ["Overall percentile", "Name"],
+                ascending=[False, True],
+            ).reset_index(drop=True)
+
+            overall_df.insert(
+                0,
+                "Overall rank",
+                range(1, len(overall_df) + 1),
+            )
+
+            overall_df["Overall percentile"] = (
+                overall_df["Overall percentile"].round(1)
+            )
+
+            overall_df["Average metric rank"] = (
+                overall_df["Average metric rank"].round(1)
+            )
+
+            metric_display_columns = [
+                short_metric_label(metric).replace("<br>", " ")
+                for metric in ranking_metrics
+            ]
+
+            for col in metric_display_columns:
+                overall_df[col] = overall_df[col].round(1)
+
+            st.caption(
+                "Overall percentile = weighted average of the selected league percentiles. "
+                "Overall rank is then calculated from that combined score."
+            )
+
+            st.dataframe(
+                overall_df[
+                    [
+                        "Overall rank",
+                        "Name",
+                        "Team",
+                        "Our player",
+                        "Overall percentile",
+                        "Average metric rank",
+                    ]
+                    + metric_display_columns
+                ],
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Our player": st.column_config.CheckboxColumn("OUR"),
+                    "Overall percentile": st.column_config.ProgressColumn(
+                        "Overall percentile",
+                        min_value=0,
+                        max_value=100,
+                        format="%.1f",
+                    ),
+                },
+            )
+
+            top_n = min(10, len(overall_df))
+
+            ranking_chart = go.Figure(
+                go.Bar(
+                    x=overall_df.head(top_n)["Overall percentile"][::-1],
+                    y=overall_df.head(top_n)["Name"][::-1],
+                    orientation="h",
+                    text=overall_df.head(top_n)["Overall percentile"][::-1].map(
+                        lambda x: f"{x:.1f}"
+                    ),
+                    textposition="outside",
+                    hovertemplate=(
+                        "<b>%{y}</b>"
+                        "<br>Overall percentile: %{x:.1f}"
+                        "<extra></extra>"
+                    ),
+                )
+            )
+
+            ranking_chart.update_layout(
+                title=f"Top {top_n} — combined percentile",
+                xaxis=dict(
+                    range=[0, 100],
+                    title="Overall percentile",
+                ),
+                yaxis=dict(title=""),
+                height=460,
+                margin=dict(l=30, r=45, t=55, b=45),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+            )
+
+            st.plotly_chart(
+                ranking_chart,
+                use_container_width=True,
+                theme="streamlit",
+            )
+
+    # --------------------------------------------------------
+    # SINGLE METRIC
+    # --------------------------------------------------------
+
+    else:
+        ranking_metric = st.selectbox(
+            "Ranking metric",
+            metrics,
+            key="league_ranking_metric",
+        )
+
+        rank_data = []
+
+        for _, row in position_df.iterrows():
+            raw = pd.to_numeric(
+                pd.Series([row[ranking_metric]]),
+                errors="coerce",
+            ).iloc[0]
+
+            rank_data.append(
+                {
+                    "Name": row["Name"],
+                    "Team": row["Team"],
+                    "Our player": row["Our player"],
+                    "Raw": raw,
+                    "Percentile": row[f"PCTL__{ranking_metric}"],
+                    "Rank": league_rank(
+                        ranking_metric,
+                        raw,
+                        position_df,
+                    ),
+                }
+            )
+
+        ranking_df = pd.DataFrame(rank_data).sort_values(
+            ["Rank", "Name"]
+        )
+
+        st.caption(metric_note(ranking_metric))
+
+        st.dataframe(
+            ranking_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Our player": st.column_config.CheckboxColumn("OUR"),
+                "Percentile": st.column_config.ProgressColumn(
+                    "Percentile",
+                    min_value=0,
+                    max_value=100,
+                    format="%.0f",
+                ),
+            },
+        )
+
+        values = pd.to_numeric(
+            position_df[ranking_metric],
+            errors="coerce",
+        ).dropna()
+
+        r1, r2, r3, r4 = st.columns(4)
+
+        r1.metric(
+            "League average",
+            f"{values.mean():.3f}",
+        )
+
+        r2.metric(
+            "League median",
+            f"{values.median():.3f}",
+        )
+
+        r3.metric(
+            "25th raw percentile",
+            f"{values.quantile(.25):.3f}",
+        )
+
+        r4.metric(
+            "75th raw percentile",
+            f"{values.quantile(.75):.3f}",
+        )
