@@ -491,11 +491,12 @@ def make_radar(
     compact_legend: bool = True,
 ):
     """
-    Classic scouting radar:
-    - light inner radar area
-    - high-contrast player colours
-    - readable dark percentile scale
-    - hover shows percentile + raw Wyscout value
+    Modern scouting radar:
+    - dark navy card
+    - polygon grid
+    - 50th percentile reference
+    - high-contrast traces
+    - raw value + percentile in hover
     """
 
     fig = go.Figure()
@@ -505,15 +506,37 @@ def make_radar(
         for metric in metrics
     ]
 
-    # Slightly stronger fill for 1v1, lighter for 3-4 players.
-    if len(players) <= 2:
-        fill_alpha = 0.17
-    else:
-        fill_alpha = 0.085
+    # League median reference polygon.
+    if metrics:
+        fig.add_trace(
+            go.Scatterpolar(
+                r=[50] * (len(metrics) + 1),
+                theta=metric_labels + [metric_labels[0]],
+                mode="lines",
+                line=dict(
+                    color="rgba(255,255,255,0.30)",
+                    width=1.5,
+                    dash="dot",
+                ),
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+
+    fill_alpha = (
+        0.20 if len(players) == 1
+        else 0.12 if len(players) == 2
+        else 0.055
+    )
 
     for index, player in enumerate(players):
-        row = frame.loc[frame["Name"] == player].iloc[0]
-        color = RADAR_COLORS[index % len(RADAR_COLORS)]
+        row = frame.loc[
+            frame["Name"] == player
+        ].iloc[0]
+
+        color = RADAR_COLORS[
+            index % len(RADAR_COLORS)
+        ]
 
         percentiles = [
             float(row[f"PCTL__{metric}"])
@@ -545,24 +568,27 @@ def make_radar(
                 mode="lines+markers",
                 line=dict(
                     color=color,
-                    width=3.2,
+                    width=3.4,
                 ),
                 marker=dict(
                     color=color,
-                    size=6,
+                    size=7,
                     line=dict(
-                        color="#FFFFFF",
-                        width=0.8,
+                        color="#07111F",
+                        width=1.4,
                     ),
                 ),
                 fill="toself" if show_fill else "none",
-                fillcolor=hex_to_rgba(color, fill_alpha),
+                fillcolor=hex_to_rgba(
+                    color,
+                    fill_alpha,
+                ),
                 name=trace_name,
                 hovertemplate=(
                     "<b>%{fullData.name}</b>"
                     "<br>%{theta}"
                     "<br>Percentile: <b>%{r:.0f}</b>"
-                    "<br>Raw value: <b>%{customdata:.2f}</b>"
+                    "<br>Raw: <b>%{customdata:.2f}</b>"
                     "<extra></extra>"
                 ),
             )
@@ -570,8 +596,8 @@ def make_radar(
 
     fig.update_layout(
         polar=dict(
-            # Similar to the original radar, but slightly softer than pure white.
-            bgcolor="#F2F3F5",
+            bgcolor="#0B1626",
+            gridshape="linear",
             radialaxis=dict(
                 visible=True,
                 range=[0, 100],
@@ -580,50 +606,53 @@ def make_radar(
                 ticktext=["20", "40", "60", "80", "100"],
                 tickangle=0,
                 angle=90,
-                gridcolor="rgba(70,75,82,0.28)",
-                linecolor="rgba(70,75,82,0.32)",
+                gridcolor="rgba(255,255,255,0.18)",
+                linecolor="rgba(255,255,255,0.22)",
                 tickfont=dict(
-                    size=11,
-                    color="#353A40",
+                    size=10,
+                    color="rgba(255,255,255,0.72)",
                 ),
             ),
             angularaxis=dict(
                 rotation=90,
                 direction="clockwise",
-                gridcolor="rgba(70,75,82,0.18)",
-                linecolor="rgba(70,75,82,0.28)",
+                gridcolor="rgba(255,255,255,0.10)",
+                linecolor="rgba(255,255,255,0.20)",
                 tickfont=dict(
                     size=12,
-                    color="#F4F6F8",
+                    color="#F5F7FA",
                 ),
             ),
         ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="#08111D",
+        plot_bgcolor="#08111D",
         showlegend=True,
         legend=dict(
             orientation="h",
             yanchor="top",
-            y=-0.14,
+            y=-0.12,
             xanchor="center",
             x=0.5,
-            font=dict(size=11),
+            font=dict(
+                size=11,
+                color="#F5F7FA",
+            ),
             itemsizing="constant",
         ),
         hoverlabel=dict(
-            bgcolor="#171B21",
-            bordercolor="rgba(255,255,255,0.20)",
+            bgcolor="#111C2D",
+            bordercolor="rgba(255,255,255,0.15)",
             font=dict(
                 color="#FFFFFF",
                 size=12,
             ),
         ),
-        height=625,
+        height=640,
         margin=dict(
-            l=105,
-            r=105,
-            t=35,
-            b=105,
+            l=90,
+            r=90,
+            t=40,
+            b=100,
         ),
     )
 
@@ -1292,6 +1321,434 @@ def make_pitch_figure(
 
     return fig
 
+
+# ============================================================
+# PLAYER PROFILE
+# ============================================================
+
+def player_position_summary(
+    all_data: pd.DataFrame,
+    player_name: str,
+):
+    rows = all_data[
+        all_data["Name"].astype(str).eq(player_name)
+    ].copy()
+
+    summary = []
+
+    for _, row in rows.iterrows():
+        minutes = pd.to_numeric(
+            pd.Series([
+                row.get("Minutes played", np.nan)
+            ]),
+            errors="coerce",
+        ).iloc[0]
+
+        summary.append(
+            {
+                "Position": row.get("PositionGroup", ""),
+                "Team": row.get("Team", ""),
+                "Minutes": (
+                    int(minutes)
+                    if pd.notna(minutes)
+                    else np.nan
+                ),
+            }
+        )
+
+    return pd.DataFrame(summary)
+
+
+def profile_position_data(
+    all_data: pd.DataFrame,
+    player_name: str,
+    position: str,
+    min_minutes: int = 1,
+):
+    position_full = all_data[
+        all_data["PositionGroup"] == position
+    ].copy()
+
+    if position_full.empty:
+        return pd.DataFrame(), []
+
+    reference = position_full.copy()
+
+    if "Minutes played" in reference.columns:
+        mins = pd.to_numeric(
+            reference["Minutes played"],
+            errors="coerce",
+        ).fillna(0)
+
+        reference = reference[
+            mins >= min_minutes
+        ].copy()
+
+    metrics = get_metrics(
+        position_full
+    )
+
+    if not metrics or reference.empty:
+        return pd.DataFrame(), metrics
+
+    scored_all = prepare_position_data(
+        position_full,
+        metrics,
+        reference_frame=reference,
+    )
+
+    player_row = scored_all[
+        scored_all["Name"] == player_name
+    ].copy()
+
+    return player_row, metrics
+
+
+def profile_strengths_weaknesses(
+    row: pd.Series,
+    metrics: list[str],
+    top_n: int = 5,
+):
+    values = []
+
+    for metric in metrics:
+        percentile = row.get(
+            f"PCTL__{metric}",
+            np.nan,
+        )
+
+        if pd.notna(percentile):
+            values.append(
+                (
+                    metric,
+                    float(percentile),
+                    row.get(metric, np.nan),
+                )
+            )
+
+    values = sorted(
+        values,
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    strengths = values[:top_n]
+    weaknesses = list(reversed(values[-top_n:]))
+
+    return strengths, weaknesses
+
+
+def render_player_profile(
+    all_data: pd.DataFrame,
+    player_name: str,
+):
+    player_rows = all_data[
+        all_data["Name"].astype(str).eq(player_name)
+    ].copy()
+
+    if player_rows.empty:
+        st.warning("Player not found.")
+        return
+
+    teams = [
+        str(team)
+        for team in player_rows["Team"].dropna().unique()
+    ]
+
+    team_text = " / ".join(teams)
+
+    st.subheader(player_name)
+    st.caption(team_text)
+
+    position_summary = player_position_summary(
+        all_data,
+        player_name,
+    )
+
+    positions = position_summary[
+        "Position"
+    ].dropna().astype(str).tolist()
+
+    total_minutes = pd.to_numeric(
+        position_summary["Minutes"],
+        errors="coerce",
+    ).dropna()
+
+    k1, k2, k3 = st.columns(3)
+
+    k1.metric(
+        "Positions in database",
+        len(positions),
+    )
+
+    k2.metric(
+        "Max minutes on a position",
+        (
+            f"{int(total_minutes.max())}"
+            if not total_minutes.empty
+            else "—"
+        ),
+    )
+
+    k3.metric(
+        "Position groups",
+        ", ".join(positions),
+    )
+
+    st.markdown("### Minutes by position")
+
+    if not position_summary.empty:
+        position_chart = go.Figure(
+            go.Bar(
+                x=position_summary["Position"],
+                y=position_summary["Minutes"],
+                text=position_summary["Minutes"],
+                textposition="outside",
+                marker=dict(
+                    color="#23A8F2",
+                ),
+                hovertemplate=(
+                    "<b>%{x}</b>"
+                    "<br>Minutes: %{y}"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+        position_chart.update_layout(
+            yaxis_title="Minutes",
+            xaxis_title="",
+            height=330,
+            margin=dict(
+                l=30,
+                r=20,
+                t=20,
+                b=40,
+            ),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+
+        st.plotly_chart(
+            position_chart,
+            use_container_width=True,
+            theme="streamlit",
+        )
+
+        st.dataframe(
+            position_summary,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    if not positions:
+        return
+
+    st.markdown("### Positional profile")
+
+    profile_position = st.selectbox(
+        "Position profile",
+        positions,
+        key=f"profile_position_{player_name}",
+    )
+
+    position_full = all_data[
+        all_data["PositionGroup"] == profile_position
+    ].copy()
+
+    max_minutes = 1
+
+    if "Minutes played" in position_full.columns:
+        all_minutes = pd.to_numeric(
+            position_full["Minutes played"],
+            errors="coerce",
+        ).dropna()
+
+        if not all_minutes.empty:
+            max_minutes = max(
+                1,
+                int(all_minutes.max()),
+            )
+
+    profile_min_minutes = st.slider(
+        "Reference sample minimum minutes",
+        min_value=1,
+        max_value=max_minutes,
+        value=min(450, max_minutes),
+        step=1,
+        key=f"profile_minutes_{player_name}_{profile_position}",
+        help=(
+            "This changes the reference sample used for the player's percentiles."
+        ),
+    )
+
+    player_position_row, profile_metrics = profile_position_data(
+        all_data,
+        player_name,
+        profile_position,
+        profile_min_minutes,
+    )
+
+    if player_position_row.empty:
+        st.warning(
+            "Player is not available in this positional profile."
+        )
+        return
+
+    row = player_position_row.iloc[0]
+
+    strengths, weaknesses = profile_strengths_weaknesses(
+        row,
+        profile_metrics,
+        top_n=min(5, len(profile_metrics)),
+    )
+
+    left, right = st.columns(2)
+
+    with left:
+        st.markdown("#### Strongest attributes")
+
+        for metric, percentile, raw in strengths:
+            st.write(
+                f"**{metric}** — {percentile:.0f}p"
+                + (
+                    f" · raw {float(raw):.2f}"
+                    if pd.notna(raw)
+                    else ""
+                )
+            )
+
+            st.progress(
+                int(
+                    max(
+                        0,
+                        min(
+                            100,
+                            round(percentile),
+                        ),
+                    )
+                )
+            )
+
+    with right:
+        st.markdown("#### Weakest attributes")
+
+        for metric, percentile, raw in weaknesses:
+            st.write(
+                f"**{metric}** — {percentile:.0f}p"
+                + (
+                    f" · raw {float(raw):.2f}"
+                    if pd.notna(raw)
+                    else ""
+                )
+            )
+
+            st.progress(
+                int(
+                    max(
+                        0,
+                        min(
+                            100,
+                            round(percentile),
+                        ),
+                    )
+                )
+            )
+
+    default_profile_metrics = preferred_metrics(
+        profile_position,
+        profile_metrics,
+        maximum=min(
+            8,
+            len(profile_metrics),
+        ),
+    )
+
+    selected_profile_metrics = st.multiselect(
+        "Radar metrics",
+        profile_metrics,
+        default=default_profile_metrics,
+        key=f"profile_radar_metrics_{player_name}_{profile_position}",
+    )
+
+    if selected_profile_metrics:
+        profile_radar = make_radar(
+            player_position_row,
+            [player_name],
+            selected_profile_metrics,
+            show_fill=True,
+        )
+
+        st.plotly_chart(
+            profile_radar,
+            use_container_width=True,
+            theme=None,
+        )
+
+        profile_table = []
+
+        for metric in selected_profile_metrics:
+            raw = row.get(metric, np.nan)
+            percentile = row.get(
+                f"PCTL__{metric}",
+                np.nan,
+            )
+
+            profile_table.append(
+                {
+                    "Metric": metric,
+                    "Raw": (
+                        round(float(raw), 3)
+                        if pd.notna(raw)
+                        else np.nan
+                    ),
+                    "Percentile": (
+                        round(float(percentile), 1)
+                        if pd.notna(percentile)
+                        else np.nan
+                    ),
+                    "Interpretation": metric_note(metric),
+                }
+            )
+
+        st.dataframe(
+            pd.DataFrame(profile_table),
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Percentile": st.column_config.ProgressColumn(
+                    "Percentile",
+                    min_value=0,
+                    max_value=100,
+                    format="%.0f",
+                ),
+            },
+        )
+
+
+def open_profile_from_table(
+    event,
+    displayed_frame: pd.DataFrame,
+):
+    try:
+        selected_rows = event.selection.rows
+    except Exception:
+        return
+
+    if not selected_rows:
+        return
+
+    row_index = selected_rows[0]
+
+    if row_index >= len(displayed_frame):
+        return
+
+    player = displayed_frame.iloc[row_index]["Name"]
+
+    st.session_state["selected_profile_player"] = player
+    st.session_state["app_mode"] = "Player Profile"
+    st.rerun()
+
 # ============================================================
 # TABLES
 # ============================================================
@@ -1364,8 +1821,9 @@ with st.sidebar:
 
     app_mode = st.radio(
         "Workspace",
-        ["Player Analysis", "Club vs Opponent"],
+        ["Player Analysis", "Player Profile", "Club vs Opponent"],
         index=0,
+        key="app_mode",
         help=(
             "Player Analysis = positional player benchmarking and rankings. "
             "Club vs Opponent = separate team-level lineup workspace."
@@ -1374,6 +1832,40 @@ with st.sidebar:
 
 st.title("⚽ Vysočina Scouting Benchmark")
 st.caption("Chance National League • Wyscout data")
+
+if app_mode == "Player Profile":
+    all_players = sorted(
+        all_data["Name"].dropna().astype(str).unique()
+    )
+
+    default_player = st.session_state.get(
+        "selected_profile_player",
+        all_players[0] if all_players else None,
+    )
+
+    if default_player not in all_players and all_players:
+        default_player = all_players[0]
+
+    selected_profile_player = st.selectbox(
+        "Player",
+        all_players,
+        index=(
+            all_players.index(default_player)
+            if default_player in all_players
+            else 0
+        ),
+        key="profile_player_selector",
+    )
+
+    st.session_state["selected_profile_player"] = selected_profile_player
+
+    render_player_profile(
+        all_data,
+        selected_profile_player,
+    )
+
+    st.stop()
+
 
 if app_mode == "Club vs Opponent":
     st.subheader("Club vs Opponent — best XI")
@@ -1872,15 +2364,29 @@ with tab_overview:
 
     overview_base_columns.append("Our player")
 
-    st.dataframe(
-        view[
-            overview_base_columns + quick_metrics
-        ],
+    overview_display = view[
+        overview_base_columns + quick_metrics
+    ].reset_index(drop=True)
+
+    overview_event = st.dataframe(
+        overview_display,
         use_container_width=True,
         hide_index=True,
         column_config={
             "Our player": st.column_config.CheckboxColumn("OUR"),
         },
+        on_select="rerun",
+        selection_mode="single-row",
+        key=f"overview_table_{selected_position}",
+    )
+
+    open_profile_from_table(
+        overview_event,
+        overview_display,
+    )
+
+    st.caption(
+        "Click a row to open the player's full profile."
     )
 
     st.markdown("### Metric explorer")
@@ -1922,7 +2428,9 @@ with tab_overview:
 
     st.caption(metric_note(metric))
 
-    st.dataframe(
+    ranking = ranking.reset_index(drop=True)
+
+    ranking_event = st.dataframe(
         ranking,
         use_container_width=True,
         hide_index=True,
@@ -1935,6 +2443,14 @@ with tab_overview:
                 format="%.0f",
             ),
         },
+        on_select="rerun",
+        selection_mode="single-row",
+        key=f"metric_explorer_table_{selected_position}",
+    )
+
+    open_profile_from_table(
+        ranking_event,
+        ranking,
     )
 
 
@@ -2159,6 +2675,27 @@ with tab_compare:
                 + ". They are still available for manual comparison, "
                 "but their sample is smaller than the benchmark threshold."
             )
+
+    if compare_players:
+        profile_button_columns = st.columns(
+            min(
+                len(compare_players),
+                4,
+            )
+        )
+
+        for idx, player in enumerate(compare_players):
+            with profile_button_columns[
+                idx % len(profile_button_columns)
+            ]:
+                if st.button(
+                    f"Open {player}",
+                    key=f"open_profile_compare_{selected_position}_{player}",
+                    use_container_width=True,
+                ):
+                    st.session_state["selected_profile_player"] = player
+                    st.session_state["app_mode"] = "Player Profile"
+                    st.rerun()
 
     if len(compare_players) >= 2 and compare_metrics:
         st.markdown("### Comparison profile")
@@ -2510,22 +3047,36 @@ with tab_ranking:
                         help="League percentile",
                     )
 
-            st.dataframe(
-                overall_df[
-                    [
-                        "Overall rank",
-                        "Name",
-                        "Team",
-                        "Minutes played",
-                        "Our player",
-                        "Overall percentile",
-                        "Average metric rank",
-                    ]
-                    + metric_display_columns
-                ],
+            overall_display = overall_df[
+                [
+                    "Overall rank",
+                    "Name",
+                    "Team",
+                    "Minutes played",
+                    "Our player",
+                    "Overall percentile",
+                    "Average metric rank",
+                ]
+                + metric_display_columns
+            ].reset_index(drop=True)
+
+            overall_event = st.dataframe(
+                overall_display,
                 use_container_width=True,
                 hide_index=True,
                 column_config=column_config,
+                on_select="rerun",
+                selection_mode="single-row",
+                key=f"overall_ranking_table_{selected_position}",
+            )
+
+            open_profile_from_table(
+                overall_event,
+                overall_display,
+            )
+
+            st.caption(
+                "Click a player row to open the full profile."
             )
 
             top_n = min(10, len(overall_df))
@@ -2607,7 +3158,9 @@ with tab_ranking:
 
         st.caption(metric_note(ranking_metric))
 
-        st.dataframe(
+        ranking_df = ranking_df.reset_index(drop=True)
+
+        single_ranking_event = st.dataframe(
             ranking_df,
             use_container_width=True,
             hide_index=True,
@@ -2620,6 +3173,14 @@ with tab_ranking:
                     format="%.0f",
                 ),
             },
+            on_select="rerun",
+            selection_mode="single-row",
+            key=f"single_ranking_table_{selected_position}",
+        )
+
+        open_profile_from_table(
+            single_ranking_event,
+            ranking_df,
         )
 
         values = pd.to_numeric(
