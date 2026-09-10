@@ -246,10 +246,28 @@ def metric_note(metric):
 
 
 def make_radar(frame, players, metrics):
+
+    COLORS = [
+        "#00BFFF",  # světle modrá
+        "#FF4B4B",  # červená
+        "#00C853",  # zelená
+        "#FFB300",  # oranžová
+    ]
+
+    FILLS = [
+        "rgba(0,191,255,0.18)",
+        "rgba(255,75,75,0.18)",
+        "rgba(0,200,83,0.18)",
+        "rgba(255,179,0,0.18)",
+    ]
+
     fig = go.Figure()
 
-    for player in players:
-        row = frame.loc[frame["Name"] == player].iloc[0]
+    for i, player in enumerate(players):
+
+        row = frame.loc[
+            frame["Name"] == player
+        ].iloc[0]
 
         values = [
             float(row[f"PCTL__{metric}"])
@@ -259,13 +277,31 @@ def make_radar(frame, players, metrics):
         if not values:
             continue
 
+        color = COLORS[i % len(COLORS)]
+        fill_color = FILLS[i % len(FILLS)]
+
         fig.add_trace(
             go.Scatterpolar(
                 r=values + [values[0]],
                 theta=metrics + [metrics[0]],
+
+                mode="lines+markers",
+
+                line=dict(
+                    color=color,
+                    width=3
+                ),
+
+                marker=dict(
+                    color=color,
+                    size=7
+                ),
+
                 fill="toself",
+                fillcolor=fill_color,
+
                 name=player_label(frame, player),
-                opacity=0.48,
+
                 hovertemplate=(
                     "<b>%{fullData.name}</b>"
                     "<br>%{theta}"
@@ -276,6 +312,7 @@ def make_radar(frame, players, metrics):
         )
 
     fig.update_layout(
+
         polar=dict(
             radialaxis=dict(
                 visible=True,
@@ -283,7 +320,9 @@ def make_radar(frame, players, metrics):
                 tickvals=[20, 40, 60, 80, 100],
             )
         ),
+
         showlegend=True,
+
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -291,7 +330,9 @@ def make_radar(frame, players, metrics):
             xanchor="center",
             x=0.5,
         ),
+
         height=670,
+
         margin=dict(
             l=70,
             r=70,
