@@ -467,6 +467,14 @@ def make_radar(
     show_fill: bool = True,
     compact_legend: bool = True,
 ):
+    """
+    Cleaner scouting-style percentile radar.
+
+    - 50th percentile is highlighted as the league-median reference.
+    - Fill is intentionally very subtle and disabled automatically for 3+ players.
+    - First metric starts at 12 o'clock and metrics continue clockwise.
+    """
+
     fig = go.Figure()
 
     metric_labels = [
@@ -474,7 +482,26 @@ def make_radar(
         for metric in metrics
     ]
 
-    fill_alpha = 0.13 if len(players) <= 2 else 0.045
+    # Reference: league median (50th percentile)
+    if metrics:
+        fig.add_trace(
+            go.Scatterpolar(
+                r=[50] * (len(metrics) + 1),
+                theta=metric_labels + [metric_labels[0]],
+                mode="lines",
+                line=dict(
+                    color="rgba(170,170,170,0.55)",
+                    width=1.5,
+                    dash="dot",
+                ),
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+
+    # With 3+ players, fills make the chart harder to read.
+    use_fill = show_fill and len(players) <= 2
+    fill_alpha = 0.10 if len(players) == 1 else 0.065
 
     for index, player in enumerate(players):
         row = frame.loc[frame["Name"] == player].iloc[0]
@@ -501,14 +528,17 @@ def make_radar(
                 mode="lines+markers",
                 line=dict(
                     color=color,
-                    width=3.2,
+                    width=3.6,
                 ),
                 marker=dict(
                     color=color,
-                    size=7,
-                    line=dict(width=1),
+                    size=5.5,
+                    line=dict(
+                        color="rgba(255,255,255,0.55)",
+                        width=0.7,
+                    ),
                 ),
-                fill="toself" if show_fill else "none",
+                fill="toself" if use_fill else "none",
                 fillcolor=hex_to_rgba(color, fill_alpha),
                 name=trace_name,
                 hovertemplate=(
@@ -526,17 +556,23 @@ def make_radar(
             radialaxis=dict(
                 visible=True,
                 range=[0, 100],
-                tickvals=[20, 40, 60, 80, 100],
-                ticktext=["20", "40", "60", "80", "100"],
+                tickmode="array",
+                tickvals=[25, 50, 75, 100],
+                ticktext=["25", "50", "75", "100"],
                 angle=90,
-                gridcolor="rgba(150,150,150,0.25)",
-                linecolor="rgba(150,150,150,0.30)",
-                tickfont=dict(size=10),
+                gridcolor="rgba(145,145,145,0.20)",
+                linecolor="rgba(145,145,145,0.22)",
+                tickfont=dict(
+                    size=10,
+                    color="rgba(185,185,185,0.85)",
+                ),
             ),
             angularaxis=dict(
-                gridcolor="rgba(150,150,150,0.20)",
-                linecolor="rgba(150,150,150,0.30)",
-                tickfont=dict(size=11),
+                rotation=90,
+                direction="clockwise",
+                gridcolor="rgba(145,145,145,0.13)",
+                linecolor="rgba(145,145,145,0.22)",
+                tickfont=dict(size=12),
             ),
         ),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -545,22 +581,111 @@ def make_radar(
         legend=dict(
             orientation="h",
             yanchor="top",
-            y=-0.12,
+            y=-0.10,
             xanchor="center",
             x=0.5,
             font=dict(size=11),
+            itemsizing="constant",
         ),
-        height=620,
+        hoverlabel=dict(
+            bgcolor="rgba(20,20,20,0.95)",
+            font_size=12,
+        ),
+        height=610,
         margin=dict(
-            l=90,
-            r=90,
+            l=105,
+            r=105,
             t=35,
-            b=95,
+            b=90,
         ),
     )
 
     return fig
 
+
+def make_percentile_bars(
+    frame: pd.DataFrame,
+    players: list[str],
+    metrics: list[str],
+):
+    """
+    Grouped horizontal bars as a clearer alternative for 3-4 player comparison.
+    """
+    fig = go.Figure()
+
+    display_metrics = [
+        short_metric_label(metric).replace("<br>", " ")
+        for metric in metrics
+    ]
+
+    # Reverse so the first selected metric appears at the top.
+    display_metrics = display_metrics[::-1]
+    reversed_metrics = metrics[::-1]
+
+    for index, player in enumerate(players):
+        row = frame.loc[frame["Name"] == player].iloc[0]
+        color = RADAR_COLORS[index % len(RADAR_COLORS)]
+
+        values = [
+            float(row[f"PCTL__{metric}"])
+            for metric in reversed_metrics
+        ]
+
+        fig.add_trace(
+            go.Bar(
+                x=values,
+                y=display_metrics,
+                orientation="h",
+                name=radar_player_label(frame, player),
+                marker=dict(color=color),
+                opacity=0.88,
+                hovertemplate=(
+                    "<b>%{fullData.name}</b>"
+                    "<br>%{y}"
+                    "<br>Percentile: %{x:.0f}"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+    fig.add_vline(
+        x=50,
+        line_width=1.5,
+        line_dash="dot",
+        line_color="rgba(170,170,170,0.6)",
+    )
+
+    fig.update_layout(
+        barmode="group",
+        xaxis=dict(
+            range=[0, 100],
+            tickvals=[0, 25, 50, 75, 100],
+            title="League percentile",
+            gridcolor="rgba(145,145,145,0.12)",
+        ),
+        yaxis=dict(
+            title="",
+            automargin=True,
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.17,
+            xanchor="center",
+            x=0.5,
+        ),
+        height=max(430, 55 * len(metrics) + 180),
+        margin=dict(
+            l=25,
+            r=30,
+            t=25,
+            b=100,
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
+
+    return fig
 
 def show_individual_radars(
     frame: pd.DataFrame,
@@ -1045,31 +1170,31 @@ with tab_compare:
     )
 
     if len(compare_players) >= 2 and compare_metrics:
-        chart_controls = st.columns([1.3, 1])
+        st.markdown("### Comparison profile")
 
-        with chart_controls[0]:
-            radar_view = st.radio(
-                "Radar view",
-                ["Overlay", "Individual"],
-                horizontal=True,
-                help=(
-                    "Overlay is best for direct 1v1 comparison. "
-                    "Individual is clearer when comparing 3–4 players."
-                ),
-            )
+        visual_mode = st.radio(
+            "Visualisation",
+            ["Radar", "Percentile bars", "Individual radars"],
+            horizontal=True,
+            help=(
+                "Radar is best for 2 players. Percentile bars are usually clearer "
+                "for 3–4 players. Individual radars show each profile separately."
+            ),
+        )
 
-        with chart_controls[1]:
-            show_fill = st.toggle(
-                "Fill radar areas",
-                value=len(compare_players) <= 2,
-                help=(
-                    "For 3–4 players, turning fill off usually makes the radar easier to read."
-                ),
-            )
+        if visual_mode == "Radar":
+            if len(compare_players) <= 2:
+                show_fill = st.toggle(
+                    "Soft radar fill",
+                    value=True,
+                    help="Use a subtle fill for easier 1v1 comparison.",
+                )
+            else:
+                show_fill = False
+                st.caption(
+                    "Fill is automatically disabled for 3–4 players to keep the radar readable."
+                )
 
-        st.markdown("### Percentile radar")
-
-        if radar_view == "Overlay":
             radar = make_radar(
                 position_df,
                 compare_players,
@@ -1082,6 +1207,28 @@ with tab_compare:
                 use_container_width=True,
                 theme="streamlit",
             )
+
+            st.caption(
+                "Dotted ring = 50th league percentile. Outer edge = 100th percentile."
+            )
+
+        elif visual_mode == "Percentile bars":
+            bars = make_percentile_bars(
+                position_df,
+                compare_players,
+                compare_metrics,
+            )
+
+            st.plotly_chart(
+                bars,
+                use_container_width=True,
+                theme="streamlit",
+            )
+
+            st.caption(
+                "Dotted line = league median (50th percentile)."
+            )
+
         else:
             show_individual_radars(
                 position_df,
@@ -1261,6 +1408,17 @@ with tab_ranking:
                                 key=f"weight_{selected_position}_{metric}",
                             )
 
+            table_value_mode = st.radio(
+                "Show individual metrics as",
+                ["Raw values", "Percentiles"],
+                horizontal=True,
+                index=0,
+                help=(
+                    "Overall percentile is always calculated from league percentiles. "
+                    "This setting changes only how the individual metric columns are displayed."
+                ),
+            )
+
             overall_rows = []
 
             for _, row in position_df.iterrows():
@@ -1285,9 +1443,15 @@ with tab_ranking:
                 }
 
                 for metric in ranking_metrics:
-                    record[short_metric_label(metric).replace("<br>", " ")] = (
-                        row[f"PCTL__{metric}"]
-                    )
+                    display_name = short_metric_label(metric).replace("<br>", " ")
+
+                    if table_value_mode == "Raw values":
+                        record[display_name] = pd.to_numeric(
+                            pd.Series([row[metric]]),
+                            errors="coerce",
+                        ).iloc[0]
+                    else:
+                        record[display_name] = row[f"PCTL__{metric}"]
 
                 overall_rows.append(record)
 
@@ -1317,13 +1481,39 @@ with tab_ranking:
                 for metric in ranking_metrics
             ]
 
-            for col in metric_display_columns:
-                overall_df[col] = overall_df[col].round(1)
+            if table_value_mode == "Percentiles":
+                for col in metric_display_columns:
+                    overall_df[col] = overall_df[col].round(1)
+            else:
+                for col in metric_display_columns:
+                    overall_df[col] = pd.to_numeric(
+                        overall_df[col],
+                        errors="coerce",
+                    ).round(3)
 
             st.caption(
                 "Overall percentile = weighted average of the selected league percentiles. "
-                "Overall rank is then calculated from that combined score."
+                "Overall rank is calculated from that combined score. "
+                "The individual metric columns can show either raw Wyscout values or percentiles."
             )
+
+            column_config = {
+                "Our player": st.column_config.CheckboxColumn("OUR"),
+                "Overall percentile": st.column_config.ProgressColumn(
+                    "Overall percentile",
+                    min_value=0,
+                    max_value=100,
+                    format="%.1f",
+                ),
+            }
+
+            if table_value_mode == "Percentiles":
+                for col in metric_display_columns:
+                    column_config[col] = st.column_config.NumberColumn(
+                        col,
+                        format="%.1f",
+                        help="League percentile",
+                    )
 
             st.dataframe(
                 overall_df[
@@ -1339,15 +1529,7 @@ with tab_ranking:
                 ],
                 use_container_width=True,
                 hide_index=True,
-                column_config={
-                    "Our player": st.column_config.CheckboxColumn("OUR"),
-                    "Overall percentile": st.column_config.ProgressColumn(
-                        "Overall percentile",
-                        min_value=0,
-                        max_value=100,
-                        format="%.1f",
-                    ),
-                },
+                column_config=column_config,
             )
 
             top_n = min(10, len(overall_df))
