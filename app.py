@@ -223,6 +223,22 @@ def load_all_data():
         if frame.empty:
             continue
 
+        # Normalize Excel headers to avoid KeyErrors from minor naming differences.
+        frame.columns = [str(col).strip() for col in frame.columns]
+
+        minute_aliases = {
+            "Minutes": "Minutes played",
+            "Minutes Played": "Minutes played",
+            "minutes played": "Minutes played",
+        }
+        frame = frame.rename(
+            columns={
+                col: minute_aliases[col]
+                for col in frame.columns
+                if col in minute_aliases
+            }
+        )
+
         if "Player" in frame.columns and "Name" not in frame.columns:
             frame = frame.rename(columns={"Player": "Name"})
 
@@ -1339,6 +1355,245 @@ available_positions += sorted(
     set(all_data["PositionGroup"].unique()) - set(available_positions)
 )
 
+# ============================================================
+# MAIN APPLICATION MODE
+# ============================================================
+
+with st.sidebar:
+    st.header("Application mode")
+
+    app_mode = st.radio(
+        "Workspace",
+        ["Player Analysis", "Club vs Opponent"],
+        index=0,
+        help=(
+            "Player Analysis = positional player benchmarking and rankings. "
+            "Club vs Opponent = separate team-level lineup workspace."
+        ),
+    )
+
+st.title("⚽ Vysočina Scouting Benchmark")
+st.caption("Chance National League • Wyscout data")
+
+if app_mode == "Club vs Opponent":
+    st.subheader("Club vs Opponent — best XI")
+
+    st.caption(
+        "The XI is built from the best available positional overall percentiles "
+        "for each formation slot. Each player can be used only once."
+    )
+
+    all_team_names = sorted(
+        team
+        for team in all_data["Team"].dropna().astype(str).unique()
+        if team.strip()
+    )
+
+    top_controls = st.columns([1.2, 1.2, 1])
+
+    with top_controls[0]:
+        home_team = st.selectbox(
+            "Club A",
+            all_team_names,
+            index=(
+                all_team_names.index(OWN_TEAM)
+                if OWN_TEAM in all_team_names
+                else 0
+            ),
+            key="club_mode_home_team",
+        )
+
+    with top_controls[1]:
+        away_options = [
+            team
+            for team in all_team_names
+            if team != home_team
+        ]
+
+        away_team = st.selectbox(
+            "Club B / opponent",
+            away_options,
+            key="club_mode_away_team",
+        )
+
+    with top_controls[2]:
+        all_minutes_values = pd.to_numeric(
+            all_data.get("Minutes played", pd.Series(dtype=float)),
+            errors="coerce",
+        ).dropna()
+
+        club_max_minutes = (
+            int(all_minutes_values.max())
+            if not all_minutes_values.empty
+            else 1
+        )
+
+        club_min_minutes = st.number_input(
+            "Minimum minutes",
+            min_value=1,
+            max_value=max(1, club_max_minutes),
+            value=min(450, max(1, club_max_minutes)),
+            step=90,
+            key="club_mode_min_minutes",
+            help=(
+                "This filter applies to best-XI selection. "
+                "Players below the threshold are not eligible."
+            ),
+        )
+
+    formation_cols = st.columns(2)
+
+    with formation_cols[0]:
+        home_formation = st.selectbox(
+            f"{home_team} formation",
+            list(FORMATION_SLOTS.keys()),
+            index=0,
+            key="home_formation",
+        )
+
+    with formation_cols[1]:
+        away_formation = st.selectbox(
+            f"{away_team} formation",
+            list(FORMATION_SLOTS.keys()),
+            index=0,
+            key="away_formation",
+        )
+
+    allow_wingers = st.toggle(
+        "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
+        value=False,
+        help=(
+            "LWB normally selects from LB and RWB from RB. "
+            "Turn this on if you also want to consider natural wingers as tactical wing-backs."
+        ),
+    )
+
+    home_lineup = build_best_xi(
+        all_data,
+        home_team,
+        home_formation,
+        int(club_min_minutes),
+        allow_winger_wingbacks=allow_wingers,
+    )
+
+    away_lineup = build_best_xi(
+        all_data,
+        away_team,
+        away_formation,
+        int(club_min_minutes),
+        allow_winger_wingbacks=allow_wingers,
+    )
+
+    home_df = lineup_dataframe(home_lineup)
+    away_df = lineup_dataframe(away_lineup)
+
+    score_cols = st.columns(2)
+
+    with score_cols[0]:
+        valid_scores = home_df["Overall percentile"].dropna()
+        home_score = valid_scores.mean() if not valid_scores.empty else np.nan
+
+        st.metric(
+            f"{home_team} XI average",
+            f"{home_score:.1f}p" if pd.notna(home_score) else "—",
+        )
+
+    with score_cols[1]:
+        valid_scores = away_df["Overall percentile"].dropna()
+        away_score = valid_scores.mean() if not valid_scores.empty else np.nan
+
+        st.metric(
+            f"{away_team} XI average",
+            f"{away_score:.1f}p" if pd.notna(away_score) else "—",
+        )
+
+    pitch_cols = st.columns(2)
+
+    with pitch_cols[0]:
+        st.plotly_chart(
+            make_pitch_figure(
+                home_lineup,
+                home_formation,
+                f"{home_team} · {home_formation}",
+            ),
+            use_container_width=True,
+            theme=None,
+        )
+
+        st.dataframe(
+            home_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Overall percentile": st.column_config.ProgressColumn(
+                    "Overall percentile",
+                    min_value=0,
+                    max_value=100,
+                    format="%.1f",
+                )
+            },
+        )
+
+    with pitch_cols[1]:
+        st.plotly_chart(
+            make_pitch_figure(
+                away_lineup,
+                away_formation,
+                f"{away_team} · {away_formation}",
+            ),
+            use_container_width=True,
+            theme=None,
+        )
+
+        st.dataframe(
+            away_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Overall percentile": st.column_config.ProgressColumn(
+                    "Overall percentile",
+                    min_value=0,
+                    max_value=100,
+                    format="%.1f",
+                )
+            },
+        )
+
+    missing_home = home_df[
+        home_df["Player"] == "—"
+    ]["Slot"].tolist()
+
+    missing_away = away_df[
+        away_df["Player"] == "—"
+    ]["Slot"].tolist()
+
+    if missing_home or missing_away:
+        messages = []
+
+        if missing_home:
+            messages.append(
+                f"{home_team}: missing {', '.join(missing_home)}"
+            )
+
+        if missing_away:
+            messages.append(
+                f"{away_team}: missing {', '.join(missing_away)}"
+            )
+
+        st.warning(
+            "Not enough eligible players for a complete XI at the current minutes cutoff. "
+            + " | ".join(messages)
+        )
+
+    st.info(
+        "Wing-back mapping: LWB uses the LB dataset and RWB uses the RB dataset. "
+        "If the winger alternative toggle is enabled, RW/LW players may also be considered. "
+        "The model is data-driven and should be treated as a selection aid, not a tactical verdict."
+    )
+
+    st.stop()
+
+
 def _apply_quick_minutes(slider_key, quick_key):
     value = st.session_state.get(quick_key, "Custom")
 
@@ -1356,7 +1611,7 @@ def _sync_quick_minutes(slider_key, quick_key, quick_values):
 
 
 with st.sidebar:
-    st.header("Scouting database")
+    st.header("Player Analysis")
 
     selected_position = st.selectbox(
         "Position",
@@ -1555,8 +1810,7 @@ with st.sidebar:
 # HEADER
 # ============================================================
 
-st.title("⚽ Vysočina Scouting Benchmark")
-st.caption("Chance National League • Wyscout positional benchmarking")
+st.subheader(f"Player Analysis · {selected_position}")
 
 a, b, c, d = st.columns(4)
 a.metric("Position", selected_position)
@@ -1581,13 +1835,12 @@ if load_warnings:
 # TABS
 # ============================================================
 
-tab_overview, tab_our, tab_compare, tab_ranking, tab_club = st.tabs(
+tab_overview, tab_our, tab_compare, tab_ranking = st.tabs(
     [
         "Overview",
         "Our player vs league",
         "Comparison",
         "League ranking",
-        "Club vs Opponent",
     ]
 )
 
@@ -1612,9 +1865,16 @@ with tab_overview:
         maximum=min(8, len(metrics)),
     )
 
+    overview_base_columns = ["Name", "Team"]
+
+    if "Minutes played" in view.columns:
+        overview_base_columns.append("Minutes played")
+
+    overview_base_columns.append("Our player")
+
     st.dataframe(
         view[
-            ["Name", "Team", "Minutes played", "Our player"] + quick_metrics
+            overview_base_columns + quick_metrics
         ],
         use_container_width=True,
         hide_index=True,
@@ -2388,224 +2648,3 @@ with tab_ranking:
             "75th raw percentile",
             f"{values.quantile(.75):.3f}",
         )
-
-
-# ============================================================
-# CLUB VS OPPONENT
-# ============================================================
-
-with tab_club:
-    st.subheader("Club vs Opponent — best XI")
-
-    st.caption(
-        "The XI is built from the best available positional overall percentiles "
-        "for each formation slot. Each player can be used only once."
-    )
-
-    all_team_names = sorted(
-        team
-        for team in all_data["Team"].dropna().astype(str).unique()
-        if team.strip()
-    )
-
-    top_controls = st.columns([1.2, 1.2, 1])
-
-    with top_controls[0]:
-        home_team = st.selectbox(
-            "Club A",
-            all_team_names,
-            index=(
-                all_team_names.index(OWN_TEAM)
-                if OWN_TEAM in all_team_names
-                else 0
-            ),
-            key="club_mode_home_team",
-        )
-
-    with top_controls[1]:
-        away_options = [
-            team
-            for team in all_team_names
-            if team != home_team
-        ]
-
-        away_team = st.selectbox(
-            "Club B / opponent",
-            away_options,
-            key="club_mode_away_team",
-        )
-
-    with top_controls[2]:
-        all_minutes_values = pd.to_numeric(
-            all_data.get("Minutes played", pd.Series(dtype=float)),
-            errors="coerce",
-        ).dropna()
-
-        club_max_minutes = (
-            int(all_minutes_values.max())
-            if not all_minutes_values.empty
-            else 1
-        )
-
-        club_min_minutes = st.number_input(
-            "Minimum minutes",
-            min_value=1,
-            max_value=max(1, club_max_minutes),
-            value=min(450, max(1, club_max_minutes)),
-            step=90,
-            key="club_mode_min_minutes",
-            help=(
-                "This filter applies to best-XI selection. "
-                "Players below the threshold are not eligible."
-            ),
-        )
-
-    formation_cols = st.columns(2)
-
-    with formation_cols[0]:
-        home_formation = st.selectbox(
-            f"{home_team} formation",
-            list(FORMATION_SLOTS.keys()),
-            index=0,
-            key="home_formation",
-        )
-
-    with formation_cols[1]:
-        away_formation = st.selectbox(
-            f"{away_team} formation",
-            list(FORMATION_SLOTS.keys()),
-            index=0,
-            key="away_formation",
-        )
-
-    allow_wingers = st.toggle(
-        "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
-        value=False,
-        help=(
-            "LWB normally selects from LB and RWB from RB. "
-            "Turn this on if you also want to consider natural wingers as tactical wing-backs."
-        ),
-    )
-
-    home_lineup = build_best_xi(
-        all_data,
-        home_team,
-        home_formation,
-        int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
-    )
-
-    away_lineup = build_best_xi(
-        all_data,
-        away_team,
-        away_formation,
-        int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
-    )
-
-    home_df = lineup_dataframe(home_lineup)
-    away_df = lineup_dataframe(away_lineup)
-
-    score_cols = st.columns(2)
-
-    with score_cols[0]:
-        valid_scores = home_df["Overall percentile"].dropna()
-        home_score = valid_scores.mean() if not valid_scores.empty else np.nan
-
-        st.metric(
-            f"{home_team} XI average",
-            f"{home_score:.1f}p" if pd.notna(home_score) else "—",
-        )
-
-    with score_cols[1]:
-        valid_scores = away_df["Overall percentile"].dropna()
-        away_score = valid_scores.mean() if not valid_scores.empty else np.nan
-
-        st.metric(
-            f"{away_team} XI average",
-            f"{away_score:.1f}p" if pd.notna(away_score) else "—",
-        )
-
-    pitch_cols = st.columns(2)
-
-    with pitch_cols[0]:
-        st.plotly_chart(
-            make_pitch_figure(
-                home_lineup,
-                home_formation,
-                f"{home_team} · {home_formation}",
-            ),
-            use_container_width=True,
-            theme=None,
-        )
-
-        st.dataframe(
-            home_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Overall percentile": st.column_config.ProgressColumn(
-                    "Overall percentile",
-                    min_value=0,
-                    max_value=100,
-                    format="%.1f",
-                )
-            },
-        )
-
-    with pitch_cols[1]:
-        st.plotly_chart(
-            make_pitch_figure(
-                away_lineup,
-                away_formation,
-                f"{away_team} · {away_formation}",
-            ),
-            use_container_width=True,
-            theme=None,
-        )
-
-        st.dataframe(
-            away_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Overall percentile": st.column_config.ProgressColumn(
-                    "Overall percentile",
-                    min_value=0,
-                    max_value=100,
-                    format="%.1f",
-                )
-            },
-        )
-
-    missing_home = home_df[
-        home_df["Player"] == "—"
-    ]["Slot"].tolist()
-
-    missing_away = away_df[
-        away_df["Player"] == "—"
-    ]["Slot"].tolist()
-
-    if missing_home or missing_away:
-        messages = []
-
-        if missing_home:
-            messages.append(
-                f"{home_team}: missing {', '.join(missing_home)}"
-            )
-
-        if missing_away:
-            messages.append(
-                f"{away_team}: missing {', '.join(missing_away)}"
-            )
-
-        st.warning(
-            "Not enough eligible players for a complete XI at the current minutes cutoff. "
-            + " | ".join(messages)
-        )
-
-    st.info(
-        "Wing-back mapping: LWB uses the LB dataset and RWB uses the RB dataset. "
-        "If the winger alternative toggle is enabled, RW/LW players may also be considered. "
-        "The model is data-driven and should be treated as a selection aid, not a tactical verdict."
-    )
