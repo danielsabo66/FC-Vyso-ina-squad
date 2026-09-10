@@ -80,6 +80,7 @@ NON_METRIC_COLUMNS = {
     "SourceFile",
     "Our player",
     "Minutes",
+    "Minutes played",
     "Age",
     "Nationality",
     "Foot",
@@ -93,7 +94,8 @@ PREFERRED_METRICS = {
         "Save rate, %",
         "Prevented goals per 90",
         "Conceded goals per 90",
-        "Clean sheets",
+        "Accurate passes, %",
+        "Accurate long passes, %",
         "Exits per 90",
         "Aerial duels per 90",
         "Back passes received as GK per 90",
@@ -322,12 +324,17 @@ def league_rank(metric: str, value, frame: pd.DataFrame):
     return int((series > value).sum() + 1)
 
 
-def prepare_position_data(frame: pd.DataFrame, metrics: list[str]):
+def prepare_position_data(
+    frame: pd.DataFrame,
+    metrics: list[str],
+    reference_frame: pd.DataFrame | None = None,
+):
     output = frame.copy()
+    reference = output if reference_frame is None else reference_frame
 
     for metric in metrics:
         output[f"PCTL__{metric}"] = output[metric].apply(
-            lambda x, m=metric: display_percentile(m, x, output)
+            lambda x, m=metric: display_percentile(m, x, reference)
         )
 
     output["Our player"] = output["Team"].astype(str).eq(OWN_TEAM)
@@ -786,6 +793,22 @@ available_positions += sorted(
     set(all_data["PositionGroup"].unique()) - set(available_positions)
 )
 
+def _apply_quick_minutes(slider_key, quick_key):
+    value = st.session_state.get(quick_key, "Custom")
+
+    if value != "Custom":
+        st.session_state[slider_key] = int(value)
+
+
+def _sync_quick_minutes(slider_key, quick_key, quick_values):
+    value = int(st.session_state.get(slider_key, 1))
+
+    if value in quick_values:
+        st.session_state[quick_key] = value
+    else:
+        st.session_state[quick_key] = "Custom"
+
+
 with st.sidebar:
     st.header("Scouting database")
 
@@ -794,41 +817,140 @@ with st.sidebar:
         available_positions,
     )
 
-position_df = all_data[
+
+# Full position dataset is kept intact for manual Comparison.
+full_position_df = all_data[
     all_data["PositionGroup"] == selected_position
 ].copy()
 
-metrics = get_metrics(position_df)
+metrics = get_metrics(full_position_df)
 
 if not metrics:
     st.error("No numeric scouting metrics were detected for this position.")
     st.stop()
 
-if "Minutes" in position_df.columns:
-    minutes = pd.to_numeric(
-        position_df["Minutes"],
+
+# ============================================================
+# GLOBAL MINUTES FILTER
+# Applies to Overview, Our player vs league and League ranking.
+# Comparison keeps every player selectable.
+# ============================================================
+
+minimum_minutes = 1
+maximum_minutes = 1
+
+if "Minutes played" in full_position_df.columns:
+    all_minutes = pd.to_numeric(
+        full_position_df["Minutes played"],
         errors="coerce",
     )
 
-    if minutes.notna().any():
-        with st.sidebar:
-            maximum_minutes = int(minutes.max())
+    if all_minutes.notna().any():
+        maximum_minutes = max(1, int(all_minutes.max()))
 
-            minimum_minutes = st.number_input(
-                "Minimum minutes",
-                min_value=0,
+        safe_position_key = re.sub(
+            r"[^A-Za-z0-9]+",
+            "_",
+            selected_position,
+        )
+
+        slider_key = f"minutes_slider_{safe_position_key}"
+        quick_key = f"minutes_quick_{safe_position_key}"
+
+        quick_values = list(
+            range(
+                90,
+                maximum_minutes + 1,
+                90,
+            )
+        )
+
+        quick_options = ["Custom"] + quick_values
+
+        if slider_key not in st.session_state:
+            st.session_state[slider_key] = 1
+
+        if st.session_state[slider_key] > maximum_minutes:
+            st.session_state[slider_key] = maximum_minutes
+
+        if quick_key not in st.session_state:
+            st.session_state[quick_key] = "Custom"
+
+        if st.session_state[quick_key] not in quick_options:
+            st.session_state[quick_key] = "Custom"
+
+        with st.sidebar:
+            st.divider()
+            st.subheader("Minutes filter")
+
+            minimum_minutes = st.slider(
+                "Minimum minutes played",
+                min_value=1,
                 max_value=maximum_minutes,
-                value=0,
-                step=90,
+                key=slider_key,
+                step=1,
+                help=(
+                    "Used for league benchmark, percentiles and rankings. "
+                    "Move by one minute for an exact cutoff."
+                ),
+                on_change=_sync_quick_minutes,
+                args=(
+                    slider_key,
+                    quick_key,
+                    quick_values,
+                ),
             )
 
-        position_df = position_df[
-            minutes.fillna(0) >= minimum_minutes
-        ].copy()
+            st.selectbox(
+                "Quick select (90-minute steps)",
+                options=quick_options,
+                key=quick_key,
+                format_func=lambda x: (
+                    "Custom / exact slider value"
+                    if x == "Custom"
+                    else f"{x} min ({x // 90} × 90)"
+                ),
+                on_change=_apply_quick_minutes,
+                args=(
+                    slider_key,
+                    quick_key,
+                ),
+            )
 
+
+reference_raw_df = full_position_df.copy()
+
+if "Minutes played" in reference_raw_df.columns:
+    reference_minutes = pd.to_numeric(
+        reference_raw_df["Minutes played"],
+        errors="coerce",
+    ).fillna(0)
+
+    reference_raw_df = reference_raw_df[
+        reference_minutes >= minimum_minutes
+    ].copy()
+
+
+if reference_raw_df.empty:
+    st.error(
+        "The selected minimum-minutes threshold leaves no players "
+        "in the reference sample."
+    )
+    st.stop()
+
+
+# position_df = filtered reference cohort used by league-facing tabs.
 position_df = prepare_position_data(
-    position_df,
+    reference_raw_df,
     metrics,
+)
+
+# comparison_df = all players, but their percentiles are calculated
+# against the currently filtered reference cohort.
+comparison_df = prepare_position_data(
+    full_position_df,
+    metrics,
+    reference_frame=reference_raw_df,
 )
 
 our_players = position_df.loc[
@@ -836,9 +958,20 @@ our_players = position_df.loc[
     "Name",
 ].tolist()
 
+comparison_our_players = comparison_df.loc[
+    comparison_df["Our player"],
+    "Name",
+].tolist()
+
 teams = sorted(
     team
     for team in position_df["Team"].dropna().astype(str).unique()
+    if team.strip()
+)
+
+comparison_teams = sorted(
+    team
+    for team in comparison_df["Team"].dropna().astype(str).unique()
     if team.strip()
 )
 
@@ -852,10 +985,24 @@ with st.sidebar:
     st.caption("OUR TEAM")
     st.write(OWN_TEAM)
 
-    st.caption("REFERENCE")
-    st.write(f"{len(position_df)} players")
-    st.write(f"{position_df['Team'].nunique()} clubs")
-    st.write(f"{len(metrics)} Wyscout metrics")
+    st.caption("REFERENCE SAMPLE")
+    st.write(
+        f"{len(position_df)} / {len(full_position_df)} players"
+    )
+    st.write(
+        f"Minimum: {minimum_minutes} min"
+    )
+    st.write(
+        f"{position_df['Team'].nunique()} clubs"
+    )
+    st.write(
+        f"{len(metrics)} Wyscout metrics"
+    )
+
+    if len(position_df) < 10:
+        st.warning(
+            "Small reference sample. Percentiles may be unstable."
+        )
 
 
 # ============================================================
@@ -867,13 +1014,15 @@ st.caption("Chance National League • Wyscout positional benchmarking")
 
 a, b, c, d = st.columns(4)
 a.metric("Position", selected_position)
-b.metric("League players", len(position_df))
+b.metric("Reference players", f"{len(position_df)} / {len(full_position_df)}")
 c.metric("Our players", len(our_players))
 d.metric("Metrics", len(metrics))
 
 st.info(
     "Each position uses only the metrics contained in its own Wyscout export. "
-    "Percentiles are calculated only against players in the selected position group."
+    f"League tabs use players with at least {minimum_minutes} minutes. "
+    "Manual Comparison keeps every player selectable, while its percentiles are "
+    "still benchmarked against the filtered reference sample."
 )
 
 if load_warnings:
@@ -918,7 +1067,7 @@ with tab_overview:
 
     st.dataframe(
         view[
-            ["Name", "Team", "Our player"] + quick_metrics
+            ["Name", "Team", "Minutes played", "Our player"] + quick_metrics
         ],
         use_container_width=True,
         hide_index=True,
@@ -1090,7 +1239,13 @@ with tab_our:
 with tab_compare:
     st.subheader(f"{selected_position} comparison")
 
-    if our_players:
+    st.caption(
+        f"All {len(comparison_df)} players remain selectable here regardless of minutes. "
+        f"Percentiles and ranks are benchmarked against the {len(position_df)} players "
+        f"with at least {minimum_minutes} minutes."
+    )
+
+    if comparison_our_players:
         compare_mode = st.radio(
             "Comparison mode",
             [
@@ -1108,14 +1263,14 @@ with tab_compare:
         with left:
             our_pick = st.selectbox(
                 "Our player",
-                our_players,
-                format_func=lambda x: player_label(position_df, x),
+                comparison_our_players,
+                format_func=lambda x: player_label(comparison_df, x),
                 key="compare_our_player",
             )
 
         opponent_teams = [
             team
-            for team in teams
+            for team in comparison_teams
             if team != OWN_TEAM
         ]
 
@@ -1126,15 +1281,15 @@ with tab_compare:
                 key="opponent_team",
             )
 
-            opponent_players = position_df.loc[
-                position_df["Team"] == opponent_team,
+            opponent_players = comparison_df.loc[
+                comparison_df["Team"] == opponent_team,
                 "Name",
             ].tolist()
 
             opponent_pick = st.selectbox(
                 "Opponent player",
                 opponent_players,
-                format_func=lambda x: player_label(position_df, x),
+                format_func=lambda x: player_label(comparison_df, x),
                 key="opponent_player",
             )
 
@@ -1144,20 +1299,20 @@ with tab_compare:
         ]
 
     else:
-        defaults = our_players[:1]
+        defaults = comparison_our_players[:1]
 
         defaults += [
             player
-            for player in position_df["Name"].tolist()
+            for player in comparison_df["Name"].tolist()
             if player not in defaults
         ][: max(0, 2 - len(defaults))]
 
         compare_players = st.multiselect(
             "Select 2–4 players",
-            position_df["Name"].tolist(),
+            comparison_df["Name"].tolist(),
             default=defaults,
             max_selections=4,
-            format_func=lambda x: player_label(position_df, x),
+            format_func=lambda x: player_label(comparison_df, x),
             key="manual_compare_players",
         )
 
@@ -1172,6 +1327,32 @@ with tab_compare:
         key="comparison_metrics",
     )
 
+    if compare_players and "Minutes played" in comparison_df.columns:
+        below_cutoff = []
+
+        for player in compare_players:
+            player_row = comparison_df.loc[
+                comparison_df["Name"] == player
+            ].iloc[0]
+
+            player_minutes = pd.to_numeric(
+                pd.Series([player_row["Minutes played"]]),
+                errors="coerce",
+            ).iloc[0]
+
+            if pd.notna(player_minutes) and player_minutes < minimum_minutes:
+                below_cutoff.append(
+                    f"{player} ({int(player_minutes)} min)"
+                )
+
+        if below_cutoff:
+            st.warning(
+                "Below the current reference cutoff: "
+                + ", ".join(below_cutoff)
+                + ". They are still available for manual comparison, "
+                "but their sample is smaller than the benchmark threshold."
+            )
+
     if len(compare_players) >= 2 and compare_metrics:
         st.markdown("### Comparison profile")
 
@@ -1180,8 +1361,8 @@ with tab_compare:
             ["Radar", "Percentile bars", "Individual radars"],
             horizontal=True,
             help=(
-                "Radar is best for 2 players. Percentile bars are usually clearer "
-                "for 3–4 players. Individual radars show each profile separately."
+                "Radar is best for direct comparison. Percentile bars can be "
+                "clearer for 3–4 players."
             ),
         )
 
@@ -1190,13 +1371,13 @@ with tab_compare:
                 "Radar fill",
                 value=True,
                 help=(
-                    "Keep the classic filled radar look. "
-                    "The fill is automatically made lighter when 3–4 players are selected."
+                    "Filled classic scouting radar. Fill becomes lighter "
+                    "when more players are selected."
                 ),
             )
 
             radar = make_radar(
-                position_df,
+                comparison_df,
                 compare_players,
                 compare_metrics,
                 show_fill=show_fill,
@@ -1209,12 +1390,13 @@ with tab_compare:
             )
 
             st.caption(
-                "Hover over a point to see both league percentile and the raw Wyscout value."
+                "Hover over a point to see both league percentile "
+                "and the raw Wyscout value."
             )
 
         elif visual_mode == "Percentile bars":
             bars = make_percentile_bars(
-                position_df,
+                comparison_df,
                 compare_players,
                 compare_metrics,
             )
@@ -1226,12 +1408,12 @@ with tab_compare:
             )
 
             st.caption(
-                "Dotted line = league median (50th percentile)."
+                "Dotted line = 50th percentile of the filtered reference sample."
             )
 
         else:
             show_individual_radars(
-                position_df,
+                comparison_df,
                 compare_players,
                 compare_metrics,
             )
@@ -1245,8 +1427,8 @@ with tab_compare:
             }
 
             for player in compare_players:
-                row = position_df.loc[
-                    position_df["Name"] == player
+                row = comparison_df.loc[
+                    comparison_df["Name"] == player
                 ].iloc[0]
 
                 raw = pd.to_numeric(
@@ -1255,6 +1437,8 @@ with tab_compare:
                 ).iloc[0]
 
                 percentile = row[f"PCTL__{metric}"]
+
+                # Rank is measured against the filtered league reference.
                 rank = league_rank(
                     metric,
                     raw,
@@ -1264,13 +1448,13 @@ with tab_compare:
                 record[player] = (
                     f"{raw:.3f} | "
                     f"{percentile:.0f}p | "
-                    f"#{rank}"
+                    f"#{rank}/{len(position_df)}"
                 )
 
             comparison_rows.append(record)
 
         st.caption(
-            "Cell format: raw value | league percentile | league rank"
+            "Cell format: raw value | league percentile | rank vs reference sample"
         )
 
         st.dataframe(
@@ -1284,8 +1468,8 @@ with tab_compare:
         summary_rows = []
 
         for player in compare_players:
-            row = position_df.loc[
-                position_df["Name"] == player
+            row = comparison_df.loc[
+                comparison_df["Name"] == player
             ].iloc[0]
 
             selected_percentiles = [
@@ -1297,6 +1481,9 @@ with tab_compare:
                 {
                     "Player": player,
                     "Team": row["Team"],
+                    "Minutes": int(row["Minutes played"])
+                    if pd.notna(row.get("Minutes played", np.nan))
+                    else np.nan,
                     "Average selected percentile": round(
                         float(np.nanmean(selected_percentiles)),
                         1,
@@ -1437,6 +1624,7 @@ with tab_ranking:
                 record = {
                     "Name": row["Name"],
                     "Team": row["Team"],
+                    "Minutes played": row.get("Minutes played", np.nan),
                     "Our player": row["Our player"],
                     "Overall percentile": score,
                     "Average metric rank": avg_rank,
@@ -1521,6 +1709,7 @@ with tab_ranking:
                         "Overall rank",
                         "Name",
                         "Team",
+                        "Minutes played",
                         "Our player",
                         "Overall percentile",
                         "Average metric rank",
@@ -1593,6 +1782,7 @@ with tab_ranking:
                 {
                     "Name": row["Name"],
                     "Team": row["Team"],
+                    "Minutes played": row.get("Minutes played", np.nan),
                     "Our player": row["Our player"],
                     "Raw": raw,
                     "Percentile": row[f"PCTL__{ranking_metric}"],
