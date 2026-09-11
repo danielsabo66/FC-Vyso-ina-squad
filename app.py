@@ -1498,6 +1498,27 @@ TEAM_STYLE_AXES = {
 }
 
 
+TEAM_FULL_RADAR_METRICS = [
+    ("Possession", "possession"),
+    ("Pass accuracy", "pass_accuracy"),
+    ("Match tempo", "match_tempo"),
+    ("Long-pass share", "long_pass_share"),
+    ("Pressing intensity", "ppda"),
+    ("Shots / match", "shots_per_match"),
+    ("xG / match", "xg_per_match"),
+    ("Goals / match", "goals_per_match"),
+    ("Shots on target %", "shots_on_target_pct"),
+    ("Key passes / match", "key_passes_per_match"),
+    ("xA / match", "xa_per_match"),
+    ("Crosses / match", "crosses_per_match"),
+    ("Cross accuracy", "cross_accuracy"),
+    ("Final-third dribbles", "final_third_dribbles_per_match"),
+    ("Final-third recoveries", "final_third_recoveries_per_match"),
+    ("xG after crosses", "after_crosses_xg_per_match"),
+    ("Set-piece xG", "after_setpieces_xg_per_match"),
+]
+
+
 @st.cache_data
 def load_team_database():
     path = DATA_DIR / "team_data.csv"
@@ -1576,30 +1597,79 @@ def prepare_team_percentiles(df: pd.DataFrame):
 
 
 def club_style_radar(team_db: pd.DataFrame, teams: list[str]):
-    axes = list(TEAM_STYLE_AXES.keys())
-    colors = ["#FFD900", "#4DA3FF", "#7ED957", "#FF9F43"]
+    """
+    Complete team comparison radar.
 
+    Uses the full set of available team-report benchmarking metrics rather than
+    only the 8 composite style axes. Each spoke is a league percentile.
+    PPDA is already inverted when percentiles are prepared, so a higher
+    percentile always means more intense pressing.
+    """
+    metric_pairs = [
+        (label, metric)
+        for label, metric in TEAM_FULL_RADAR_METRICS
+        if f"PCTL__{metric}" in team_db.columns
+    ]
+
+    colors = ["#FFD900", "#4DA3FF", "#7ED957", "#FF9F43"]
     fig = go.Figure()
 
+    labels = [label for label, _ in metric_pairs]
+
     for idx, team in enumerate(teams):
-        row_df = team_db[team_db["Team"].astype(str).eq(str(team))]
+        row_df = team_db[
+            team_db["Team"].astype(str).eq(str(team))
+        ]
+
         if row_df.empty:
             continue
+
         row = row_df.iloc[0]
-        vals = [float(row.get(f"STYLE__{axis}", np.nan)) for axis in axes]
-        vals = [0 if pd.isna(v) else v for v in vals]
-        labels = [f"{axis} {v:.0f}%" for axis, v in zip(axes, vals)]
+        vals = []
+        hover_raw = []
+
+        for label, metric in metric_pairs:
+            pct = pd.to_numeric(
+                pd.Series([row.get(f"PCTL__{metric}", np.nan)]),
+                errors="coerce",
+            ).iloc[0]
+
+            raw = pd.to_numeric(
+                pd.Series([row.get(metric, np.nan)]),
+                errors="coerce",
+            ).iloc[0]
+
+            vals.append(0.0 if pd.isna(pct) else float(pct))
+            hover_raw.append(raw)
+
+        if not vals:
+            continue
+
+        color = colors[idx % len(colors)]
 
         fig.add_trace(
             go.Scatterpolar(
                 r=vals + [vals[0]],
                 theta=labels + [labels[0]],
+                customdata=hover_raw + [hover_raw[0]],
                 mode="lines",
-                line=dict(color=colors[idx % len(colors)], width=3),
+                line=dict(
+                    color=color,
+                    width=3,
+                ),
                 fill="toself",
-                fillcolor=hex_to_rgba(colors[idx % len(colors)], 0.12 if len(teams) > 1 else 0.22),
+                fillcolor=hex_to_rgba(
+                    color,
+                    0.11 if len(teams) > 1 else 0.20,
+                ),
                 name=team,
-                hovertemplate="<b>%{fullData.name}</b><br>%{theta}<extra></extra>",
+                hovertemplate=(
+                    "<b>%{fullData.name}</b>"
+                    "<br>%{theta}"
+                    "<br>League percentile: <b>%{r:.0f}</b>"
+                    "<br>Raw value: %{customdata:.2f}"
+                    "<extra></extra>"
+                ),
             )
         )
 
@@ -1611,24 +1681,40 @@ def club_style_radar(team_db: pd.DataFrame, teams: list[str]):
                 visible=True,
                 range=[0, 100],
                 tickvals=[20, 40, 60, 80, 100],
-                tickfont=dict(size=9, color="rgba(255,255,255,.58)"),
+                tickfont=dict(
+                    size=9,
+                    color="rgba(255,255,255,.58)",
+                ),
                 gridcolor="rgba(255,255,255,.15)",
             ),
             angularaxis=dict(
                 rotation=90,
                 direction="clockwise",
                 gridcolor="rgba(255,255,255,.10)",
-                tickfont=dict(size=12, color="#F5F7FA"),
+                tickfont=dict(
+                    size=10,
+                    color="#F5F7FA",
+                ),
             ),
         ),
         paper_bgcolor="rgba(0,0,0,0)",
         showlegend=len(teams) > 1,
-        legend=dict(orientation="h", y=-0.12, x=0.5, xanchor="center"),
-        height=600,
-        margin=dict(l=90, r=90, t=35, b=80),
+        legend=dict(
+            orientation="h",
+            y=-0.12,
+            x=0.5,
+            xanchor="center",
+        ),
+        height=760,
+        margin=dict(
+            l=125,
+            r=125,
+            t=40,
+            b=90,
+        ),
     )
-    return fig
 
+    return fig
 
 def team_style_description(row: pd.Series):
     scores = {axis: float(row.get(f"STYLE__{axis}", np.nan)) for axis in TEAM_STYLE_AXES}
@@ -2537,6 +2623,9 @@ if app_mode == "Club vs Opponent":
                 compare_teams = [away_team]
                 if not home_row_df.empty:
                     compare_teams = [home_team, away_team]
+                st.caption(
+                    "Complete team radar · every spoke is a separate league percentile from the Wyscout team reports."
+                )
                 st.plotly_chart(
                     club_style_radar(team_db, compare_teams),
                     use_container_width=True,
