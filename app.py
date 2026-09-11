@@ -1536,7 +1536,7 @@ def make_player_traits_radar(
     ):
         label = short_metric_label(metric)
         axis_labels.append(
-            f"{label}<br><b>{percentile:.0f}%</b>"
+            f"{label} {percentile:.0f}%"
         )
 
     closed_r = percentiles + [percentiles[0]]
