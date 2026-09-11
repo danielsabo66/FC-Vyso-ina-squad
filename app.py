@@ -2527,11 +2527,24 @@ st.markdown(
 if app_mode == "Club vs Opponent":
     st.subheader("Club vs Opponent")
 
-    all_team_names = sorted(
-        team
-        for team in all_data["Team"].dropna().astype(str).unique()
-        if team.strip()
-    )
+    # Club-vs-Opponent must only show clubs from the league team database.
+    # Player exports can contain foreign/current clubs for individual players,
+    # which should not appear as opponent choices.
+    team_db = load_team_database()
+
+    if not team_db.empty and "Team" in team_db.columns:
+        all_team_names = sorted(
+            team
+            for team in team_db["Team"].dropna().astype(str).unique()
+            if team.strip()
+        )
+    else:
+        # Fallback only if team_data.csv is unavailable.
+        all_team_names = sorted(
+            team
+            for team in all_data["Team"].dropna().astype(str).unique()
+            if team.strip()
+        )
 
     top_controls = st.columns([1.2, 1.2, 1])
 
@@ -2583,8 +2596,6 @@ if app_mode == "Club vs Opponent":
             step=90,
             key="club_mode_min_minutes",
         )
-
-    team_db = load_team_database()
 
     tab_club_profile, tab_best_xi, tab_match_report = st.tabs(
         [
