@@ -335,316 +335,6 @@ PREFERRED_METRICS = {
 
 
 # ============================================================
-# ROLE PRESETS
-# ============================================================
-
-ROLE_PRESETS = {
-    "GK": {
-        "Balanced GK": {
-            "Save rate, %": 1.5,
-            "Prevented goals per 90": 1.5,
-            "Accurate passes, %": 1.0,
-            "Accurate long passes, %": 1.0,
-            "Exits per 90": 0.8,
-            "Aerial duels per 90": 0.7,
-        },
-        "Shot stopper": {
-            "Save rate, %": 2.0,
-            "Prevented goals per 90": 2.0,
-            "Conceded goals per 90": 1.2,
-            "Clean sheets": 0.8,
-        },
-        "Distributor": {
-            "Accurate passes, %": 2.0,
-            "Accurate long passes, %": 1.8,
-            "Passes per 90": 0.8,
-            "Long passes per 90": 0.8,
-            "Back passes received as GK per 90": 0.7,
-            "Save rate, %": 1.0,
-        },
-        "Sweeper keeper": {
-            "Exits per 90": 1.8,
-            "Back passes received as GK per 90": 1.2,
-            "Accurate passes, %": 1.2,
-            "Accurate long passes, %": 1.0,
-            "Save rate, %": 1.2,
-            "Prevented goals per 90": 1.0,
-        },
-    },
-
-    "LB": {
-        "Balanced full-back": {
-            "Defensive duels won, %": 1.5,
-            "PAdj Interceptions": 1.2,
-            "Accurate crosses, %": 1.0,
-            "Successful dribbles, %": 1.0,
-            "Progressive runs per 90": 1.2,
-            "Accurate passes, %": 0.9,
-            "xA per 90": 1.0,
-            "Passes to penalty area per 90": 1.0,
-        },
-        "Defensive full-back": {
-            "Defensive duels won, %": 2.0,
-            "PAdj Interceptions": 1.7,
-            "Aerial duels won, %": 1.3,
-            "PAdj Sliding tackles": 1.2,
-            "Successful defensive actions per 90": 1.0,
-            "Accurate passes, %": 0.8,
-        },
-        "Attacking wing-back": {
-            "Progressive runs per 90": 1.8,
-            "Crosses per 90": 1.2,
-            "Accurate crosses, %": 1.5,
-            "Successful dribbles, %": 1.4,
-            "xA per 90": 1.5,
-            "Passes to penalty area per 90": 1.3,
-            "Successful attacking actions per 90": 1.0,
-        },
-    },
-
-    "RB": {
-        "Balanced full-back": {
-            "Defensive duels won, %": 1.5,
-            "PAdj Interceptions": 1.2,
-            "Accurate crosses, %": 1.0,
-            "Successful dribbles, %": 1.0,
-            "Progressive runs per 90": 1.2,
-            "Accurate passes, %": 0.9,
-            "xA per 90": 1.0,
-            "Passes to penalty area per 90": 1.0,
-        },
-        "Defensive full-back": {
-            "Defensive duels won, %": 2.0,
-            "PAdj Interceptions": 1.7,
-            "Aerial duels won, %": 1.3,
-            "PAdj Sliding tackles": 1.2,
-            "Successful defensive actions per 90": 1.0,
-            "Accurate passes, %": 0.8,
-        },
-        "Attacking wing-back": {
-            "Progressive runs per 90": 1.8,
-            "Crosses per 90": 1.2,
-            "Accurate crosses, %": 1.5,
-            "Successful dribbles, %": 1.4,
-            "xA per 90": 1.5,
-            "Passes to penalty area per 90": 1.3,
-            "Successful attacking actions per 90": 1.0,
-        },
-    },
-
-    "CB": {
-        "Balanced centre-back": {
-            "Defensive duels won, %": 1.7,
-            "Aerial duels won, %": 1.5,
-            "PAdj Interceptions": 1.2,
-            "Accurate passes, %": 1.0,
-            "Accurate forward passes, %": 1.0,
-            "Progressive passes per 90": 1.0,
-            "Accurate progressive passes, %": 1.0,
-            "Fouls per 90": 0.8,
-        },
-        "Stopper": {
-            "Defensive duels won, %": 2.0,
-            "Aerial duels won, %": 1.8,
-            "PAdj Interceptions": 1.5,
-            "Shots blocked per 90": 1.0,
-            "Fouls per 90": 0.9,
-            "Successful defensive actions per 90": 1.0,
-        },
-        "Ball-playing CB": {
-            "Accurate passes, %": 1.5,
-            "Accurate forward passes, %": 1.5,
-            "Progressive passes per 90": 1.7,
-            "Accurate progressive passes, %": 1.5,
-            "Passes to final third per 90": 1.3,
-            "Accurate long passes, %": 1.1,
-            "Defensive duels won, %": 1.1,
-            "Aerial duels won, %": 1.0,
-        },
-    },
-
-    "CM/CDM": {
-        "Balanced midfielder": {
-            "Defensive duels won, %": 1.1,
-            "PAdj Interceptions": 1.0,
-            "Accurate passes, %": 1.0,
-            "Progressive passes per 90": 1.2,
-            "Accurate progressive passes, %": 1.0,
-            "Progressive runs per 90": 1.0,
-            "xA per 90": 1.0,
-            "Passes to final third per 90": 1.0,
-        },
-        "Holding 6": {
-            "Defensive duels won, %": 1.8,
-            "PAdj Interceptions": 1.8,
-            "Aerial duels won, %": 1.1,
-            "Accurate passes, %": 1.2,
-            "Accurate forward passes, %": 1.0,
-            "Progressive passes per 90": 1.0,
-        },
-        "Deep playmaker": {
-            "Accurate passes, %": 1.4,
-            "Accurate forward passes, %": 1.3,
-            "Progressive passes per 90": 1.8,
-            "Accurate progressive passes, %": 1.5,
-            "Passes to final third per 90": 1.4,
-            "Accurate long passes, %": 1.1,
-            "Through passes per 90": 0.8,
-        },
-        "Box-to-box 8": {
-            "Progressive runs per 90": 1.6,
-            "Successful attacking actions per 90": 1.2,
-            "Defensive duels won, %": 1.2,
-            "PAdj Interceptions": 1.0,
-            "Goals per 90": 0.9,
-            "Assists per 90": 0.9,
-            "xA per 90": 1.0,
-            "Progressive passes per 90": 1.0,
-        },
-    },
-
-    "CAM": {
-        "Classic 10": {
-            "xA per 90": 1.8,
-            "Shot assists per 90": 1.6,
-            "Key passes per 90": 1.6,
-            "Smart passes per 90": 1.3,
-            "Through passes per 90": 1.2,
-            "Assists per 90": 1.2,
-            "Progressive passes per 90": 1.0,
-        },
-        "Goal-scoring 10": {
-            "Goals per 90": 1.8,
-            "xG per 90": 1.6,
-            "Shots per 90": 1.2,
-            "Shots on target, %": 1.2,
-            "Touches in box per 90": 1.1,
-            "Successful attacking actions per 90": 1.0,
-            "xA per 90": 0.8,
-        },
-        "Dynamic 10": {
-            "Progressive runs per 90": 1.5,
-            "Successful dribbles, %": 1.3,
-            "Offensive duels won, %": 1.2,
-            "Successful attacking actions per 90": 1.3,
-            "xA per 90": 1.2,
-            "Shot assists per 90": 1.1,
-            "Passes to penalty area per 90": 1.0,
-        },
-    },
-
-    "RW/LW": {
-        "1v1 winger": {
-            "Dribbles per 90": 1.4,
-            "Successful dribbles, %": 1.8,
-            "Offensive duels won, %": 1.4,
-            "Progressive runs per 90": 1.5,
-            "Accelerations per 90": 1.1,
-            "Successful attacking actions per 90": 1.2,
-        },
-        "Creator winger": {
-            "xA per 90": 1.8,
-            "Shot assists per 90": 1.6,
-            "Key passes per 90": 1.5,
-            "Passes to penalty area per 90": 1.3,
-            "Accurate crosses, %": 1.2,
-            "Smart passes per 90": 1.0,
-            "Progressive passes per 90": 1.0,
-        },
-        "Inside forward": {
-            "Goals per 90": 1.8,
-            "xG per 90": 1.5,
-            "Shots per 90": 1.2,
-            "Shots on target, %": 1.2,
-            "Touches in box per 90": 1.3,
-            "Progressive runs per 90": 1.2,
-            "Successful dribbles, %": 1.0,
-        },
-        "Balanced winger": {
-            "Goals per 90": 1.1,
-            "xA per 90": 1.1,
-            "Successful dribbles, %": 1.2,
-            "Progressive runs per 90": 1.2,
-            "Offensive duels won, %": 1.0,
-            "Shot assists per 90": 1.0,
-            "Successful attacking actions per 90": 1.1,
-        },
-    },
-
-    "ST": {
-        "Poacher": {
-            "Goals per 90": 2.0,
-            "Non-penalty goals per 90": 1.8,
-            "xG per 90": 1.6,
-            "Shots on target, %": 1.2,
-            "Goal conversion, %": 1.3,
-            "Touches in box per 90": 1.3,
-        },
-        "Target forward": {
-            "Aerial duels won, %": 1.8,
-            "Aerial duels per 90": 1.2,
-            "Offensive duels won, %": 1.4,
-            "Received passes per 90": 1.0,
-            "Goals per 90": 1.3,
-            "Head goals per 90": 1.3,
-            "Accurate passes, %": 0.8,
-        },
-        "Complete forward": {
-            "Goals per 90": 1.5,
-            "xG per 90": 1.2,
-            "Assists per 90": 1.0,
-            "xA per 90": 1.0,
-            "Successful dribbles, %": 1.0,
-            "Offensive duels won, %": 1.1,
-            "Touches in box per 90": 1.1,
-            "Progressive runs per 90": 1.0,
-            "Shot assists per 90": 0.8,
-        },
-        "Pressing forward": {
-            "Successful defensive actions per 90": 1.5,
-            "Defensive duels won, %": 1.2,
-            "Interceptions per 90": 0.9,
-            "Offensive duels won, %": 1.1,
-            "Goals per 90": 1.2,
-            "Touches in box per 90": 1.0,
-        },
-    },
-}
-
-
-def get_role_names(position: str) -> list[str]:
-    return list(ROLE_PRESETS.get(position, {}).keys())
-
-
-def get_role_config(
-    position: str,
-    role_name: str,
-    available_metrics: list[str],
-):
-    role = ROLE_PRESETS.get(position, {}).get(role_name, {})
-
-    filtered = {
-        metric: weight
-        for metric, weight in role.items()
-        if metric in available_metrics
-    }
-
-    if filtered:
-        return filtered
-
-    fallback = preferred_metrics(
-        position,
-        available_metrics,
-        maximum=min(8, len(available_metrics)),
-    )
-
-    return {
-        metric: 1.0
-        for metric in fallback
-    }
-
-
-# ============================================================
 # DATA
 # ============================================================
 
@@ -1236,6 +926,557 @@ def show_individual_radars(
                 key=f"individual_radar_{player}_{index}",
             )
 
+
+
+
+# ============================================================
+# TACTICAL XI BUILDER
+# ============================================================
+
+TACTICAL_TRAITS = {
+    "Defensive duels": [
+        "Defensive duels won, %",
+        "Successful defensive actions per 90",
+        "Defensive duels per 90",
+    ],
+    "Interceptions / reading": [
+        "PAdj Interceptions",
+        "Interceptions per 90",
+    ],
+    "Aerial ability": [
+        "Aerial duels won, %",
+        "Aerial duels per 90",
+    ],
+    "Tackling": [
+        "PAdj Sliding tackles",
+        "Sliding tackles per 90",
+    ],
+    "Blocking": [
+        "Shots blocked per 90",
+    ],
+    "Runs / mobility": [
+        "Progressive runs per 90",
+        "Accelerations per 90",
+    ],
+    "1v1 / dribbling": [
+        "Successful dribbles, %",
+        "Dribbles per 90",
+        "Offensive duels won, %",
+    ],
+    "Crossing": [
+        "Accurate crosses, %",
+        "Crosses per 90",
+        "Accurate crosses from left flank, %",
+        "Accurate crosses from right flank, %",
+    ],
+    "Chance creation": [
+        "xA per 90",
+        "Shot assists per 90",
+        "Key passes per 90",
+        "Assists per 90",
+    ],
+    "Progressive passing": [
+        "Progressive passes per 90",
+        "Accurate progressive passes, %",
+        "Passes to final third per 90",
+    ],
+    "Passing security": [
+        "Accurate passes, %",
+        "Accurate forward passes, %",
+    ],
+    "Long passing": [
+        "Accurate long passes, %",
+        "Long passes per 90",
+    ],
+    "Final-third delivery": [
+        "Passes to penalty area per 90",
+        "Accurate passes to penalty area, %",
+        "Through passes per 90",
+        "Accurate through passes, %",
+        "Smart passes per 90",
+    ],
+    "Goal threat": [
+        "Goals per 90",
+        "xG per 90",
+        "Shots per 90",
+    ],
+    "Finishing": [
+        "Goal conversion, %",
+        "Shots on target, %",
+        "Non-penalty goals per 90",
+        "Goals per 90",
+    ],
+    "Box presence": [
+        "Touches in box per 90",
+        "xG per 90",
+        "Shots per 90",
+    ],
+    "Link play": [
+        "Received passes per 90",
+        "Accurate passes, %",
+        "Shot assists per 90",
+        "Assists per 90",
+    ],
+    "Pressing / defensive activity": [
+        "Successful defensive actions per 90",
+        "Defensive duels per 90",
+        "Interceptions per 90",
+    ],
+}
+
+SLOT_DEFAULT_TRAITS = {
+    "LB": ["Runs / mobility", "Defensive duels", "Crossing"],
+    "RB": ["Runs / mobility", "Defensive duels", "Crossing"],
+    "LWB": ["Runs / mobility", "Crossing", "1v1 / dribbling"],
+    "RWB": ["Runs / mobility", "Crossing", "1v1 / dribbling"],
+
+    "LCB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
+    "CB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
+    "RCB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
+
+    "LDM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
+    "RDM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
+    "DM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
+
+    "LCM": ["Progressive passing", "Passing security", "Runs / mobility"],
+    "CM": ["Progressive passing", "Passing security", "Runs / mobility"],
+    "RCM": ["Progressive passing", "Passing security", "Runs / mobility"],
+
+    "CAM": ["Chance creation", "Final-third delivery", "1v1 / dribbling"],
+    "LAM": ["Chance creation", "1v1 / dribbling", "Goal threat"],
+    "RAM": ["Chance creation", "1v1 / dribbling", "Goal threat"],
+
+    "LW": ["1v1 / dribbling", "Runs / mobility", "Chance creation"],
+    "RW": ["1v1 / dribbling", "Runs / mobility", "Chance creation"],
+    "LM": ["Runs / mobility", "Crossing", "Chance creation"],
+    "RM": ["Runs / mobility", "Crossing", "Chance creation"],
+
+    "ST": ["Goal threat", "Finishing", "Box presence"],
+    "LST": ["Goal threat", "Finishing", "Box presence"],
+    "RST": ["Goal threat", "Finishing", "Box presence"],
+}
+
+
+def tactical_player_pool(
+    full_data: pd.DataFrame,
+    team: str,
+    min_minutes: int,
+):
+    """
+    Build one cross-position candidate pool.
+
+    Each row is scored within its own Wyscout positional reference group first,
+    so a winger, full-back, midfielder etc. can then be compared on selected
+    tactical traits using 0-100 percentile values.
+    """
+    frames = []
+
+    for position in POSITION_ORDER:
+        scored, _ = position_scored_frame(
+            full_data,
+            position,
+            min_minutes,
+        )
+
+        if scored.empty:
+            continue
+
+        team_rows = scored[
+            scored["Team"].astype(str).eq(team)
+        ].copy()
+
+        if team_rows.empty:
+            continue
+
+        team_rows["Source position"] = position
+        frames.append(team_rows)
+
+    if not frames:
+        return pd.DataFrame()
+
+    return pd.concat(
+        frames,
+        ignore_index=True,
+        sort=False,
+    )
+
+
+def tactical_trait_score(
+    row: pd.Series,
+    trait: str,
+):
+    metric_names = TACTICAL_TRAITS.get(trait, [])
+    values = []
+
+    for metric in metric_names:
+        pctl_col = f"PCTL__{metric}"
+
+        if pctl_col in row.index:
+            value = pd.to_numeric(
+                pd.Series([row.get(pctl_col)]),
+                errors="coerce",
+            ).iloc[0]
+
+            if pd.notna(value):
+                values.append(float(value))
+
+    if not values:
+        return np.nan
+
+    return float(np.mean(values))
+
+
+def score_tactical_candidates(
+    pool: pd.DataFrame,
+    slot_name: str,
+    selected_traits: list[str],
+    trait_weights: dict[str, float] | None = None,
+):
+    if pool.empty or not selected_traits:
+        return pd.DataFrame()
+
+    candidates = pool.copy()
+
+    # Goalkeeper is the only position that stays position-restricted.
+    if slot_name == "GK":
+        candidates = candidates[
+            candidates["Source position"] == "GK"
+        ].copy()
+    else:
+        candidates = candidates[
+            candidates["Source position"] != "GK"
+        ].copy()
+
+    if candidates.empty:
+        return candidates
+
+    if trait_weights is None:
+        trait_weights = {
+            trait: 1.0
+            for trait in selected_traits
+        }
+
+    trait_columns = []
+
+    for trait in selected_traits:
+        col_name = f"TRAIT__{trait}"
+
+        candidates[col_name] = candidates.apply(
+            lambda row: tactical_trait_score(
+                row,
+                trait,
+            ),
+            axis=1,
+        )
+
+        trait_columns.append(col_name)
+
+    def calculate_score(row):
+        weighted_values = []
+        available_weight = 0.0
+        total_weight = sum(
+            max(0.0, float(trait_weights.get(trait, 1.0)))
+            for trait in selected_traits
+        )
+
+        matched_traits = 0
+
+        for trait in selected_traits:
+            weight = max(
+                0.0,
+                float(trait_weights.get(trait, 1.0)),
+            )
+
+            value = row.get(
+                f"TRAIT__{trait}",
+                np.nan,
+            )
+
+            if pd.notna(value) and weight > 0:
+                weighted_values.append(
+                    float(value) * weight
+                )
+                available_weight += weight
+                matched_traits += 1
+
+        if not weighted_values or available_weight <= 0:
+            return pd.Series(
+                [np.nan, 0.0],
+                index=[
+                    "Tactical score",
+                    "Trait coverage",
+                ],
+            )
+
+        raw_score = (
+            sum(weighted_values)
+            / available_weight
+        )
+
+        coverage = (
+            available_weight / total_weight
+            if total_weight > 0
+            else 0.0
+        )
+
+        # Mild coverage penalty:
+        # a player matching only one requested trait should not beat a player
+        # with strong data across all requested traits purely because of one metric.
+        adjusted_score = raw_score * (
+            0.65 + 0.35 * coverage
+        )
+
+        return pd.Series(
+            [
+                adjusted_score,
+                coverage * 100.0,
+            ],
+            index=[
+                "Tactical score",
+                "Trait coverage",
+            ],
+        )
+
+    score_frame = candidates.apply(
+        calculate_score,
+        axis=1,
+    )
+
+    candidates[
+        ["Tactical score", "Trait coverage"]
+    ] = score_frame
+
+    candidates = candidates[
+        candidates["Tactical score"].notna()
+    ].copy()
+
+    if candidates.empty:
+        return candidates
+
+    candidates = candidates.sort_values(
+        [
+            "Tactical score",
+            "Trait coverage",
+        ],
+        ascending=[False, False],
+    )
+
+    # A player can exist in multiple positional exports.
+    # Keep whichever source-position row gives him the best fit for this slot.
+    candidates = candidates.drop_duplicates(
+        subset=["Name", "Team"],
+        keep="first",
+    )
+
+    return candidates
+
+
+def build_tactical_xi(
+    full_data: pd.DataFrame,
+    team: str,
+    formation: str,
+    min_minutes: int,
+    slot_requirements: dict,
+):
+    pool = tactical_player_pool(
+        full_data,
+        team,
+        min_minutes,
+    )
+
+    slot_defs = FORMATION_SLOTS[formation]
+    candidate_map = {}
+
+    for slot_name, _ in slot_defs:
+        requirement = slot_requirements.get(
+            slot_name,
+            {},
+        )
+
+        traits = requirement.get(
+            "traits",
+            SLOT_DEFAULT_TRAITS.get(
+                slot_name,
+                ["Passing security"],
+            ),
+        )
+
+        weights = requirement.get(
+            "weights",
+            {
+                trait: 1.0
+                for trait in traits
+            },
+        )
+
+        candidate_map[slot_name] = score_tactical_candidates(
+            pool,
+            slot_name,
+            traits,
+            weights,
+        )
+
+    # Fill the slot with fewest viable candidates first.
+    slot_order = sorted(
+        slot_defs,
+        key=lambda item: len(
+            candidate_map.get(
+                item[0],
+                pd.DataFrame(),
+            )
+        ),
+    )
+
+    selected = {}
+    used_players = set()
+
+    for slot_name, allowed_positions in slot_order:
+        candidates = candidate_map.get(
+            slot_name,
+            pd.DataFrame(),
+        )
+
+        choice = None
+
+        if not candidates.empty:
+            for _, row in candidates.iterrows():
+                player_key = (
+                    str(row["Name"]),
+                    str(row["Team"]),
+                )
+
+                if player_key not in used_players:
+                    choice = row
+                    used_players.add(player_key)
+                    break
+
+        selected[slot_name] = choice
+
+    return [
+        (
+            slot_name,
+            allowed_positions,
+            selected.get(slot_name),
+        )
+        for slot_name, allowed_positions in slot_defs
+    ]
+
+
+def tactical_lineup_dataframe(
+    lineup,
+    slot_requirements: dict,
+):
+    rows = []
+
+    for slot_name, _, row in lineup:
+        traits = slot_requirements.get(
+            slot_name,
+            {},
+        ).get(
+            "traits",
+            SLOT_DEFAULT_TRAITS.get(
+                slot_name,
+                [],
+            ),
+        )
+
+        if row is None:
+            rows.append(
+                {
+                    "Slot": slot_name,
+                    "Player": "—",
+                    "Source position": "—",
+                    "Tactical score": np.nan,
+                    "Coverage": np.nan,
+                    "Requested traits": ", ".join(traits),
+                }
+            )
+            continue
+
+        source_position = row.get(
+            "Source position",
+            row.get(
+                "Score position",
+                "GK" if slot_name == "GK" else "—",
+            ),
+        )
+
+        tactical_score = row.get(
+            "Tactical score",
+            row.get(
+                "Position overall",
+                np.nan,
+            ),
+        )
+
+        coverage = row.get(
+            "Trait coverage",
+            100.0 if slot_name == "GK" else np.nan,
+        )
+
+        rows.append(
+            {
+                "Slot": slot_name,
+                "Player": row.get("Name", "—"),
+                "Source position": source_position,
+                "Tactical score": tactical_score,
+                "Coverage": coverage,
+                "Requested traits": (
+                    "Goalkeeper model"
+                    if slot_name == "GK"
+                    else ", ".join(traits)
+                ),
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def make_tactical_pitch_figure(
+    lineup,
+    formation: str,
+    title: str,
+):
+    fig = make_pitch_figure(
+        lineup,
+        formation,
+        title,
+    )
+
+    # Replace the default positional overall in hover/text where possible
+    # by adding a small tactical score annotation below each player.
+    coords = FORMATION_COORDS[formation]
+
+    for slot_name, _, row in lineup:
+        if row is None or slot_name not in coords:
+            continue
+
+        x, y = coords[slot_name]
+        tactical_score = row.get(
+            "Tactical score",
+            np.nan,
+        )
+        source_position = row.get(
+            "Source position",
+            "",
+        )
+
+        if pd.notna(tactical_score):
+            fig.add_annotation(
+                x=x,
+                y=y - 5.8,
+                text=(
+                    f"{float(tactical_score):.0f}p"
+                    f" · {source_position}"
+                ),
+                showarrow=False,
+                font=dict(
+                    size=9,
+                    color="rgba(255,255,255,.82)",
+                ),
+            )
+
+    return fig
 
 
 # ============================================================
@@ -1877,11 +2118,12 @@ st.markdown(
 )
 
 if app_mode == "Club vs Opponent":
-    st.subheader("Club vs Opponent — best XI")
+    st.subheader("Club vs Opponent")
 
     st.caption(
-        "The XI is built from the best available positional overall percentiles "
-        "for each formation slot. Each player can be used only once."
+        "Build our XI from tactical requirements for each slot. "
+        "Outfield players can be selected outside their natural position; "
+        "the goalkeeper slot remains limited to goalkeepers."
     )
 
     all_team_names = sorted(
@@ -1894,7 +2136,7 @@ if app_mode == "Club vs Opponent":
 
     with top_controls[0]:
         home_team = st.selectbox(
-            "Club A",
+            "Our team / Club A",
             all_team_names,
             index=(
                 all_team_names.index(OWN_TEAM)
@@ -1912,14 +2154,17 @@ if app_mode == "Club vs Opponent":
         ]
 
         away_team = st.selectbox(
-            "Club B / opponent",
+            "Opponent / Club B",
             away_options,
             key="club_mode_away_team",
         )
 
     with top_controls[2]:
         all_minutes_values = pd.to_numeric(
-            all_data.get("Minutes played", pd.Series(dtype=float)),
+            all_data.get(
+                "Minutes played",
+                pd.Series(dtype=float),
+            ),
             errors="coerce",
         ).dropna()
 
@@ -1932,13 +2177,22 @@ if app_mode == "Club vs Opponent":
         club_min_minutes = st.number_input(
             "Minimum minutes",
             min_value=1,
-            max_value=max(1, club_max_minutes),
-            value=min(450, max(1, club_max_minutes)),
+            max_value=max(
+                1,
+                club_max_minutes,
+            ),
+            value=min(
+                450,
+                max(
+                    1,
+                    club_max_minutes,
+                ),
+            ),
             step=90,
             key="club_mode_min_minutes",
             help=(
-                "This filter applies to best-XI selection. "
-                "Players below the threshold are not eligible."
+                "Players below this sample size are not eligible "
+                "for either lineup."
             ),
         )
 
@@ -1947,7 +2201,9 @@ if app_mode == "Club vs Opponent":
     with formation_cols[0]:
         home_formation = st.selectbox(
             f"{home_team} formation",
-            list(FORMATION_SLOTS.keys()),
+            list(
+                FORMATION_SLOTS.keys()
+            ),
             index=0,
             key="home_formation",
         )
@@ -1955,67 +2211,249 @@ if app_mode == "Club vs Opponent":
     with formation_cols[1]:
         away_formation = st.selectbox(
             f"{away_team} formation",
-            list(FORMATION_SLOTS.keys()),
+            list(
+                FORMATION_SLOTS.keys()
+            ),
             index=0,
             key="away_formation",
         )
 
-    allow_wingers = st.toggle(
-        "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
-        value=False,
-        help=(
-            "LWB normally selects from LB and RWB from RB. "
-            "Turn this on if you also want to consider natural wingers as tactical wing-backs."
-        ),
+    st.markdown("### Tactical requirements for our XI")
+    st.caption(
+        "Open a position and choose what you need from that role. "
+        "The model searches the whole outfield squad, not only players "
+        "from the nominal position."
     )
 
-    home_lineup = build_best_xi(
+    slot_requirements = {}
+
+    home_slot_defs = FORMATION_SLOTS[
+        home_formation
+    ]
+
+    for slot_index, (
+        slot_name,
+        _,
+    ) in enumerate(home_slot_defs):
+        # GK uses its standard goalkeeper scoring because outfield tactical
+        # traits are not comparable to goalkeeper metrics.
+        if slot_name == "GK":
+            slot_requirements[
+                slot_name
+            ] = {
+                "traits": [],
+                "weights": {},
+            }
+            continue
+
+        defaults = [
+            trait
+            for trait in SLOT_DEFAULT_TRAITS.get(
+                slot_name,
+                [],
+            )
+            if trait in TACTICAL_TRAITS
+        ]
+
+        with st.expander(
+            f"{slot_name} · requirements",
+            expanded=False,
+        ):
+            selected_traits = st.multiselect(
+                "What do you want from this position?",
+                list(TACTICAL_TRAITS.keys()),
+                default=defaults,
+                key=(
+                    f"tactical_traits_"
+                    f"{home_formation}_"
+                    f"{slot_index}_"
+                    f"{slot_name}"
+                ),
+            )
+
+            use_custom_importance = st.toggle(
+                "Set importance",
+                value=False,
+                key=(
+                    f"tactical_weight_toggle_"
+                    f"{home_formation}_"
+                    f"{slot_index}_"
+                    f"{slot_name}"
+                ),
+                help=(
+                    "If off, every selected requirement has equal importance."
+                ),
+            )
+
+            trait_weights = {
+                trait: 1.0
+                for trait in selected_traits
+            }
+
+            if use_custom_importance:
+                if selected_traits:
+                    weight_cols = st.columns(
+                        min(
+                            3,
+                            len(selected_traits),
+                        )
+                    )
+
+                    for trait_index, trait in enumerate(
+                        selected_traits
+                    ):
+                        with weight_cols[
+                            trait_index
+                            % len(weight_cols)
+                        ]:
+                            importance = st.select_slider(
+                                trait,
+                                options=[
+                                    0.5,
+                                    1.0,
+                                    1.5,
+                                    2.0,
+                                ],
+                                value=1.0,
+                                format_func=lambda value: {
+                                    0.5: "Low",
+                                    1.0: "Normal",
+                                    1.5: "High",
+                                    2.0: "Key",
+                                }[value],
+                                key=(
+                                    f"tactical_weight_"
+                                    f"{home_formation}_"
+                                    f"{slot_index}_"
+                                    f"{slot_name}_"
+                                    f"{trait}"
+                                ),
+                            )
+
+                            trait_weights[
+                                trait
+                            ] = float(
+                                importance
+                            )
+
+            slot_requirements[
+                slot_name
+            ] = {
+                "traits": selected_traits,
+                "weights": trait_weights,
+            }
+
+    # Goalkeeper uses the original positional best-XI method.
+    standard_home_lineup = build_best_xi(
         all_data,
         home_team,
         home_formation,
         int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
+        allow_winger_wingbacks=True,
     )
 
+    tactical_home_lineup = build_tactical_xi(
+        all_data,
+        home_team,
+        home_formation,
+        int(club_min_minutes),
+        slot_requirements,
+    )
+
+    # Replace tactical GK with original GK choice.
+    standard_home_map = {
+        slot_name: row
+        for slot_name, _, row in standard_home_lineup
+    }
+
+    home_lineup = []
+
+    for slot_name, allowed_positions, row in tactical_home_lineup:
+        if slot_name == "GK":
+            row = standard_home_map.get(
+                "GK"
+            )
+
+        home_lineup.append(
+            (
+                slot_name,
+                allowed_positions,
+                row,
+            )
+        )
+
+    # Opponent stays automatic by natural positional model.
     away_lineup = build_best_xi(
         all_data,
         away_team,
         away_formation,
         int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
+        allow_winger_wingbacks=True,
     )
 
-    home_df = lineup_dataframe(home_lineup)
-    away_df = lineup_dataframe(away_lineup)
+    home_df = tactical_lineup_dataframe(
+        home_lineup,
+        slot_requirements,
+    )
+
+    away_df = lineup_dataframe(
+        away_lineup
+    )
 
     score_cols = st.columns(2)
 
     with score_cols[0]:
-        valid_scores = home_df["Overall percentile"].dropna()
-        home_score = valid_scores.mean() if not valid_scores.empty else np.nan
+        valid_scores = pd.to_numeric(
+            home_df["Tactical score"],
+            errors="coerce",
+        ).dropna()
+
+        home_score = (
+            valid_scores.mean()
+            if not valid_scores.empty
+            else np.nan
+        )
 
         st.metric(
-            f"{home_team} XI average",
-            f"{home_score:.1f}p" if pd.notna(home_score) else "—",
+            f"{home_team} tactical XI",
+            (
+                f"{home_score:.1f}p"
+                if pd.notna(home_score)
+                else "—"
+            ),
         )
 
     with score_cols[1]:
-        valid_scores = away_df["Overall percentile"].dropna()
-        away_score = valid_scores.mean() if not valid_scores.empty else np.nan
+        valid_scores = away_df[
+            "Overall percentile"
+        ].dropna()
+
+        away_score = (
+            valid_scores.mean()
+            if not valid_scores.empty
+            else np.nan
+        )
 
         st.metric(
-            f"{away_team} XI average",
-            f"{away_score:.1f}p" if pd.notna(away_score) else "—",
+            f"{away_team} automatic XI",
+            (
+                f"{away_score:.1f}p"
+                if pd.notna(away_score)
+                else "—"
+            ),
         )
 
     pitch_cols = st.columns(2)
 
     with pitch_cols[0]:
         st.plotly_chart(
-            make_pitch_figure(
+            make_tactical_pitch_figure(
                 home_lineup,
                 home_formation,
-                f"{home_team} · {home_formation}",
+                (
+                    f"{home_team} · "
+                    f"{home_formation}"
+                ),
             ),
             use_container_width=True,
             theme=None,
@@ -2026,12 +2464,18 @@ if app_mode == "Club vs Opponent":
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Overall percentile": st.column_config.ProgressColumn(
-                    "Overall percentile",
+                "Tactical score": st.column_config.ProgressColumn(
+                    "Tactical score",
                     min_value=0,
                     max_value=100,
                     format="%.1f",
-                )
+                ),
+                "Coverage": st.column_config.ProgressColumn(
+                    "Coverage",
+                    min_value=0,
+                    max_value=100,
+                    format="%.0f%%",
+                ),
             },
         )
 
@@ -2040,7 +2484,10 @@ if app_mode == "Club vs Opponent":
             make_pitch_figure(
                 away_lineup,
                 away_formation,
-                f"{away_team} · {away_formation}",
+                (
+                    f"{away_team} · "
+                    f"{away_formation}"
+                ),
             ),
             use_container_width=True,
             theme=None,
@@ -2060,6 +2507,15 @@ if app_mode == "Club vs Opponent":
             },
         )
 
+    st.info(
+        "How it works: every candidate is first benchmarked within his own "
+        "Wyscout positional dataset. For the chosen tactical requirements, "
+        "those percentile scores are combined into a Tactical score. "
+        "That is why, for example, a winger can be selected at left-back "
+        "if his running, crossing and defensive profile fits your request "
+        "better than the natural full-backs."
+    )
+
     missing_home = home_df[
         home_df["Player"] == "—"
     ]["Slot"].tolist()
@@ -2073,24 +2529,23 @@ if app_mode == "Club vs Opponent":
 
         if missing_home:
             messages.append(
-                f"{home_team}: missing {', '.join(missing_home)}"
+                (
+                    f"{home_team}: no eligible player for "
+                    f"{', '.join(missing_home)}"
+                )
             )
 
         if missing_away:
             messages.append(
-                f"{away_team}: missing {', '.join(missing_away)}"
+                (
+                    f"{away_team}: no eligible player for "
+                    f"{', '.join(missing_away)}"
+                )
             )
 
         st.warning(
-            "Not enough eligible players for a complete XI at the current minutes cutoff. "
-            + " | ".join(messages)
+            " | ".join(messages)
         )
-
-    st.info(
-        "Wing-back mapping: LWB uses the LB dataset and RWB uses the RB dataset. "
-        "If the winger alternative toggle is enabled, RW/LW players may also be considered. "
-        "The model is data-driven and should be treated as a selection aid, not a tactical verdict."
-    )
 
     st.stop()
 
@@ -2130,38 +2585,6 @@ metrics = get_metrics(full_position_df)
 if not metrics:
     st.error("No numeric scouting metrics were detected for this position.")
     st.stop()
-
-role_names = get_role_names(selected_position)
-
-if role_names:
-    with st.sidebar:
-        selected_role = st.selectbox(
-            "Player role",
-            role_names,
-            help=(
-                "Role changes the recommended metrics and their weights "
-                "for radar and overall ranking."
-            ),
-        )
-
-    role_config = get_role_config(
-        selected_position,
-        selected_role,
-        metrics,
-    )
-else:
-    selected_role = "Default"
-    role_config = {
-        metric: 1.0
-        for metric in preferred_metrics(
-            selected_position,
-            metrics,
-            maximum=min(8, len(metrics)),
-        )
-    }
-
-role_metrics = list(role_config.keys())
-
 
 # ============================================================
 # GLOBAL MINUTES FILTER
@@ -2496,8 +2919,12 @@ with tab_our:
         selected_metrics = st.multiselect(
             "Radar metrics",
             metrics,
-            default=role_metrics,
-            key=f"our_radar_metrics_{selected_position}_{selected_role}",
+            default=preferred_metrics(
+                selected_position,
+                metrics,
+                maximum=min(8, len(metrics)),
+            ),
+            key="our_radar_metrics",
         )
 
         if selected_metrics:
@@ -2658,8 +3085,12 @@ with tab_compare:
     compare_metrics = st.multiselect(
         "Comparison metrics",
         metrics,
-        default=role_metrics,
-        key=f"comparison_metrics_{selected_position}_{selected_role}",
+        default=preferred_metrics(
+            selected_position,
+            metrics,
+            maximum=min(8, len(metrics)),
+        ),
+        key="comparison_metrics",
     )
 
     if compare_players and "Minutes played" in comparison_df.columns:
@@ -2870,12 +3301,11 @@ with tab_ranking:
     # --------------------------------------------------------
 
     if ranking_mode == "Multi-metric overall":
-        st.caption(
-            f"Role preset: **{selected_role}**. "
-            "Metrics and default weights are tuned for this role."
+        default_ranking_metrics = preferred_metrics(
+            selected_position,
+            metrics,
+            maximum=min(8, len(metrics)),
         )
-
-        default_ranking_metrics = role_metrics
 
         ranking_metrics = st.multiselect(
             "Metrics included in overall ranking",
@@ -2901,7 +3331,7 @@ with tab_ranking:
                 )
 
             weights = {
-                metric: float(role_config.get(metric, 1.0))
+                metric: 1.0
                 for metric in ranking_metrics
             }
 
@@ -2926,7 +3356,7 @@ with tab_ranking:
                                 metric,
                                 min_value=0.0,
                                 max_value=10.0,
-                                value=float(role_config.get(metric, 1.0)),
+                                value=1.0,
                                 step=0.25,
                                 key=f"weight_{selected_position}_{metric}",
                             )
