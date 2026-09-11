@@ -928,557 +928,6 @@ def show_individual_radars(
 
 
 
-
-# ============================================================
-# TACTICAL XI BUILDER
-# ============================================================
-
-TACTICAL_TRAITS = {
-    "Defensive duels": [
-        "Defensive duels won, %",
-        "Successful defensive actions per 90",
-        "Defensive duels per 90",
-    ],
-    "Interceptions / reading": [
-        "PAdj Interceptions",
-        "Interceptions per 90",
-    ],
-    "Aerial ability": [
-        "Aerial duels won, %",
-        "Aerial duels per 90",
-    ],
-    "Tackling": [
-        "PAdj Sliding tackles",
-        "Sliding tackles per 90",
-    ],
-    "Blocking": [
-        "Shots blocked per 90",
-    ],
-    "Runs / mobility": [
-        "Progressive runs per 90",
-        "Accelerations per 90",
-    ],
-    "1v1 / dribbling": [
-        "Successful dribbles, %",
-        "Dribbles per 90",
-        "Offensive duels won, %",
-    ],
-    "Crossing": [
-        "Accurate crosses, %",
-        "Crosses per 90",
-        "Accurate crosses from left flank, %",
-        "Accurate crosses from right flank, %",
-    ],
-    "Chance creation": [
-        "xA per 90",
-        "Shot assists per 90",
-        "Key passes per 90",
-        "Assists per 90",
-    ],
-    "Progressive passing": [
-        "Progressive passes per 90",
-        "Accurate progressive passes, %",
-        "Passes to final third per 90",
-    ],
-    "Passing security": [
-        "Accurate passes, %",
-        "Accurate forward passes, %",
-    ],
-    "Long passing": [
-        "Accurate long passes, %",
-        "Long passes per 90",
-    ],
-    "Final-third delivery": [
-        "Passes to penalty area per 90",
-        "Accurate passes to penalty area, %",
-        "Through passes per 90",
-        "Accurate through passes, %",
-        "Smart passes per 90",
-    ],
-    "Goal threat": [
-        "Goals per 90",
-        "xG per 90",
-        "Shots per 90",
-    ],
-    "Finishing": [
-        "Goal conversion, %",
-        "Shots on target, %",
-        "Non-penalty goals per 90",
-        "Goals per 90",
-    ],
-    "Box presence": [
-        "Touches in box per 90",
-        "xG per 90",
-        "Shots per 90",
-    ],
-    "Link play": [
-        "Received passes per 90",
-        "Accurate passes, %",
-        "Shot assists per 90",
-        "Assists per 90",
-    ],
-    "Pressing / defensive activity": [
-        "Successful defensive actions per 90",
-        "Defensive duels per 90",
-        "Interceptions per 90",
-    ],
-}
-
-SLOT_DEFAULT_TRAITS = {
-    "LB": ["Runs / mobility", "Defensive duels", "Crossing"],
-    "RB": ["Runs / mobility", "Defensive duels", "Crossing"],
-    "LWB": ["Runs / mobility", "Crossing", "1v1 / dribbling"],
-    "RWB": ["Runs / mobility", "Crossing", "1v1 / dribbling"],
-
-    "LCB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
-    "CB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
-    "RCB": ["Defensive duels", "Aerial ability", "Interceptions / reading"],
-
-    "LDM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
-    "RDM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
-    "DM": ["Defensive duels", "Interceptions / reading", "Progressive passing"],
-
-    "LCM": ["Progressive passing", "Passing security", "Runs / mobility"],
-    "CM": ["Progressive passing", "Passing security", "Runs / mobility"],
-    "RCM": ["Progressive passing", "Passing security", "Runs / mobility"],
-
-    "CAM": ["Chance creation", "Final-third delivery", "1v1 / dribbling"],
-    "LAM": ["Chance creation", "1v1 / dribbling", "Goal threat"],
-    "RAM": ["Chance creation", "1v1 / dribbling", "Goal threat"],
-
-    "LW": ["1v1 / dribbling", "Runs / mobility", "Chance creation"],
-    "RW": ["1v1 / dribbling", "Runs / mobility", "Chance creation"],
-    "LM": ["Runs / mobility", "Crossing", "Chance creation"],
-    "RM": ["Runs / mobility", "Crossing", "Chance creation"],
-
-    "ST": ["Goal threat", "Finishing", "Box presence"],
-    "LST": ["Goal threat", "Finishing", "Box presence"],
-    "RST": ["Goal threat", "Finishing", "Box presence"],
-}
-
-
-def tactical_player_pool(
-    full_data: pd.DataFrame,
-    team: str,
-    min_minutes: int,
-):
-    """
-    Build one cross-position candidate pool.
-
-    Each row is scored within its own Wyscout positional reference group first,
-    so a winger, full-back, midfielder etc. can then be compared on selected
-    tactical traits using 0-100 percentile values.
-    """
-    frames = []
-
-    for position in POSITION_ORDER:
-        scored, _ = position_scored_frame(
-            full_data,
-            position,
-            min_minutes,
-        )
-
-        if scored.empty:
-            continue
-
-        team_rows = scored[
-            scored["Team"].astype(str).eq(team)
-        ].copy()
-
-        if team_rows.empty:
-            continue
-
-        team_rows["Source position"] = position
-        frames.append(team_rows)
-
-    if not frames:
-        return pd.DataFrame()
-
-    return pd.concat(
-        frames,
-        ignore_index=True,
-        sort=False,
-    )
-
-
-def tactical_trait_score(
-    row: pd.Series,
-    trait: str,
-):
-    metric_names = TACTICAL_TRAITS.get(trait, [])
-    values = []
-
-    for metric in metric_names:
-        pctl_col = f"PCTL__{metric}"
-
-        if pctl_col in row.index:
-            value = pd.to_numeric(
-                pd.Series([row.get(pctl_col)]),
-                errors="coerce",
-            ).iloc[0]
-
-            if pd.notna(value):
-                values.append(float(value))
-
-    if not values:
-        return np.nan
-
-    return float(np.mean(values))
-
-
-def score_tactical_candidates(
-    pool: pd.DataFrame,
-    slot_name: str,
-    selected_traits: list[str],
-    trait_weights: dict[str, float] | None = None,
-):
-    if pool.empty or not selected_traits:
-        return pd.DataFrame()
-
-    candidates = pool.copy()
-
-    # Goalkeeper is the only position that stays position-restricted.
-    if slot_name == "GK":
-        candidates = candidates[
-            candidates["Source position"] == "GK"
-        ].copy()
-    else:
-        candidates = candidates[
-            candidates["Source position"] != "GK"
-        ].copy()
-
-    if candidates.empty:
-        return candidates
-
-    if trait_weights is None:
-        trait_weights = {
-            trait: 1.0
-            for trait in selected_traits
-        }
-
-    trait_columns = []
-
-    for trait in selected_traits:
-        col_name = f"TRAIT__{trait}"
-
-        candidates[col_name] = candidates.apply(
-            lambda row: tactical_trait_score(
-                row,
-                trait,
-            ),
-            axis=1,
-        )
-
-        trait_columns.append(col_name)
-
-    def calculate_score(row):
-        weighted_values = []
-        available_weight = 0.0
-        total_weight = sum(
-            max(0.0, float(trait_weights.get(trait, 1.0)))
-            for trait in selected_traits
-        )
-
-        matched_traits = 0
-
-        for trait in selected_traits:
-            weight = max(
-                0.0,
-                float(trait_weights.get(trait, 1.0)),
-            )
-
-            value = row.get(
-                f"TRAIT__{trait}",
-                np.nan,
-            )
-
-            if pd.notna(value) and weight > 0:
-                weighted_values.append(
-                    float(value) * weight
-                )
-                available_weight += weight
-                matched_traits += 1
-
-        if not weighted_values or available_weight <= 0:
-            return pd.Series(
-                [np.nan, 0.0],
-                index=[
-                    "Tactical score",
-                    "Trait coverage",
-                ],
-            )
-
-        raw_score = (
-            sum(weighted_values)
-            / available_weight
-        )
-
-        coverage = (
-            available_weight / total_weight
-            if total_weight > 0
-            else 0.0
-        )
-
-        # Mild coverage penalty:
-        # a player matching only one requested trait should not beat a player
-        # with strong data across all requested traits purely because of one metric.
-        adjusted_score = raw_score * (
-            0.65 + 0.35 * coverage
-        )
-
-        return pd.Series(
-            [
-                adjusted_score,
-                coverage * 100.0,
-            ],
-            index=[
-                "Tactical score",
-                "Trait coverage",
-            ],
-        )
-
-    score_frame = candidates.apply(
-        calculate_score,
-        axis=1,
-    )
-
-    candidates[
-        ["Tactical score", "Trait coverage"]
-    ] = score_frame
-
-    candidates = candidates[
-        candidates["Tactical score"].notna()
-    ].copy()
-
-    if candidates.empty:
-        return candidates
-
-    candidates = candidates.sort_values(
-        [
-            "Tactical score",
-            "Trait coverage",
-        ],
-        ascending=[False, False],
-    )
-
-    # A player can exist in multiple positional exports.
-    # Keep whichever source-position row gives him the best fit for this slot.
-    candidates = candidates.drop_duplicates(
-        subset=["Name", "Team"],
-        keep="first",
-    )
-
-    return candidates
-
-
-def build_tactical_xi(
-    full_data: pd.DataFrame,
-    team: str,
-    formation: str,
-    min_minutes: int,
-    slot_requirements: dict,
-):
-    pool = tactical_player_pool(
-        full_data,
-        team,
-        min_minutes,
-    )
-
-    slot_defs = FORMATION_SLOTS[formation]
-    candidate_map = {}
-
-    for slot_name, _ in slot_defs:
-        requirement = slot_requirements.get(
-            slot_name,
-            {},
-        )
-
-        traits = requirement.get(
-            "traits",
-            SLOT_DEFAULT_TRAITS.get(
-                slot_name,
-                ["Passing security"],
-            ),
-        )
-
-        weights = requirement.get(
-            "weights",
-            {
-                trait: 1.0
-                for trait in traits
-            },
-        )
-
-        candidate_map[slot_name] = score_tactical_candidates(
-            pool,
-            slot_name,
-            traits,
-            weights,
-        )
-
-    # Fill the slot with fewest viable candidates first.
-    slot_order = sorted(
-        slot_defs,
-        key=lambda item: len(
-            candidate_map.get(
-                item[0],
-                pd.DataFrame(),
-            )
-        ),
-    )
-
-    selected = {}
-    used_players = set()
-
-    for slot_name, allowed_positions in slot_order:
-        candidates = candidate_map.get(
-            slot_name,
-            pd.DataFrame(),
-        )
-
-        choice = None
-
-        if not candidates.empty:
-            for _, row in candidates.iterrows():
-                player_key = (
-                    str(row["Name"]),
-                    str(row["Team"]),
-                )
-
-                if player_key not in used_players:
-                    choice = row
-                    used_players.add(player_key)
-                    break
-
-        selected[slot_name] = choice
-
-    return [
-        (
-            slot_name,
-            allowed_positions,
-            selected.get(slot_name),
-        )
-        for slot_name, allowed_positions in slot_defs
-    ]
-
-
-def tactical_lineup_dataframe(
-    lineup,
-    slot_requirements: dict,
-):
-    rows = []
-
-    for slot_name, _, row in lineup:
-        traits = slot_requirements.get(
-            slot_name,
-            {},
-        ).get(
-            "traits",
-            SLOT_DEFAULT_TRAITS.get(
-                slot_name,
-                [],
-            ),
-        )
-
-        if row is None:
-            rows.append(
-                {
-                    "Slot": slot_name,
-                    "Player": "—",
-                    "Source position": "—",
-                    "Tactical score": np.nan,
-                    "Coverage": np.nan,
-                    "Requested traits": ", ".join(traits),
-                }
-            )
-            continue
-
-        source_position = row.get(
-            "Source position",
-            row.get(
-                "Score position",
-                "GK" if slot_name == "GK" else "—",
-            ),
-        )
-
-        tactical_score = row.get(
-            "Tactical score",
-            row.get(
-                "Position overall",
-                np.nan,
-            ),
-        )
-
-        coverage = row.get(
-            "Trait coverage",
-            100.0 if slot_name == "GK" else np.nan,
-        )
-
-        rows.append(
-            {
-                "Slot": slot_name,
-                "Player": row.get("Name", "—"),
-                "Source position": source_position,
-                "Tactical score": tactical_score,
-                "Coverage": coverage,
-                "Requested traits": (
-                    "Goalkeeper model"
-                    if slot_name == "GK"
-                    else ", ".join(traits)
-                ),
-            }
-        )
-
-    return pd.DataFrame(rows)
-
-
-def make_tactical_pitch_figure(
-    lineup,
-    formation: str,
-    title: str,
-):
-    fig = make_pitch_figure(
-        lineup,
-        formation,
-        title,
-    )
-
-    # Replace the default positional overall in hover/text where possible
-    # by adding a small tactical score annotation below each player.
-    coords = FORMATION_COORDS[formation]
-
-    for slot_name, _, row in lineup:
-        if row is None or slot_name not in coords:
-            continue
-
-        x, y = coords[slot_name]
-        tactical_score = row.get(
-            "Tactical score",
-            np.nan,
-        )
-        source_position = row.get(
-            "Source position",
-            "",
-        )
-
-        if pd.notna(tactical_score):
-            fig.add_annotation(
-                x=x,
-                y=y - 5.8,
-                text=(
-                    f"{float(tactical_score):.0f}p"
-                    f" · {source_position}"
-                ),
-                showarrow=False,
-                font=dict(
-                    size=9,
-                    color="rgba(255,255,255,.82)",
-                ),
-            )
-
-    return fig
-
-
 # ============================================================
 # CLUB VS OPPONENT / BEST XI
 # ============================================================
@@ -2025,6 +1474,187 @@ def make_pitch_figure(
     return fig
 
 
+
+# ============================================================
+# PLAYER TRAITS RADAR
+# ============================================================
+
+def make_player_traits_radar(
+    frame: pd.DataFrame,
+    player: str,
+    metrics: list[str],
+):
+    """
+    Minimal single-player radar inspired by modern player-traits cards:
+    dark background, polygon grid, light player shape and percentile
+    values embedded directly into the axis labels.
+    """
+    player_row = frame.loc[
+        frame["Name"].astype(str).eq(str(player))
+    ]
+
+    if player_row.empty or not metrics:
+        return go.Figure()
+
+    row = player_row.iloc[0]
+
+    valid_metrics = [
+        metric
+        for metric in metrics
+        if (
+            f"PCTL__{metric}" in frame.columns
+            and pd.notna(
+                row.get(
+                    f"PCTL__{metric}",
+                    np.nan,
+                )
+            )
+        )
+    ]
+
+    if not valid_metrics:
+        return go.Figure()
+
+    percentiles = [
+        float(row[f"PCTL__{metric}"])
+        for metric in valid_metrics
+    ]
+
+    raw_values = [
+        pd.to_numeric(
+            pd.Series([row.get(metric, np.nan)]),
+            errors="coerce",
+        ).iloc[0]
+        for metric in valid_metrics
+    ]
+
+    axis_labels = []
+
+    for metric, percentile in zip(
+        valid_metrics,
+        percentiles,
+    ):
+        label = short_metric_label(metric)
+        axis_labels.append(
+            f"{label}<br><b>{percentile:.0f}%</b>"
+        )
+
+    closed_r = percentiles + [percentiles[0]]
+    closed_theta = axis_labels + [axis_labels[0]]
+    closed_raw = raw_values + [raw_values[0]]
+
+    fig = go.Figure()
+
+    # subtle 50th percentile reference
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[50] * (len(valid_metrics) + 1),
+            theta=closed_theta,
+            mode="lines",
+            line=dict(
+                color="rgba(255,255,255,0.28)",
+                width=1.3,
+                dash="dot",
+            ),
+            hoverinfo="skip",
+            showlegend=False,
+        )
+    )
+
+    fig.add_trace(
+        go.Scatterpolar(
+            r=closed_r,
+            theta=closed_theta,
+            customdata=closed_raw,
+            mode="lines",
+            line=dict(
+                color="rgba(245,247,250,0.96)",
+                width=2.2,
+            ),
+            fill="toself",
+            fillcolor="rgba(245,247,250,0.78)",
+            name=player,
+            hovertemplate=(
+                "<b>%{theta}</b>"
+                "<br>Percentile: %{r:.0f}"
+                "<br>Raw value: %{customdata:.2f}"
+                "<extra></extra>"
+            ),
+        )
+    )
+
+    fig.update_layout(
+        polar=dict(
+            bgcolor="rgba(0,0,0,0)",
+            gridshape="linear",
+            radialaxis=dict(
+                visible=False,
+                range=[0, 100],
+                showline=False,
+                gridcolor="rgba(255,255,255,0.13)",
+            ),
+            angularaxis=dict(
+                rotation=90,
+                direction="clockwise",
+                gridcolor="rgba(255,255,255,0.12)",
+                linecolor="rgba(255,255,255,0.18)",
+                tickfont=dict(
+                    size=14,
+                    color="#D8DCE2",
+                ),
+            ),
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        height=610,
+        margin=dict(
+            l=105,
+            r=105,
+            t=55,
+            b=55,
+        ),
+        hoverlabel=dict(
+            bgcolor="#111820",
+            bordercolor="rgba(255,255,255,0.12)",
+            font=dict(
+                color="#FFFFFF",
+                size=12,
+            ),
+        ),
+    )
+
+    return fig
+
+
+def player_trait_summary(
+    row: pd.Series,
+    metrics: list[str],
+):
+    values = []
+
+    for metric in metrics:
+        percentile = row.get(
+            f"PCTL__{metric}",
+            np.nan,
+        )
+
+        if pd.notna(percentile):
+            values.append(
+                (
+                    metric,
+                    float(percentile),
+                )
+            )
+
+    values.sort(
+        key=lambda item: item[1],
+        reverse=True,
+    )
+
+    return values
+
+
 # ============================================================
 # TABLES
 # ============================================================
@@ -2118,12 +1748,11 @@ st.markdown(
 )
 
 if app_mode == "Club vs Opponent":
-    st.subheader("Club vs Opponent")
+    st.subheader("Club vs Opponent — best XI")
 
     st.caption(
-        "Build our XI from tactical requirements for each slot. "
-        "Outfield players can be selected outside their natural position; "
-        "the goalkeeper slot remains limited to goalkeepers."
+        "The XI is built from the best available positional overall percentiles "
+        "for each formation slot. Each player can be used only once."
     )
 
     all_team_names = sorted(
@@ -2136,7 +1765,7 @@ if app_mode == "Club vs Opponent":
 
     with top_controls[0]:
         home_team = st.selectbox(
-            "Our team / Club A",
+            "Club A",
             all_team_names,
             index=(
                 all_team_names.index(OWN_TEAM)
@@ -2154,17 +1783,14 @@ if app_mode == "Club vs Opponent":
         ]
 
         away_team = st.selectbox(
-            "Opponent / Club B",
+            "Club B / opponent",
             away_options,
             key="club_mode_away_team",
         )
 
     with top_controls[2]:
         all_minutes_values = pd.to_numeric(
-            all_data.get(
-                "Minutes played",
-                pd.Series(dtype=float),
-            ),
+            all_data.get("Minutes played", pd.Series(dtype=float)),
             errors="coerce",
         ).dropna()
 
@@ -2177,22 +1803,13 @@ if app_mode == "Club vs Opponent":
         club_min_minutes = st.number_input(
             "Minimum minutes",
             min_value=1,
-            max_value=max(
-                1,
-                club_max_minutes,
-            ),
-            value=min(
-                450,
-                max(
-                    1,
-                    club_max_minutes,
-                ),
-            ),
+            max_value=max(1, club_max_minutes),
+            value=min(450, max(1, club_max_minutes)),
             step=90,
             key="club_mode_min_minutes",
             help=(
-                "Players below this sample size are not eligible "
-                "for either lineup."
+                "This filter applies to best-XI selection. "
+                "Players below the threshold are not eligible."
             ),
         )
 
@@ -2201,9 +1818,7 @@ if app_mode == "Club vs Opponent":
     with formation_cols[0]:
         home_formation = st.selectbox(
             f"{home_team} formation",
-            list(
-                FORMATION_SLOTS.keys()
-            ),
+            list(FORMATION_SLOTS.keys()),
             index=0,
             key="home_formation",
         )
@@ -2211,249 +1826,67 @@ if app_mode == "Club vs Opponent":
     with formation_cols[1]:
         away_formation = st.selectbox(
             f"{away_team} formation",
-            list(
-                FORMATION_SLOTS.keys()
-            ),
+            list(FORMATION_SLOTS.keys()),
             index=0,
             key="away_formation",
         )
 
-    st.markdown("### Tactical requirements for our XI")
-    st.caption(
-        "Open a position and choose what you need from that role. "
-        "The model searches the whole outfield squad, not only players "
-        "from the nominal position."
+    allow_wingers = st.toggle(
+        "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
+        value=False,
+        help=(
+            "LWB normally selects from LB and RWB from RB. "
+            "Turn this on if you also want to consider natural wingers as tactical wing-backs."
+        ),
     )
 
-    slot_requirements = {}
-
-    home_slot_defs = FORMATION_SLOTS[
-        home_formation
-    ]
-
-    for slot_index, (
-        slot_name,
-        _,
-    ) in enumerate(home_slot_defs):
-        # GK uses its standard goalkeeper scoring because outfield tactical
-        # traits are not comparable to goalkeeper metrics.
-        if slot_name == "GK":
-            slot_requirements[
-                slot_name
-            ] = {
-                "traits": [],
-                "weights": {},
-            }
-            continue
-
-        defaults = [
-            trait
-            for trait in SLOT_DEFAULT_TRAITS.get(
-                slot_name,
-                [],
-            )
-            if trait in TACTICAL_TRAITS
-        ]
-
-        with st.expander(
-            f"{slot_name} · requirements",
-            expanded=False,
-        ):
-            selected_traits = st.multiselect(
-                "What do you want from this position?",
-                list(TACTICAL_TRAITS.keys()),
-                default=defaults,
-                key=(
-                    f"tactical_traits_"
-                    f"{home_formation}_"
-                    f"{slot_index}_"
-                    f"{slot_name}"
-                ),
-            )
-
-            use_custom_importance = st.toggle(
-                "Set importance",
-                value=False,
-                key=(
-                    f"tactical_weight_toggle_"
-                    f"{home_formation}_"
-                    f"{slot_index}_"
-                    f"{slot_name}"
-                ),
-                help=(
-                    "If off, every selected requirement has equal importance."
-                ),
-            )
-
-            trait_weights = {
-                trait: 1.0
-                for trait in selected_traits
-            }
-
-            if use_custom_importance:
-                if selected_traits:
-                    weight_cols = st.columns(
-                        min(
-                            3,
-                            len(selected_traits),
-                        )
-                    )
-
-                    for trait_index, trait in enumerate(
-                        selected_traits
-                    ):
-                        with weight_cols[
-                            trait_index
-                            % len(weight_cols)
-                        ]:
-                            importance = st.select_slider(
-                                trait,
-                                options=[
-                                    0.5,
-                                    1.0,
-                                    1.5,
-                                    2.0,
-                                ],
-                                value=1.0,
-                                format_func=lambda value: {
-                                    0.5: "Low",
-                                    1.0: "Normal",
-                                    1.5: "High",
-                                    2.0: "Key",
-                                }[value],
-                                key=(
-                                    f"tactical_weight_"
-                                    f"{home_formation}_"
-                                    f"{slot_index}_"
-                                    f"{slot_name}_"
-                                    f"{trait}"
-                                ),
-                            )
-
-                            trait_weights[
-                                trait
-                            ] = float(
-                                importance
-                            )
-
-            slot_requirements[
-                slot_name
-            ] = {
-                "traits": selected_traits,
-                "weights": trait_weights,
-            }
-
-    # Goalkeeper uses the original positional best-XI method.
-    standard_home_lineup = build_best_xi(
+    home_lineup = build_best_xi(
         all_data,
         home_team,
         home_formation,
         int(club_min_minutes),
-        allow_winger_wingbacks=True,
+        allow_winger_wingbacks=allow_wingers,
     )
 
-    tactical_home_lineup = build_tactical_xi(
-        all_data,
-        home_team,
-        home_formation,
-        int(club_min_minutes),
-        slot_requirements,
-    )
-
-    # Replace tactical GK with original GK choice.
-    standard_home_map = {
-        slot_name: row
-        for slot_name, _, row in standard_home_lineup
-    }
-
-    home_lineup = []
-
-    for slot_name, allowed_positions, row in tactical_home_lineup:
-        if slot_name == "GK":
-            row = standard_home_map.get(
-                "GK"
-            )
-
-        home_lineup.append(
-            (
-                slot_name,
-                allowed_positions,
-                row,
-            )
-        )
-
-    # Opponent stays automatic by natural positional model.
     away_lineup = build_best_xi(
         all_data,
         away_team,
         away_formation,
         int(club_min_minutes),
-        allow_winger_wingbacks=True,
+        allow_winger_wingbacks=allow_wingers,
     )
 
-    home_df = tactical_lineup_dataframe(
-        home_lineup,
-        slot_requirements,
-    )
-
-    away_df = lineup_dataframe(
-        away_lineup
-    )
+    home_df = lineup_dataframe(home_lineup)
+    away_df = lineup_dataframe(away_lineup)
 
     score_cols = st.columns(2)
 
     with score_cols[0]:
-        valid_scores = pd.to_numeric(
-            home_df["Tactical score"],
-            errors="coerce",
-        ).dropna()
-
-        home_score = (
-            valid_scores.mean()
-            if not valid_scores.empty
-            else np.nan
-        )
+        valid_scores = home_df["Overall percentile"].dropna()
+        home_score = valid_scores.mean() if not valid_scores.empty else np.nan
 
         st.metric(
-            f"{home_team} tactical XI",
-            (
-                f"{home_score:.1f}p"
-                if pd.notna(home_score)
-                else "—"
-            ),
+            f"{home_team} XI average",
+            f"{home_score:.1f}p" if pd.notna(home_score) else "—",
         )
 
     with score_cols[1]:
-        valid_scores = away_df[
-            "Overall percentile"
-        ].dropna()
-
-        away_score = (
-            valid_scores.mean()
-            if not valid_scores.empty
-            else np.nan
-        )
+        valid_scores = away_df["Overall percentile"].dropna()
+        away_score = valid_scores.mean() if not valid_scores.empty else np.nan
 
         st.metric(
-            f"{away_team} automatic XI",
-            (
-                f"{away_score:.1f}p"
-                if pd.notna(away_score)
-                else "—"
-            ),
+            f"{away_team} XI average",
+            f"{away_score:.1f}p" if pd.notna(away_score) else "—",
         )
 
     pitch_cols = st.columns(2)
 
     with pitch_cols[0]:
         st.plotly_chart(
-            make_tactical_pitch_figure(
+            make_pitch_figure(
                 home_lineup,
                 home_formation,
-                (
-                    f"{home_team} · "
-                    f"{home_formation}"
-                ),
+                f"{home_team} · {home_formation}",
             ),
             use_container_width=True,
             theme=None,
@@ -2464,18 +1897,12 @@ if app_mode == "Club vs Opponent":
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Tactical score": st.column_config.ProgressColumn(
-                    "Tactical score",
+                "Overall percentile": st.column_config.ProgressColumn(
+                    "Overall percentile",
                     min_value=0,
                     max_value=100,
                     format="%.1f",
-                ),
-                "Coverage": st.column_config.ProgressColumn(
-                    "Coverage",
-                    min_value=0,
-                    max_value=100,
-                    format="%.0f%%",
-                ),
+                )
             },
         )
 
@@ -2484,10 +1911,7 @@ if app_mode == "Club vs Opponent":
             make_pitch_figure(
                 away_lineup,
                 away_formation,
-                (
-                    f"{away_team} · "
-                    f"{away_formation}"
-                ),
+                f"{away_team} · {away_formation}",
             ),
             use_container_width=True,
             theme=None,
@@ -2507,15 +1931,6 @@ if app_mode == "Club vs Opponent":
             },
         )
 
-    st.info(
-        "How it works: every candidate is first benchmarked within his own "
-        "Wyscout positional dataset. For the chosen tactical requirements, "
-        "those percentile scores are combined into a Tactical score. "
-        "That is why, for example, a winger can be selected at left-back "
-        "if his running, crossing and defensive profile fits your request "
-        "better than the natural full-backs."
-    )
-
     missing_home = home_df[
         home_df["Player"] == "—"
     ]["Slot"].tolist()
@@ -2529,23 +1944,24 @@ if app_mode == "Club vs Opponent":
 
         if missing_home:
             messages.append(
-                (
-                    f"{home_team}: no eligible player for "
-                    f"{', '.join(missing_home)}"
-                )
+                f"{home_team}: missing {', '.join(missing_home)}"
             )
 
         if missing_away:
             messages.append(
-                (
-                    f"{away_team}: no eligible player for "
-                    f"{', '.join(missing_away)}"
-                )
+                f"{away_team}: missing {', '.join(missing_away)}"
             )
 
         st.warning(
-            " | ".join(messages)
+            "Not enough eligible players for a complete XI at the current minutes cutoff. "
+            + " | ".join(messages)
         )
+
+    st.info(
+        "Wing-back mapping: LWB uses the LB dataset and RWB uses the RB dataset. "
+        "If the winger alternative toggle is enabled, RW/LW players may also be considered. "
+        "The model is data-driven and should be treated as a selection aid, not a tactical verdict."
+    )
 
     st.stop()
 
@@ -2820,6 +2236,69 @@ with tab_overview:
         maximum=min(8, len(metrics)),
     )
 
+    # --------------------------------------------------------
+    # PLAYER SEARCH
+    # --------------------------------------------------------
+
+    player_options = sorted(
+        view["Name"].dropna().astype(str).unique()
+    )
+
+    if (
+        "overview_selected_player" not in st.session_state
+        or st.session_state["overview_selected_player"]
+        not in player_options
+    ):
+        st.session_state["overview_selected_player"] = (
+            player_options[0]
+            if player_options
+            else None
+        )
+
+    search_col, info_col = st.columns(
+        [2.2, 1],
+        vertical_alignment="bottom",
+    )
+
+    with search_col:
+        selected_overview_player = st.selectbox(
+            "Search player",
+            player_options,
+            index=(
+                player_options.index(
+                    st.session_state[
+                        "overview_selected_player"
+                    ]
+                )
+                if (
+                    player_options
+                    and st.session_state.get(
+                        "overview_selected_player"
+                    ) in player_options
+                )
+                else 0
+            ),
+            key=f"overview_player_search_{selected_position}",
+            help=(
+                "Start typing the player's name. "
+                "You can also click a row in the table below."
+            ),
+        )
+
+    if selected_overview_player:
+        st.session_state[
+            "overview_selected_player"
+        ] = selected_overview_player
+
+    with info_col:
+        st.caption(
+            f"{len(view)} players in current sample"
+        )
+
+    # --------------------------------------------------------
+    # LEAGUE TABLE — CLICK TO OPEN
+    # --------------------------------------------------------
+
     overview_base_columns = ["Name", "Team"]
 
     if "Minutes played" in view.columns:
@@ -2831,15 +2310,182 @@ with tab_overview:
         overview_base_columns + quick_metrics
     ].reset_index(drop=True)
 
-    st.dataframe(
+    overview_event = st.dataframe(
         overview_display,
         use_container_width=True,
         hide_index=True,
         column_config={
             "Our player": st.column_config.CheckboxColumn("OUR"),
         },
+        on_select="rerun",
+        selection_mode="single-row",
+        key=f"overview_table_select_{selected_position}",
     )
 
+    try:
+        selected_rows = overview_event.selection.rows
+    except Exception:
+        selected_rows = []
+
+    if selected_rows:
+        selected_index = selected_rows[0]
+
+        if 0 <= selected_index < len(overview_display):
+            clicked_player = str(
+                overview_display.iloc[
+                    selected_index
+                ]["Name"]
+            )
+
+            if (
+                clicked_player
+                != st.session_state.get(
+                    "overview_selected_player"
+                )
+            ):
+                st.session_state[
+                    "overview_selected_player"
+                ] = clicked_player
+                st.rerun()
+
+    st.caption(
+        "Type a name above or click a player row to open the player traits card."
+    )
+
+    # --------------------------------------------------------
+    # PLAYER TRAITS CARD
+    # --------------------------------------------------------
+
+    selected_player = st.session_state.get(
+        "overview_selected_player"
+    )
+
+    if selected_player:
+        player_rows = position_df[
+            position_df["Name"].astype(str).eq(
+                str(selected_player)
+            )
+        ]
+
+        if not player_rows.empty:
+            player_row = player_rows.iloc[0]
+
+            st.markdown("---")
+            st.markdown("### Player traits")
+
+            player_team = str(
+                player_row.get(
+                    "Team",
+                    "",
+                )
+            )
+
+            minutes_value = pd.to_numeric(
+                pd.Series([
+                    player_row.get(
+                        "Minutes played",
+                        np.nan,
+                    )
+                ]),
+                errors="coerce",
+            ).iloc[0]
+
+            meta_1, meta_2, meta_3 = st.columns(3)
+
+            meta_1.metric(
+                "Player",
+                selected_player,
+            )
+
+            meta_2.metric(
+                "Team",
+                player_team,
+            )
+
+            meta_3.metric(
+                "Minutes",
+                (
+                    f"{int(minutes_value):,}".replace(",", " ")
+                    if pd.notna(minutes_value)
+                    else "—"
+                ),
+            )
+
+            default_trait_metrics = preferred_metrics(
+                selected_position,
+                metrics,
+                maximum=min(6, len(metrics)),
+            )
+
+            trait_metrics = st.multiselect(
+                "Traits shown on radar",
+                metrics,
+                default=default_trait_metrics,
+                max_selections=min(
+                    8,
+                    len(metrics),
+                ),
+                key=f"overview_traits_{selected_position}",
+                help=(
+                    "Choose up to 8 metrics. "
+                    "The number next to each trait is the league percentile."
+                ),
+            )
+
+            if len(trait_metrics) >= 3:
+                radar_col, summary_col = st.columns(
+                    [2.2, 1],
+                    vertical_alignment="top",
+                )
+
+                with radar_col:
+                    st.plotly_chart(
+                        make_player_traits_radar(
+                            position_df,
+                            selected_player,
+                            trait_metrics,
+                        ),
+                        use_container_width=True,
+                        theme=None,
+                    )
+
+                with summary_col:
+                    trait_values = player_trait_summary(
+                        player_row,
+                        trait_metrics,
+                    )
+
+                    st.markdown("#### Strongest")
+
+                    for metric_name, percentile in trait_values[:3]:
+                        st.write(
+                            f"**{short_metric_label(metric_name)}**  "
+                            f"{percentile:.0f}%"
+                        )
+
+                    st.markdown("#### Weakest")
+
+                    weakest = sorted(
+                        trait_values,
+                        key=lambda item: item[1],
+                    )[:3]
+
+                    for metric_name, percentile in weakest:
+                        st.write(
+                            f"**{short_metric_label(metric_name)}**  "
+                            f"{percentile:.0f}%"
+                        )
+
+                    st.caption(
+                        "Percentiles are calculated against the current "
+                        "league reference sample and minimum-minutes filter."
+                    )
+            else:
+                st.info(
+                    "Select at least 3 metrics to display the radar."
+                )
+
+    st.markdown("---")
     st.markdown("### Metric explorer")
 
     metric = st.selectbox(
