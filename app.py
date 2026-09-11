@@ -1,4 +1,5 @@
 from pathlib import Path
+from io import BytesIO
 import re
 import textwrap
 
@@ -6,6 +7,10 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import matplotlib.pyplot as plt
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
 
 
 # ============================================================
@@ -1475,6 +1480,692 @@ def make_pitch_figure(
 
 
 
+
+
+# ============================================================
+# TEAM / CLUB PROFILE
+# ============================================================
+
+TEAM_STYLE_AXES = {
+    "Possession": ["possession"],
+    "Directness": ["long_pass_share"],
+    "Tempo": ["match_tempo"],
+    "Wing play": ["crosses_per_match", "after_crosses_xg_per_match"],
+    "Chance creation": ["xg_per_match", "key_passes_per_match", "shots_per_match"],
+    "Pressing": ["INV__ppda", "final_third_recoveries_per_match"],
+    "1v1 threat": ["final_third_dribbles_per_match"],
+    "Finishing": ["goals_per_match", "shots_on_target_pct", "finishing_delta_per_match"],
+}
+
+
+@st.cache_data
+def load_team_database():
+    path = DATA_DIR / "team_data.csv"
+    if not path.exists():
+        return pd.DataFrame()
+
+    df = pd.read_csv(path)
+
+    numeric_cols = [
+        col for col in df.columns
+        if col not in {"Team", "Updated", "Formation_1", "Formation_2", "Formation_3"}
+    ]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return prepare_team_percentiles(df)
+
+
+def team_midrank_percentile(series: pd.Series, lower_is_better: bool = False):
+    numeric = pd.to_numeric(series, errors="coerce")
+    result = pd.Series(np.nan, index=series.index, dtype=float)
+
+    valid = numeric.dropna()
+    if valid.empty:
+        return result
+
+    values = valid.to_numpy(dtype=float)
+
+    for idx, value in valid.items():
+        if lower_is_better:
+            lower = np.sum(values > value)
+        else:
+            lower = np.sum(values < value)
+        equal = np.sum(values == value)
+        result.loc[idx] = 100.0 * (lower + 0.5 * equal) / len(values)
+
+    return result
+
+
+def prepare_team_percentiles(df: pd.DataFrame):
+    if df.empty:
+        return df
+
+    out = df.copy()
+
+    raw_metrics = set()
+    for axis_metrics in TEAM_STYLE_AXES.values():
+        for metric in axis_metrics:
+            if metric.startswith("INV__"):
+                raw_metrics.add(metric.replace("INV__", ""))
+            else:
+                raw_metrics.add(metric)
+
+    for metric in raw_metrics:
+        if metric not in out.columns:
+            continue
+        inverse = metric == "ppda"
+        out[f"PCTL__{metric}"] = team_midrank_percentile(
+            out[metric],
+            lower_is_better=inverse,
+        )
+
+    for axis, axis_metrics in TEAM_STYLE_AXES.items():
+        cols = []
+        for metric in axis_metrics:
+            raw_metric = metric.replace("INV__", "")
+            pcol = f"PCTL__{raw_metric}"
+            if pcol in out.columns:
+                cols.append(pcol)
+        if cols:
+            out[f"STYLE__{axis}"] = out[cols].mean(axis=1, skipna=True)
+        else:
+            out[f"STYLE__{axis}"] = np.nan
+
+    return out
+
+
+def club_style_radar(team_db: pd.DataFrame, teams: list[str]):
+    axes = list(TEAM_STYLE_AXES.keys())
+    colors = ["#FFD900", "#4DA3FF", "#7ED957", "#FF9F43"]
+
+    fig = go.Figure()
+
+    for idx, team in enumerate(teams):
+        row_df = team_db[team_db["Team"].astype(str).eq(str(team))]
+        if row_df.empty:
+            continue
+        row = row_df.iloc[0]
+        vals = [float(row.get(f"STYLE__{axis}", np.nan)) for axis in axes]
+        vals = [0 if pd.isna(v) else v for v in vals]
+        labels = [f"{axis} {v:.0f}%" for axis, v in zip(axes, vals)]
+
+        fig.add_trace(
+            go.Scatterpolar(
+                r=vals + [vals[0]],
+                theta=labels + [labels[0]],
+                mode="lines",
+                line=dict(color=colors[idx % len(colors)], width=3),
+                fill="toself",
+                fillcolor=hex_to_rgba(colors[idx % len(colors)], 0.12 if len(teams) > 1 else 0.22),
+                name=team,
+                hovertemplate="<b>%{fullData.name}</b><br>%{theta}<extra></extra>",
+            )
+        )
+
+    fig.update_layout(
+        polar=dict(
+            bgcolor="#0B1626",
+            gridshape="linear",
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickvals=[20, 40, 60, 80, 100],
+                tickfont=dict(size=9, color="rgba(255,255,255,.58)"),
+                gridcolor="rgba(255,255,255,.15)",
+            ),
+            angularaxis=dict(
+                rotation=90,
+                direction="clockwise",
+                gridcolor="rgba(255,255,255,.10)",
+                tickfont=dict(size=12, color="#F5F7FA"),
+            ),
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        showlegend=len(teams) > 1,
+        legend=dict(orientation="h", y=-0.12, x=0.5, xanchor="center"),
+        height=600,
+        margin=dict(l=90, r=90, t=35, b=80),
+    )
+    return fig
+
+
+def team_style_description(row: pd.Series):
+    scores = {axis: float(row.get(f"STYLE__{axis}", np.nan)) for axis in TEAM_STYLE_AXES}
+    parts = []
+
+    if scores.get("Possession", 50) >= 70:
+        parts.append("possession-oriented")
+    elif scores.get("Possession", 50) <= 30:
+        parts.append("lower-possession")
+
+    if scores.get("Directness", 50) >= 70:
+        parts.append("direct")
+    elif scores.get("Directness", 50) <= 30:
+        parts.append("shorter-passing")
+
+    if scores.get("Wing play", 50) >= 70:
+        parts.append("wide / crossing-heavy")
+    if scores.get("Pressing", 50) >= 70:
+        parts.append("aggressive pressing")
+    if scores.get("Tempo", 50) >= 70:
+        parts.append("high-tempo")
+    if scores.get("1v1 threat", 50) >= 70:
+        parts.append("strong 1v1 threat")
+
+    if not parts:
+        parts.append("balanced")
+
+    return ", ".join(parts[:4]).capitalize() + "."
+
+
+def team_attack_route(row: pd.Series):
+    wing = float(row.get("STYLE__Wing play", np.nan))
+    dribble = float(row.get("STYLE__1v1 threat", np.nan))
+    creation = float(row.get("STYLE__Chance creation", np.nan))
+
+    if pd.notna(wing) and wing >= max(dribble if pd.notna(dribble) else 0, creation if pd.notna(creation) else 0) and wing >= 60:
+        route = "Wide / crossing"
+    elif pd.notna(dribble) and dribble >= 60:
+        route = "1v1 / carries"
+    elif pd.notna(creation) and creation >= 60:
+        route = "Combination / chance creation"
+    else:
+        route = "Balanced"
+
+    left = float(row.get("cross_left_share", 0) or 0)
+    right = float(row.get("cross_right_share", 0) or 0)
+    if max(left, right) >= 45 and abs(left-right) >= 15:
+        side = "left" if left > right else "right"
+        route += f" · more from the {side} side"
+
+    return route
+
+
+def team_strengths_weaknesses(row: pd.Series):
+    scores = [(axis, float(row.get(f"STYLE__{axis}", np.nan))) for axis in TEAM_STYLE_AXES]
+    scores = [(a,v) for a,v in scores if pd.notna(v)]
+    strengths = sorted(scores, key=lambda x:x[1], reverse=True)[:3]
+    weaknesses = sorted(scores, key=lambda x:x[1])[:3]
+    return strengths, weaknesses
+
+
+def key_team_differences(team_db: pd.DataFrame, team_a: str, team_b: str, top_n: int = 5):
+    a = team_db[team_db["Team"].astype(str).eq(str(team_a))]
+    b = team_db[team_db["Team"].astype(str).eq(str(team_b))]
+    if a.empty or b.empty:
+        return []
+    ra, rb = a.iloc[0], b.iloc[0]
+    diffs=[]
+    for axis in TEAM_STYLE_AXES:
+        va=float(ra.get(f"STYLE__{axis}", np.nan)); vb=float(rb.get(f"STYLE__{axis}", np.nan))
+        if pd.notna(va) and pd.notna(vb):
+            diffs.append((axis, va, vb, abs(va-vb)))
+    return sorted(diffs, key=lambda x:x[3], reverse=True)[:top_n]
+
+
+def formation_summary(row: pd.Series):
+    parts=[]
+    for i in range(1,4):
+        form=row.get(f"Formation_{i}", "")
+        pct=row.get(f"Formation_{i}_pct", np.nan)
+        if isinstance(form, str) and form.strip():
+            parts.append(f"{form} ({float(pct):.0f}%)" if pd.notna(pct) else form)
+    return " · ".join(parts) if parts else "—"
+
+# ============================================================
+# MATCH OPPONENT REPORT
+# ============================================================
+
+MATCH_REPORT_CATEGORIES = {
+    "Attacking threat": [
+        "Goals per 90",
+        "xG per 90",
+        "Shots per 90",
+        "Touches in box per 90",
+        "Successful attacking actions per 90",
+    ],
+    "Chance creation": [
+        "xA per 90",
+        "Shot assists per 90",
+        "Key passes per 90",
+        "Passes to penalty area per 90",
+        "Smart passes per 90",
+    ],
+    "Progression": [
+        "Progressive passes per 90",
+        "Accurate progressive passes, %",
+        "Progressive runs per 90",
+        "Passes to final third per 90",
+    ],
+    "Duels": [
+        "Defensive duels won, %",
+        "Offensive duels won, %",
+        "Aerial duels won, %",
+    ],
+    "Aerial strength": [
+        "Aerial duels won, %",
+        "Aerial duels per 90",
+        "Head goals per 90",
+    ],
+}
+
+
+def opponent_player_pool(
+    full_data: pd.DataFrame,
+    team: str,
+    min_minutes: int,
+):
+    frames = []
+
+    for position in POSITION_ORDER:
+        scored, _ = position_scored_frame(
+            full_data,
+            position,
+            min_minutes,
+        )
+
+        if scored.empty:
+            continue
+
+        team_rows = scored[
+            scored["Team"].astype(str).eq(str(team))
+        ].copy()
+
+        if team_rows.empty:
+            continue
+
+        team_rows["Data position"] = position
+        frames.append(team_rows)
+
+    if not frames:
+        return pd.DataFrame()
+
+    return pd.concat(
+        frames,
+        ignore_index=True,
+        sort=False,
+    )
+
+
+def opponent_category_table(
+    pool: pd.DataFrame,
+    category_name: str,
+    top_n: int = 5,
+):
+    if pool.empty:
+        return pd.DataFrame()
+
+    metrics = MATCH_REPORT_CATEGORIES.get(
+        category_name,
+        [],
+    )
+
+    work = pool.copy()
+    available_pctl_cols = [
+        f"PCTL__{metric}"
+        for metric in metrics
+        if f"PCTL__{metric}" in work.columns
+    ]
+
+    if not available_pctl_cols:
+        return pd.DataFrame()
+
+    for col in available_pctl_cols:
+        work[col] = pd.to_numeric(
+            work[col],
+            errors="coerce",
+        )
+
+    work["Category score"] = work[
+        available_pctl_cols
+    ].mean(
+        axis=1,
+        skipna=True,
+    )
+
+    work["Metric coverage"] = work[
+        available_pctl_cols
+    ].notna().sum(axis=1)
+
+    work = work[
+        work["Category score"].notna()
+    ].copy()
+
+    if work.empty:
+        return work
+
+    work = work.sort_values(
+        [
+            "Category score",
+            "Metric coverage",
+        ],
+        ascending=[False, False],
+    )
+
+    # A player can occur in several positional exports.
+    # Keep the positional row where he scores best in this category.
+    work = work.drop_duplicates(
+        subset=["Name", "Team"],
+        keep="first",
+    )
+
+    display_cols = [
+        col
+        for col in [
+            "Name",
+            "Data position",
+            "Minutes played",
+            "Category score",
+        ]
+        if col in work.columns
+    ]
+
+    return work[
+        display_cols
+    ].head(top_n).reset_index(drop=True)
+
+
+def opponent_team_snapshot(
+    pool: pd.DataFrame,
+):
+    rows = []
+
+    for category in MATCH_REPORT_CATEGORIES:
+        table = opponent_category_table(
+            pool,
+            category,
+            top_n=999,
+        )
+
+        if table.empty:
+            score = np.nan
+        else:
+            score = pd.to_numeric(
+                table["Category score"],
+                errors="coerce",
+            ).mean()
+
+        rows.append(
+            {
+                "Area": category,
+                "Team score": score,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+# ============================================================
+# PLAYER CARD EXPORT
+# ============================================================
+
+def build_player_card_png(
+    player_name: str,
+    team: str,
+    position: str,
+    minutes_value,
+    row: pd.Series,
+    metrics: list[str],
+):
+    valid_metrics = [
+        metric
+        for metric in metrics
+        if pd.notna(
+            row.get(
+                f"PCTL__{metric}",
+                np.nan,
+            )
+        )
+    ]
+
+    if len(valid_metrics) < 3:
+        return b""
+
+    percentiles = [
+        float(row[f"PCTL__{metric}"])
+        for metric in valid_metrics
+    ]
+
+    labels = [
+        f"{short_metric_label(metric)} {percentile:.0f}%"
+        for metric, percentile in zip(
+            valid_metrics,
+            percentiles,
+        )
+    ]
+
+    angles = np.linspace(
+        0,
+        2 * np.pi,
+        len(valid_metrics),
+        endpoint=False,
+    ).tolist()
+
+    values = percentiles + [percentiles[0]]
+    angles_closed = angles + [angles[0]]
+
+    fig = plt.figure(
+        figsize=(12, 7),
+        facecolor="#081426",
+    )
+
+    # Header
+    fig.text(
+        0.08,
+        0.90,
+        player_name,
+        fontsize=28,
+        fontweight="bold",
+        color="white",
+    )
+
+    minutes_text = (
+        f"{int(minutes_value):,}".replace(",", " ")
+        if pd.notna(minutes_value)
+        else "—"
+    )
+
+    fig.text(
+        0.08,
+        0.845,
+        f"{team}  •  {position}  •  {minutes_text} min",
+        fontsize=13,
+        color="#B9C5D6",
+    )
+
+    fig.lines.append(
+        plt.Line2D(
+            [0.08, 0.92],
+            [0.81, 0.81],
+            transform=fig.transFigure,
+            color="#FFD900",
+            linewidth=2.2,
+        )
+    )
+
+    # Logo
+    if LOGO_PATH.exists():
+        try:
+            logo_ax = fig.add_axes(
+                [0.82, 0.82, 0.10, 0.12]
+            )
+            logo_ax.imshow(
+                plt.imread(str(LOGO_PATH))
+            )
+            logo_ax.axis("off")
+        except Exception:
+            pass
+
+    # Radar
+    ax = fig.add_axes(
+        [0.06, 0.10, 0.56, 0.64],
+        polar=True,
+        facecolor="#081426",
+    )
+
+    ax.set_theta_offset(np.pi / 2)
+    ax.set_theta_direction(-1)
+    ax.set_ylim(0, 100)
+    ax.set_yticks([20, 40, 60, 80, 100])
+    ax.set_yticklabels([])
+    ax.grid(
+        color="white",
+        alpha=0.14,
+        linewidth=0.9,
+    )
+    ax.spines["polar"].set_color(
+        (1, 1, 1, 0.20)
+    )
+
+    ax.plot(
+        angles_closed,
+        values,
+        color="#F4F6F8",
+        linewidth=2.2,
+    )
+    ax.fill(
+        angles_closed,
+        values,
+        color="#F4F6F8",
+        alpha=0.78,
+    )
+
+    ax.set_xticks(angles)
+    ax.set_xticklabels(
+        labels,
+        fontsize=9.5,
+        color="#E5E9F0",
+    )
+
+    # Strongest / weakest summary
+    summary = player_trait_summary(
+        row,
+        valid_metrics,
+    )
+
+    fig.text(
+        0.67,
+        0.68,
+        "STRONGEST",
+        fontsize=11,
+        fontweight="bold",
+        color="#FFD900",
+    )
+
+    y = 0.635
+    for metric, percentile in summary[:3]:
+        fig.text(
+            0.67,
+            y,
+            f"{short_metric_label(metric)}",
+            fontsize=11,
+            color="white",
+        )
+        fig.text(
+            0.91,
+            y,
+            f"{percentile:.0f}%",
+            fontsize=11,
+            fontweight="bold",
+            color="white",
+            ha="right",
+        )
+        y -= 0.055
+
+    fig.text(
+        0.67,
+        0.43,
+        "LOWEST",
+        fontsize=11,
+        fontweight="bold",
+        color="#FFD900",
+    )
+
+    weakest = sorted(
+        summary,
+        key=lambda item: item[1],
+    )[:3]
+
+    y = 0.385
+    for metric, percentile in weakest:
+        fig.text(
+            0.67,
+            y,
+            f"{short_metric_label(metric)}",
+            fontsize=11,
+            color="white",
+        )
+        fig.text(
+            0.91,
+            y,
+            f"{percentile:.0f}%",
+            fontsize=11,
+            fontweight="bold",
+            color="white",
+            ha="right",
+        )
+        y -= 0.055
+
+    fig.text(
+        0.67,
+        0.17,
+        "Percentiles vs current league reference sample",
+        fontsize=8.5,
+        color="#8391A5",
+    )
+
+    buffer = BytesIO()
+    fig.savefig(
+        buffer,
+        format="png",
+        dpi=160,
+        bbox_inches="tight",
+        facecolor=fig.get_facecolor(),
+    )
+    plt.close(fig)
+
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
+def player_card_pdf_from_png(
+    png_bytes: bytes,
+):
+    if not png_bytes:
+        return b""
+
+    output = BytesIO()
+    page_size = landscape(A4)
+    pdf = canvas.Canvas(
+        output,
+        pagesize=page_size,
+    )
+
+    page_w, page_h = page_size
+
+    image = ImageReader(
+        BytesIO(png_bytes)
+    )
+
+    margin = 18
+    pdf.drawImage(
+        image,
+        margin,
+        margin,
+        width=page_w - 2 * margin,
+        height=page_h - 2 * margin,
+        preserveAspectRatio=True,
+        anchor="c",
+    )
+
+    pdf.showPage()
+    pdf.save()
+
+    output.seek(0)
+    return output.getvalue()
+
+
 # ============================================================
 # PLAYER TRAITS RADAR
 # ============================================================
@@ -1748,12 +2439,7 @@ st.markdown(
 )
 
 if app_mode == "Club vs Opponent":
-    st.subheader("Club vs Opponent — best XI")
-
-    st.caption(
-        "The XI is built from the best available positional overall percentiles "
-        "for each formation slot. Each player can be used only once."
-    )
+    st.subheader("Club vs Opponent")
 
     all_team_names = sorted(
         team
@@ -1790,7 +2476,10 @@ if app_mode == "Club vs Opponent":
 
     with top_controls[2]:
         all_minutes_values = pd.to_numeric(
-            all_data.get("Minutes played", pd.Series(dtype=float)),
+            all_data.get(
+                "Minutes played",
+                pd.Series(dtype=float),
+            ),
             errors="coerce",
         ).dropna()
 
@@ -1807,161 +2496,388 @@ if app_mode == "Club vs Opponent":
             value=min(450, max(1, club_max_minutes)),
             step=90,
             key="club_mode_min_minutes",
+        )
+
+    team_db = load_team_database()
+
+    tab_club_profile, tab_best_xi, tab_match_report = st.tabs(
+        [
+            "Club Profile",
+            "Best XI",
+            "Opponent report",
+        ]
+    )
+
+    with tab_club_profile:
+        if team_db.empty:
+            st.warning("Team database is missing. Upload data/team_data.csv.")
+        elif away_team not in team_db["Team"].astype(str).tolist():
+            st.warning(f"No team profile data for {away_team}.")
+        else:
+            away_row = team_db[team_db["Team"].astype(str).eq(str(away_team))].iloc[0]
+            home_row_df = team_db[team_db["Team"].astype(str).eq(str(home_team))]
+
+            st.markdown(f"### {away_team} — Club Profile")
+            st.caption(
+                f"Team report updated {away_row.get('Updated', '—')} · "
+                f"{int(away_row.get('Matches', 0))} league matches in the sample"
+            )
+
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("Primary formation", str(away_row.get("Formation_1", "—")))
+            k2.metric("Possession", f"{away_row.get('possession', np.nan):.1f}%")
+            k3.metric("xG / match", f"{away_row.get('xg_per_match', np.nan):.2f}")
+            k4.metric("PPDA", f"{away_row.get('ppda', np.nan):.2f}")
+
+            st.caption("Formation usage: " + formation_summary(away_row))
+
+            left_col, right_col = st.columns([1.65, 1])
+
+            with left_col:
+                compare_teams = [away_team]
+                if not home_row_df.empty:
+                    compare_teams = [home_team, away_team]
+                st.plotly_chart(
+                    club_style_radar(team_db, compare_teams),
+                    use_container_width=True,
+                    theme=None,
+                )
+
+            with right_col:
+                st.markdown("#### Style")
+                st.write(team_style_description(away_row))
+                st.markdown("#### Most likely attacking route")
+                st.write(team_attack_route(away_row))
+
+                strengths, weaknesses = team_strengths_weaknesses(away_row)
+                st.markdown("#### Strongest team traits")
+                for axis, score in strengths:
+                    st.write(f"**{axis}** — {score:.0f}p")
+                st.markdown("#### Lowest team traits")
+                for axis, score in weaknesses:
+                    st.write(f"**{axis}** — {score:.0f}p")
+
+            st.markdown("### Key team metrics")
+            metric_rows = [
+                ("Possession", "possession", "%"),
+                ("Pass accuracy", "pass_accuracy", "%"),
+                ("Match tempo", "match_tempo", ""),
+                ("Long-pass share", "long_pass_share", "%"),
+                ("PPDA", "ppda", ""),
+                ("Shots / match", "shots_per_match", ""),
+                ("xG / match", "xg_per_match", ""),
+                ("Goals / match", "goals_per_match", ""),
+                ("Crosses / match", "crosses_per_match", ""),
+                ("Cross accuracy", "cross_accuracy", "%"),
+                ("Key passes / match", "key_passes_per_match", ""),
+                ("Final-third recoveries / match", "final_third_recoveries_per_match", ""),
+                ("Final-third dribbles / match", "final_third_dribbles_per_match", ""),
+                ("Set-piece xG / match", "after_setpieces_xg_per_match", ""),
+            ]
+            metric_table=[]
+            for label, metric, suffix in metric_rows:
+                val=away_row.get(metric, np.nan)
+                pct=away_row.get(f"PCTL__{metric}", np.nan)
+                metric_table.append({
+                    "Metric": label,
+                    "Value": (f"{val:.1f}{suffix}" if suffix == "%" and pd.notna(val) else f"{val:.2f}" if pd.notna(val) else "—"),
+                    "League percentile": pct,
+                })
+            st.dataframe(
+                pd.DataFrame(metric_table),
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "League percentile": st.column_config.ProgressColumn(
+                        "League percentile", min_value=0, max_value=100, format="%.0f"
+                    )
+                },
+            )
+
+            if not home_row_df.empty:
+                st.markdown(f"### {home_team} vs {away_team} — biggest style differences")
+                for axis, home_score, away_score, diff in key_team_differences(team_db, home_team, away_team):
+                    leader = home_team if home_score > away_score else away_team
+                    st.write(
+                        f"**{axis}:** {home_team} {home_score:.0f}p · "
+                        f"{away_team} {away_score:.0f}p — **{leader} +{diff:.0f}p**"
+                    )
+
+            st.info(
+                "Team percentiles are calculated from the 16 uploaded Wyscout team reports. "
+                "Volume metrics are normalized per match. Formation and attacking-route text is descriptive; "
+                "the left/right note is estimated from cross takers' listed positions in the report."
+            )
+
+    with tab_best_xi:
+        st.caption(
+            "The XI is built from the best available positional overall percentiles "
+            "for each formation slot. Each player can be used only once."
+        )
+
+        formation_cols = st.columns(2)
+
+        with formation_cols[0]:
+            home_formation = st.selectbox(
+                f"{home_team} formation",
+                list(FORMATION_SLOTS.keys()),
+                index=0,
+                key="home_formation",
+            )
+
+        with formation_cols[1]:
+            away_formation = st.selectbox(
+                f"{away_team} formation",
+                list(FORMATION_SLOTS.keys()),
+                index=0,
+                key="away_formation",
+            )
+
+        allow_wingers = st.toggle(
+            "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
+            value=False,
             help=(
-                "This filter applies to best-XI selection. "
-                "Players below the threshold are not eligible."
+                "LWB normally selects from LB and RWB from RB. "
+                "Turn this on if you also want to consider natural wingers as tactical wing-backs."
             ),
         )
 
-    formation_cols = st.columns(2)
-
-    with formation_cols[0]:
-        home_formation = st.selectbox(
-            f"{home_team} formation",
-            list(FORMATION_SLOTS.keys()),
-            index=0,
-            key="home_formation",
+        home_lineup = build_best_xi(
+            all_data,
+            home_team,
+            home_formation,
+            int(club_min_minutes),
+            allow_winger_wingbacks=allow_wingers,
         )
 
-    with formation_cols[1]:
-        away_formation = st.selectbox(
-            f"{away_team} formation",
-            list(FORMATION_SLOTS.keys()),
-            index=0,
-            key="away_formation",
+        away_lineup = build_best_xi(
+            all_data,
+            away_team,
+            away_formation,
+            int(club_min_minutes),
+            allow_winger_wingbacks=allow_wingers,
         )
 
-    allow_wingers = st.toggle(
-        "Allow RW/LW players as wing-back alternatives in 3-at-the-back systems",
-        value=False,
-        help=(
-            "LWB normally selects from LB and RWB from RB. "
-            "Turn this on if you also want to consider natural wingers as tactical wing-backs."
-        ),
-    )
+        home_df = lineup_dataframe(home_lineup)
+        away_df = lineup_dataframe(away_lineup)
 
-    home_lineup = build_best_xi(
-        all_data,
-        home_team,
-        home_formation,
-        int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
-    )
+        score_cols = st.columns(2)
 
-    away_lineup = build_best_xi(
-        all_data,
-        away_team,
-        away_formation,
-        int(club_min_minutes),
-        allow_winger_wingbacks=allow_wingers,
-    )
+        with score_cols[0]:
+            valid_scores = home_df[
+                "Overall percentile"
+            ].dropna()
 
-    home_df = lineup_dataframe(home_lineup)
-    away_df = lineup_dataframe(away_lineup)
-
-    score_cols = st.columns(2)
-
-    with score_cols[0]:
-        valid_scores = home_df["Overall percentile"].dropna()
-        home_score = valid_scores.mean() if not valid_scores.empty else np.nan
-
-        st.metric(
-            f"{home_team} XI average",
-            f"{home_score:.1f}p" if pd.notna(home_score) else "—",
-        )
-
-    with score_cols[1]:
-        valid_scores = away_df["Overall percentile"].dropna()
-        away_score = valid_scores.mean() if not valid_scores.empty else np.nan
-
-        st.metric(
-            f"{away_team} XI average",
-            f"{away_score:.1f}p" if pd.notna(away_score) else "—",
-        )
-
-    pitch_cols = st.columns(2)
-
-    with pitch_cols[0]:
-        st.plotly_chart(
-            make_pitch_figure(
-                home_lineup,
-                home_formation,
-                f"{home_team} · {home_formation}",
-            ),
-            use_container_width=True,
-            theme=None,
-        )
-
-        st.dataframe(
-            home_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Overall percentile": st.column_config.ProgressColumn(
-                    "Overall percentile",
-                    min_value=0,
-                    max_value=100,
-                    format="%.1f",
-                )
-            },
-        )
-
-    with pitch_cols[1]:
-        st.plotly_chart(
-            make_pitch_figure(
-                away_lineup,
-                away_formation,
-                f"{away_team} · {away_formation}",
-            ),
-            use_container_width=True,
-            theme=None,
-        )
-
-        st.dataframe(
-            away_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Overall percentile": st.column_config.ProgressColumn(
-                    "Overall percentile",
-                    min_value=0,
-                    max_value=100,
-                    format="%.1f",
-                )
-            },
-        )
-
-    missing_home = home_df[
-        home_df["Player"] == "—"
-    ]["Slot"].tolist()
-
-    missing_away = away_df[
-        away_df["Player"] == "—"
-    ]["Slot"].tolist()
-
-    if missing_home or missing_away:
-        messages = []
-
-        if missing_home:
-            messages.append(
-                f"{home_team}: missing {', '.join(missing_home)}"
+            home_score = (
+                valid_scores.mean()
+                if not valid_scores.empty
+                else np.nan
             )
 
-        if missing_away:
-            messages.append(
-                f"{away_team}: missing {', '.join(missing_away)}"
+            st.metric(
+                f"{home_team} XI average",
+                f"{home_score:.1f}p"
+                if pd.notna(home_score)
+                else "—",
             )
 
-        st.warning(
-            "Not enough eligible players for a complete XI at the current minutes cutoff. "
-            + " | ".join(messages)
+        with score_cols[1]:
+            valid_scores = away_df[
+                "Overall percentile"
+            ].dropna()
+
+            away_score = (
+                valid_scores.mean()
+                if not valid_scores.empty
+                else np.nan
+            )
+
+            st.metric(
+                f"{away_team} XI average",
+                f"{away_score:.1f}p"
+                if pd.notna(away_score)
+                else "—",
+            )
+
+        pitch_cols = st.columns(2)
+
+        with pitch_cols[0]:
+            st.plotly_chart(
+                make_pitch_figure(
+                    home_lineup,
+                    home_formation,
+                    f"{home_team} · {home_formation}",
+                ),
+                use_container_width=True,
+                theme=None,
+            )
+
+            st.dataframe(
+                home_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Overall percentile": st.column_config.ProgressColumn(
+                        "Overall percentile",
+                        min_value=0,
+                        max_value=100,
+                        format="%.1f",
+                    )
+                },
+            )
+
+        with pitch_cols[1]:
+            st.plotly_chart(
+                make_pitch_figure(
+                    away_lineup,
+                    away_formation,
+                    f"{away_team} · {away_formation}",
+                ),
+                use_container_width=True,
+                theme=None,
+            )
+
+            st.dataframe(
+                away_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Overall percentile": st.column_config.ProgressColumn(
+                        "Overall percentile",
+                        min_value=0,
+                        max_value=100,
+                        format="%.1f",
+                    )
+                },
+            )
+
+        missing_home = home_df[
+            home_df["Player"] == "—"
+        ]["Slot"].tolist()
+
+        missing_away = away_df[
+            away_df["Player"] == "—"
+        ]["Slot"].tolist()
+
+        if missing_home or missing_away:
+            messages = []
+
+            if missing_home:
+                messages.append(
+                    f"{home_team}: missing {', '.join(missing_home)}"
+                )
+
+            if missing_away:
+                messages.append(
+                    f"{away_team}: missing {', '.join(missing_away)}"
+                )
+
+            st.warning(
+                "Not enough eligible players for a complete XI at the current minutes cutoff. "
+                + " | ".join(messages)
+            )
+
+    with tab_match_report:
+        st.markdown(
+            f"### {away_team} — opponent profile"
         )
 
-    st.info(
-        "Wing-back mapping: LWB uses the LB dataset and RWB uses the RB dataset. "
-        "If the winger alternative toggle is enabled, RW/LW players may also be considered. "
-        "The model is data-driven and should be treated as a selection aid, not a tactical verdict."
-    )
+        st.caption(
+            "This report ranks the opponent's players by category using "
+            "their positional league percentiles. It is a scouting aid, "
+            "not a tactical verdict."
+        )
+
+        opponent_pool = opponent_player_pool(
+            all_data,
+            away_team,
+            int(club_min_minutes),
+        )
+
+        if opponent_pool.empty:
+            st.warning(
+                "No eligible opponent players at the current minutes cutoff."
+            )
+        else:
+            snapshot = opponent_team_snapshot(
+                opponent_pool
+            )
+
+            snapshot_cols = st.columns(
+                len(snapshot)
+            )
+
+            for idx, snapshot_row in snapshot.iterrows():
+                score = snapshot_row["Team score"]
+
+                with snapshot_cols[idx]:
+                    st.metric(
+                        snapshot_row["Area"],
+                        (
+                            f"{score:.0f}p"
+                            if pd.notna(score)
+                            else "—"
+                        ),
+                    )
+
+            st.markdown("### Key players")
+
+            category_names = list(
+                MATCH_REPORT_CATEGORIES.keys()
+            )
+
+            for row_start in range(
+                0,
+                len(category_names),
+                2,
+            ):
+                cols = st.columns(2)
+
+                for offset in range(2):
+                    category_index = row_start + offset
+
+                    if category_index >= len(category_names):
+                        continue
+
+                    category = category_names[
+                        category_index
+                    ]
+
+                    table = opponent_category_table(
+                        opponent_pool,
+                        category,
+                        top_n=5,
+                    )
+
+                    with cols[offset]:
+                        st.markdown(
+                            f"#### {category}"
+                        )
+
+                        if table.empty:
+                            st.caption(
+                                "Not enough comparable metrics."
+                            )
+                        else:
+                            st.dataframe(
+                                table,
+                                use_container_width=True,
+                                hide_index=True,
+                                column_config={
+                                    "Category score": st.column_config.ProgressColumn(
+                                        "Score",
+                                        min_value=0,
+                                        max_value=100,
+                                        format="%.0f",
+                                    ),
+                                },
+                            )
+
+            st.info(
+                "A player may appear in more than one positional Wyscout export. "
+                "For each category, the app keeps the positional profile in which "
+                "that player scores highest."
+            )
 
     st.stop()
 
@@ -2479,6 +3395,49 @@ with tab_overview:
                     st.caption(
                         "Percentiles are calculated against the current "
                         "league reference sample and minimum-minutes filter."
+                    )
+
+                player_card_png = build_player_card_png(
+                    selected_player,
+                    player_team,
+                    selected_position,
+                    minutes_value,
+                    player_row,
+                    trait_metrics,
+                )
+
+                player_card_pdf = player_card_pdf_from_png(
+                    player_card_png
+                )
+
+                export_1, export_2 = st.columns(2)
+
+                safe_player_name = re.sub(
+                    r"[^A-Za-z0-9_-]+",
+                    "_",
+                    selected_player,
+                ).strip("_")
+
+                with export_1:
+                    st.download_button(
+                        "Download player card · PNG",
+                        data=player_card_png,
+                        file_name=(
+                            f"{safe_player_name}_player_card.png"
+                        ),
+                        mime="image/png",
+                        use_container_width=True,
+                    )
+
+                with export_2:
+                    st.download_button(
+                        "Download player card · PDF",
+                        data=player_card_pdf,
+                        file_name=(
+                            f"{safe_player_name}_player_card.pdf"
+                        ),
+                        mime="application/pdf",
+                        use_container_width=True,
                     )
             else:
                 st.info(
