@@ -1,5 +1,6 @@
 from pathlib import Path
 from io import BytesIO
+import json
 import re
 import textwrap
 
@@ -19,6 +20,7 @@ from reportlab.pdfgen import canvas
 
 APP_DIR = Path(__file__).parent
 DATA_DIR = APP_DIR / "data"
+TEAM_TACTICAL_PATH = DATA_DIR / "team_tactical_details.json"
 LOGO_PATH = APP_DIR / "assets" / "jihlava_logo.png"
 HERO_PATH = APP_DIR / "assets" / "jihlava_hero.png"
 
@@ -1537,6 +1539,17 @@ def load_team_database():
     return prepare_team_percentiles(df)
 
 
+
+@st.cache_data
+def load_team_tactical_details():
+    if not TEAM_TACTICAL_PATH.exists():
+        return {}
+    try:
+        with open(TEAM_TACTICAL_PATH, "r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except Exception:
+        return {}
+
 def team_midrank_percentile(series: pd.Series, lower_is_better: bool = False):
     numeric = pd.to_numeric(series, errors="coerce")
     result = pd.Series(np.nan, index=series.index, dtype=float)
@@ -2693,6 +2706,77 @@ if app_mode == "Club vs Opponent":
                     )
                 },
             )
+
+            st.markdown("### Visual tactical report")
+            st.caption(
+                "These views come directly from the uploaded Wyscout team report. "
+                "Use them together with the percentile radar: the radar shows how strong or unusual the team is, "
+                "while these pages show where and through whom those actions happen."
+            )
+
+            tactical_details = load_team_tactical_details()
+            club_tactical = tactical_details.get(str(away_team), {})
+            tactical_pages = club_tactical.get("pages", {})
+            tactical_tables = club_tactical.get("tables", {})
+
+            if tactical_pages:
+                tactical_tabs = st.tabs([
+                    "Passing flow",
+                    "Crosses & attack",
+                    "Shooting & creation",
+                    "Transitions",
+                    "1v1",
+                    "Set pieces",
+                ])
+
+                tactical_config = [
+                    ("build_up", "Build-up hubs", "The Wyscout build-up page shows the main passing hubs, their preferred receivers and average locations."),
+                    ("attack", "Top crossers", "Cross origins, main crossers, final-third dribbles and high recoveries."),
+                    ("finishing", "Top shooters", "Shot locations, shot quality and the main players responsible for shooting and chance creation."),
+                    ("transitions", "High recoveries", "Where possession is won and lost and which players are most active in transition."),
+                    ("one_v_one", "1v1 players", "Who attempts the most dribbles and where the team creates sustained individual danger."),
+                    ("set_pieces", "Corners", "Corner/free-kick delivery patterns, takers and target zones from the Wyscout report."),
+                ]
+
+                for tab, (page_key, table_key, explanation) in zip(tactical_tabs, tactical_config):
+                    with tab:
+                        st.caption(explanation)
+                        image_rel = tactical_pages.get(page_key)
+                        if image_rel:
+                            image_path = APP_DIR / image_rel
+                            if image_path.exists():
+                                st.image(str(image_path), use_container_width=True)
+
+                        rows = tactical_tables.get(table_key, [])
+                        if rows:
+                            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+                        if page_key == "attack":
+                            dribble_rows = tactical_tables.get("Final-third dribblers", [])
+                            recovery_rows = tactical_tables.get("High recoveries", [])
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                if dribble_rows:
+                                    st.markdown("#### Most active 1v1 in final third")
+                                    st.dataframe(pd.DataFrame(dribble_rows), use_container_width=True, hide_index=True)
+                            with c2:
+                                if recovery_rows:
+                                    st.markdown("#### High recoveries")
+                                    st.dataframe(pd.DataFrame(recovery_rows), use_container_width=True, hide_index=True)
+
+                        if page_key == "finishing":
+                            creator_rows = tactical_tables.get("Key creators", [])
+                            if creator_rows:
+                                st.markdown("#### Main creators")
+                                st.dataframe(pd.DataFrame(creator_rows), use_container_width=True, hide_index=True)
+
+                        if page_key == "set_pieces":
+                            fk_rows = tactical_tables.get("Free kicks", [])
+                            if fk_rows:
+                                st.markdown("#### Free-kick takers")
+                                st.dataframe(pd.DataFrame(fk_rows), use_container_width=True, hide_index=True)
+            else:
+                st.info("No visual tactical pages are available for this club yet.")
 
             if not home_row_df.empty:
                 st.markdown(f"### {home_team} vs {away_team} — biggest style differences")
