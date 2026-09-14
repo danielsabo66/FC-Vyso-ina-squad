@@ -1937,6 +1937,14 @@ def make_ranked_bar_chart(
 
     work = work.sort_values(value_col, ascending=True).tail(max_rows)
 
+    # Shorten very long names a bit, but keep them readable.
+    display_labels = []
+    for label in work[label_col].astype(str).tolist():
+        if len(label) > 22:
+            display_labels.append(label[:22] + "…")
+        else:
+            display_labels.append(label)
+
     text = []
     customdata = []
     if subtitle_col and subtitle_col in work.columns:
@@ -1956,38 +1964,51 @@ def make_ranked_bar_chart(
     fig = go.Figure(
         go.Bar(
             x=work[value_col],
-            y=work[label_col],
+            y=display_labels,
             orientation="h",
             marker=dict(color=color),
             text=text,
             textposition="outside",
+            cliponaxis=False,
             customdata=customdata,
             hovertemplate=(
-                "<b>%{y}</b><br>"
+                "<b>%{customdata[1]}</b><br>"
                 + f"{value_col}: <b>%{{x:.2f}}</b>"
-                + (f"<br>{secondary_label or subtitle_col}: %{{customdata:.2f}}" if subtitle_col and subtitle_col in work.columns else "")
+                + (f"<br>{secondary_label or subtitle_col}: %{{customdata[0]:.2f}}" if subtitle_col and subtitle_col in work.columns else "")
                 + "<extra></extra>"
             ),
         )
     )
 
+    # Store both the subtitle numeric value and full original player name for hover.
+    if subtitle_col and subtitle_col in work.columns:
+        fig.data[0].customdata = list(
+            zip(customdata, work[label_col].astype(str).tolist())
+        )
+    else:
+        fig.data[0].customdata = list(
+            zip([np.nan] * len(work), work[label_col].astype(str).tolist())
+        )
+
     fig.update_layout(
         title=title,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=15, t=45, b=20),
-        height=max(280, 58 * len(work) + 80),
+        margin=dict(l=150, r=70, t=45, b=20),
+        height=max(220, 46 * len(work) + 70),
         xaxis=dict(
             showgrid=True,
             gridcolor="rgba(255,255,255,.08)",
             zeroline=False,
             tickfont=dict(color="#DDE5F0"),
             title="",
+            automargin=True,
         ),
         yaxis=dict(
             showgrid=False,
-            tickfont=dict(color="#F4F6F8"),
+            tickfont=dict(color="#F4F6F8", size=12),
             title="",
+            automargin=True,
         ),
         showlegend=False,
     )
