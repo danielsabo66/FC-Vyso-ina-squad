@@ -1812,6 +1812,389 @@ def formation_summary(row: pd.Series):
             parts.append(f"{form} ({float(pct):.0f}%)" if pd.notna(pct) else form)
     return " · ".join(parts) if parts else "—"
 
+
+def safe_num(value):
+    if pd.isna(value):
+        return np.nan
+    if isinstance(value, str):
+        value = value.strip().replace("%", "")
+        if value in {"", "-", "—", "None", "nan"}:
+            return np.nan
+        value = value.replace(",", ".")
+    return pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
+
+
+def tactical_table_frame(rows):
+    if not rows:
+        return pd.DataFrame()
+
+    frame = pd.DataFrame(rows).copy()
+
+    for col in frame.columns:
+        if col == "Player":
+            continue
+        frame[col] = frame[col].apply(safe_num)
+
+    return frame
+
+
+def team_player_position_map(full_data: pd.DataFrame, team: str):
+    if full_data.empty or "Team" not in full_data.columns:
+        return {}
+
+    subset = full_data[
+        full_data["Team"].astype(str).eq(str(team))
+    ].copy()
+
+    if subset.empty:
+        return {}
+
+    subset = subset[[col for col in ["Name", "PositionGroup"] if col in subset.columns]].dropna()
+    if subset.empty:
+        return {}
+
+    counts = (
+        subset.groupby(["Name", "PositionGroup"]).size().reset_index(name="n")
+        .sort_values(["Name", "n"], ascending=[True, False])
+    )
+
+    best = counts.drop_duplicates(subset=["Name"], keep="first")
+    return dict(zip(best["Name"], best["PositionGroup"]))
+
+
+def position_family(position: str):
+    mapping = {
+        "GK": "goalkeeper",
+        "CB": "centre-backs",
+        "LB": "left-backs",
+        "RB": "right-backs",
+        "CM/CDM": "central midfielders",
+        "CAM": "attacking midfielders",
+        "RW/LW": "wingers",
+        "ST": "strikers",
+    }
+    return mapping.get(str(position), str(position).lower())
+
+
+def comma_names(names):
+    names = [str(name) for name in names if str(name).strip()]
+    if not names:
+        return "—"
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} and {names[1]}"
+    return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
+def dominant_cross_side(team_row: pd.Series):
+    shares = {
+        "left": safe_num(team_row.get("cross_left_share", np.nan)),
+        "right": safe_num(team_row.get("cross_right_share", np.nan)),
+        "central": safe_num(team_row.get("cross_central_share", np.nan)),
+    }
+    valid = {k: v for k, v in shares.items() if pd.notna(v)}
+    if not valid:
+        return None, shares
+    side = max(valid, key=valid.get)
+    return side, shares
+
+
+def infer_build_up_channel(build_df: pd.DataFrame, position_map: dict):
+    if build_df.empty:
+        return None
+
+    top_names = build_df["Player"].astype(str).head(3).tolist()
+    roles = [position_map.get(name, "") for name in top_names]
+    wide_count = sum(role in {"LB", "RB", "RW/LW"} for role in roles)
+    central_count = sum(role in {"CB", "CM/CDM", "CAM", "ST"} for role in roles)
+
+    if wide_count >= 2:
+        return "Build-up appears to lean on wide outlets, especially full-backs / wingers."
+    if central_count >= 2:
+        return "Build-up appears to run mainly through the central spine."
+    return "Build-up responsibility is spread across multiple lines."
+
+
+def make_ranked_bar_chart(
+    df: pd.DataFrame,
+    value_col: str,
+    label_col: str = "Player",
+    color: str = "#FFD900",
+    title: str = "",
+    subtitle_col: str | None = None,
+    secondary_label: str | None = None,
+    max_rows: int = 6,
+):
+    if df.empty or value_col not in df.columns or label_col not in df.columns:
+        return go.Figure()
+
+    work = df.copy()
+    work[value_col] = pd.to_numeric(work[value_col], errors="coerce")
+    work = work.dropna(subset=[value_col])
+    if work.empty:
+        return go.Figure()
+
+    work = work.sort_values(value_col, ascending=True).tail(max_rows)
+
+    text = []
+    customdata = []
+    if subtitle_col and subtitle_col in work.columns:
+        for _, row in work.iterrows():
+            sub = row.get(subtitle_col, np.nan)
+            if pd.notna(sub):
+                label = secondary_label or subtitle_col
+                text.append(f"{row[value_col]:.1f} · {label}: {sub:.1f}")
+                customdata.append(sub)
+            else:
+                text.append(f"{row[value_col]:.1f}")
+                customdata.append(np.nan)
+    else:
+        text = [f"{v:.1f}" for v in work[value_col]]
+        customdata = [np.nan] * len(work)
+
+    fig = go.Figure(
+        go.Bar(
+            x=work[value_col],
+            y=work[label_col],
+            orientation="h",
+            marker=dict(color=color),
+            text=text,
+            textposition="outside",
+            customdata=customdata,
+            hovertemplate=(
+                "<b>%{y}</b><br>"
+                + f"{value_col}: <b>%{{x:.2f}}</b>"
+                + (f"<br>{secondary_label or subtitle_col}: %{{customdata:.2f}}" if subtitle_col and subtitle_col in work.columns else "")
+                + "<extra></extra>"
+            ),
+        )
+    )
+
+    fig.update_layout(
+        title=title,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=10, r=15, t=45, b=20),
+        height=max(280, 58 * len(work) + 80),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor="rgba(255,255,255,.08)",
+            zeroline=False,
+            tickfont=dict(color="#DDE5F0"),
+            title="",
+        ),
+        yaxis=dict(
+            showgrid=False,
+            tickfont=dict(color="#F4F6F8"),
+            title="",
+        ),
+        showlegend=False,
+    )
+    return fig
+
+
+def make_origin_split_chart(team_row: pd.Series):
+    labels = ["Left", "Central", "Right"]
+    values = [
+        max(0, safe_num(team_row.get("cross_left_share", 0)) or 0),
+        max(0, safe_num(team_row.get("cross_central_share", 0)) or 0),
+        max(0, safe_num(team_row.get("cross_right_share", 0)) or 0),
+    ]
+
+    fig = go.Figure(
+        go.Pie(
+            labels=labels,
+            values=values,
+            hole=0.58,
+            sort=False,
+            marker=dict(colors=["#4DA3FF", "#9AA6B2", "#FFD900"]),
+            textinfo="label+percent",
+            textfont=dict(color="white", size=12),
+            hovertemplate="%{label}: <b>%{value:.1f}%</b><extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title="Crossing origin",
+        paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=10, r=10, t=45, b=10),
+        height=330,
+        showlegend=False,
+    )
+    return fig
+
+
+def make_shot_source_chart(team_row: pd.Series):
+    total_shots = safe_num(team_row.get("shots", np.nan))
+    cross_shots = safe_num(team_row.get("after_crosses_shots", 0)) or 0
+    setpiece_shots = safe_num(team_row.get("after_setpieces_shots", 0)) or 0
+    open_play_shots = max(0, (total_shots or 0) - cross_shots - setpiece_shots)
+
+    total_xg = safe_num(team_row.get("xg", np.nan))
+    cross_xg = safe_num(team_row.get("after_crosses_xg", 0)) or 0
+    setpiece_xg = safe_num(team_row.get("after_setpieces_xg", 0)) or 0
+    open_play_xg = max(0, (total_xg or 0) - cross_xg - setpiece_xg)
+
+    fig = go.Figure()
+    cats = ["Open play", "After crosses", "Set pieces"]
+    fig.add_trace(
+        go.Bar(
+            name="Shots",
+            x=cats,
+            y=[open_play_shots, cross_shots, setpiece_shots],
+            marker_color="#4DA3FF",
+            opacity=0.9,
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            name="xG",
+            x=cats,
+            y=[open_play_xg, cross_xg, setpiece_xg],
+            marker_color="#FFD900",
+            opacity=0.9,
+            yaxis="y2",
+        )
+    )
+
+    fig.update_layout(
+        title="Shooting profile by source",
+        barmode="group",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=10, r=10, t=45, b=20),
+        height=340,
+        xaxis=dict(tickfont=dict(color="#F4F6F8")),
+        yaxis=dict(title="Shots", showgrid=True, gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#DDE5F0")),
+        yaxis2=dict(title="xG", overlaying="y", side="right", showgrid=False, tickfont=dict(color="#DDE5F0")),
+        legend=dict(orientation="h", y=1.10, x=0.5, xanchor="center"),
+    )
+    return fig
+
+
+def make_metric_share_chart(labels, values, title, colors=None):
+    colors = colors or ["#FFD900", "#4DA3FF", "#7ED957"]
+    fig = go.Figure(
+        go.Pie(
+            labels=labels,
+            values=values,
+            hole=0.58,
+            sort=False,
+            marker=dict(colors=colors[: len(labels)]),
+            textinfo="label+percent",
+            textfont=dict(color="white", size=12),
+        )
+    )
+    fig.update_layout(
+        title=title,
+        paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=10, r=10, t=45, b=10),
+        height=330,
+        showlegend=False,
+    )
+    return fig
+
+
+def team_text_insights(team_row: pd.Series, tables: dict, full_data: pd.DataFrame, team: str):
+    build_df = tactical_table_frame(tables.get("Build-up hubs", []))
+    cross_df = tactical_table_frame(tables.get("Top crossers", []))
+    drib_df = tactical_table_frame(tables.get("Final-third dribblers", []))
+    recover_df = tactical_table_frame(tables.get("High recoveries", []))
+    shoot_df = tactical_table_frame(tables.get("Top shooters", []))
+    creators_df = tactical_table_frame(tables.get("Key creators", []))
+    one_v_one_df = tactical_table_frame(tables.get("1v1 players", []))
+    position_map = team_player_position_map(full_data, team)
+
+    insights = {
+        "build": [],
+        "attack": [],
+        "shooting": [],
+        "dribble": [],
+        "setpieces": [],
+    }
+
+    if not build_df.empty:
+        top_hubs = build_df.sort_values("Passes", ascending=False)["Player"].astype(str).head(3).tolist()
+        insights["build"].append(f"Main build-up hubs: {comma_names(top_hubs)}.")
+        top_row = build_df.sort_values("Passes", ascending=False).iloc[0]
+        insights["build"].append(
+            f"{top_row['Player']} leads their build-up volume with {top_row['Passes']:.0f} passes in the sample at {top_row['Accuracy %']:.1f}% accuracy."
+        )
+        channel_text = infer_build_up_channel(build_df.sort_values("Passes", ascending=False), position_map)
+        if channel_text:
+            insights["build"].append(channel_text)
+
+    side, shares = dominant_cross_side(team_row)
+    if side:
+        if side == "left":
+            insights["attack"].append(
+                f"Attacks appear to lean left: {shares['left']:.1f}% of listed crosses come from the left side."
+            )
+        elif side == "right":
+            insights["attack"].append(
+                f"Attacks appear to lean right: {shares['right']:.1f}% of listed crosses come from the right side."
+            )
+        else:
+            insights["attack"].append("Crosses are distributed relatively centrally / mixed rather than strongly one-sided.")
+
+    if not cross_df.empty:
+        top_crossers = cross_df.sort_values("Crosses", ascending=False)["Player"].astype(str).head(3).tolist()
+        insights["attack"].append(f"Main crossing players: {comma_names(top_crossers)}.")
+
+    if not drib_df.empty:
+        top_drib = drib_df.sort_values("Dribbles", ascending=False).iloc[0]
+        insights["attack"].append(
+            f"Top final-third dribbler: {top_drib['Player']} with {top_drib['Dribbles']:.0f} dribbles and a {top_drib.get('Team share %', np.nan):.1f}% team share."
+        )
+
+    if not shoot_df.empty:
+        top_shooter = shoot_df.sort_values("Shots", ascending=False).iloc[0]
+        insights["shooting"].append(
+            f"Top shooter: {top_shooter['Player']} ({top_shooter['Shots']:.0f} shots, xG {safe_num(top_shooter.get('xG', np.nan)):.2f}, {safe_num(top_shooter.get('Goals', np.nan)):.0f} goals)."
+        )
+
+    total_xg = safe_num(team_row.get("xg", np.nan))
+    cross_xg = safe_num(team_row.get("after_crosses_xg", np.nan))
+    setpiece_xg = safe_num(team_row.get("after_setpieces_xg", np.nan))
+    if pd.notna(total_xg) and total_xg > 0:
+        cross_share = 100 * (cross_xg / total_xg) if pd.notna(cross_xg) else 0
+        sp_share = 100 * (setpiece_xg / total_xg) if pd.notna(setpiece_xg) else 0
+        insights["shooting"].append(
+            f"Chance source split: {cross_share:.1f}% of team xG comes after crosses and {sp_share:.1f}% from set pieces."
+        )
+
+    if not creators_df.empty:
+        top_creator = creators_df.sort_values("Key passes", ascending=False).iloc[0]
+        insights["shooting"].append(
+            f"Main creator: {top_creator['Player']} with {top_creator['Key passes']:.0f} key passes and xA {safe_num(top_creator.get('xA', np.nan)):.2f}."
+        )
+
+    if not one_v_one_df.empty:
+        top_1v1 = one_v_one_df.sort_values("Dribbles", ascending=False)["Player"].astype(str).head(3).tolist()
+        insights["dribble"].append(f"Most active 1v1 players: {comma_names(top_1v1)}.")
+
+    if not recover_df.empty:
+        top_recover = recover_df.sort_values("Recoveries", ascending=False).iloc[0]
+        insights["dribble"].append(
+            f"Best high-recovery presence: {top_recover['Player']} with {top_recover['Recoveries']:.0f} recoveries, leading to {top_recover.get('Shots after', 0):.0f} shots after regains."
+        )
+
+    sp_shots = safe_num(team_row.get("after_setpieces_shots", np.nan))
+    sp_xg = safe_num(team_row.get("after_setpieces_xg", np.nan))
+    sp_goals = safe_num(team_row.get("after_setpieces_goals", np.nan))
+    if pd.notna(sp_shots):
+        insights["setpieces"].append(
+            f"Set-piece output so far: {sp_shots:.0f} shots, xG {sp_xg:.2f}, {sp_goals:.0f} goals."
+        )
+    if pd.notna(total_xg) and total_xg > 0 and pd.notna(sp_xg):
+        insights["setpieces"].append(
+            f"Set pieces account for {(100 * sp_xg / total_xg):.1f}% of total xG."
+        )
+    if not insights["setpieces"]:
+        insights["setpieces"].append("No structured set-piece taker table was extracted, so this section focuses on set-piece output rather than exact routines.")
+
+    return insights
+
 # ============================================================
 # MATCH OPPONENT REPORT
 # ============================================================
@@ -2707,76 +3090,202 @@ if app_mode == "Club vs Opponent":
                 },
             )
 
-            st.markdown("### Visual tactical report")
+            st.markdown("### Tactical visuals")
             st.caption(
-                "These views come directly from the uploaded Wyscout team report. "
-                "Use them together with the percentile radar: the radar shows how strong or unusual the team is, "
-                "while these pages show where and through whom those actions happen."
+                "Custom team visualisations built from the structured data extracted from the Wyscout team report. "
+                "These views emphasise the key patterns rather than every single event."
             )
 
             tactical_details = load_team_tactical_details()
             club_tactical = tactical_details.get(str(away_team), {})
-            tactical_pages = club_tactical.get("pages", {})
             tactical_tables = club_tactical.get("tables", {})
 
-            if tactical_pages:
+            if tactical_tables:
+                build_df = tactical_table_frame(tactical_tables.get("Build-up hubs", []))
+                cross_df = tactical_table_frame(tactical_tables.get("Top crossers", []))
+                dribble_df = tactical_table_frame(tactical_tables.get("Final-third dribblers", []))
+                recovery_df = tactical_table_frame(tactical_tables.get("High recoveries", []))
+                shoot_df = tactical_table_frame(tactical_tables.get("Top shooters", []))
+                creator_df = tactical_table_frame(tactical_tables.get("Key creators", []))
+                one_v_one_df = tactical_table_frame(tactical_tables.get("1v1 players", []))
+                insights = team_text_insights(away_row, tactical_tables, all_data, away_team)
+
                 tactical_tabs = st.tabs([
                     "Passing flow",
-                    "Crosses & attack",
+                    "Crosses & wide play",
                     "Shooting & creation",
-                    "Transitions",
-                    "1v1",
+                    "1v1 & transitions",
                     "Set pieces",
                 ])
 
-                tactical_config = [
-                    ("build_up", "Build-up hubs", "The Wyscout build-up page shows the main passing hubs, their preferred receivers and average locations."),
-                    ("attack", "Top crossers", "Cross origins, main crossers, final-third dribbles and high recoveries."),
-                    ("finishing", "Top shooters", "Shot locations, shot quality and the main players responsible for shooting and chance creation."),
-                    ("transitions", "High recoveries", "Where possession is won and lost and which players are most active in transition."),
-                    ("one_v_one", "1v1 players", "Who attempts the most dribbles and where the team creates sustained individual danger."),
-                    ("set_pieces", "Corners", "Corner/free-kick delivery patterns, takers and target zones from the Wyscout report."),
-                ]
+                with tactical_tabs[0]:
+                    left_viz, right_viz = st.columns([1.2, 1])
+                    with left_viz:
+                        if not build_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    build_df,
+                                    value_col="Passes",
+                                    title="Main build-up hubs",
+                                    subtitle_col="Accuracy %",
+                                    secondary_label="Accuracy %",
+                                    color="#4DA3FF",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
+                        else:
+                            st.info("No build-up table extracted for this team.")
 
-                for tab, (page_key, table_key, explanation) in zip(tactical_tabs, tactical_config):
-                    with tab:
-                        st.caption(explanation)
-                        image_rel = tactical_pages.get(page_key)
-                        if image_rel:
-                            image_path = APP_DIR / image_rel
-                            if image_path.exists():
-                                st.image(str(image_path), use_container_width=True)
+                    with right_viz:
+                        st.markdown("#### What it suggests")
+                        for line in insights.get("build", []):
+                            st.write(f"- {line}")
+                        if not creator_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    creator_df,
+                                    value_col="Key passes",
+                                    title="Main creators",
+                                    subtitle_col="xA",
+                                    secondary_label="xA",
+                                    color="#FFD900",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
 
-                        rows = tactical_tables.get(table_key, [])
-                        if rows:
-                            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                with tactical_tabs[1]:
+                    top_row = st.columns([1.0, 1.2])
+                    with top_row[0]:
+                        st.plotly_chart(
+                            make_origin_split_chart(away_row),
+                            use_container_width=True,
+                            theme=None,
+                        )
+                    with top_row[1]:
+                        if not cross_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    cross_df,
+                                    value_col="Crosses",
+                                    title="Top crossers",
+                                    subtitle_col="Accuracy %",
+                                    secondary_label="Accuracy %",
+                                    color="#FFD900",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
+                    st.markdown("#### What it suggests")
+                    for line in insights.get("attack", []):
+                        st.write(f"- {line}")
+                    if not dribble_df.empty:
+                        st.plotly_chart(
+                            make_ranked_bar_chart(
+                                dribble_df,
+                                value_col="Dribbles",
+                                title="Final-third dribblers",
+                                subtitle_col="Team share %",
+                                secondary_label="Team share %",
+                                color="#7ED957",
+                            ),
+                            use_container_width=True,
+                            theme=None,
+                        )
 
-                        if page_key == "attack":
-                            dribble_rows = tactical_tables.get("Final-third dribblers", [])
-                            recovery_rows = tactical_tables.get("High recoveries", [])
-                            c1, c2 = st.columns(2)
-                            with c1:
-                                if dribble_rows:
-                                    st.markdown("#### Most active 1v1 in final third")
-                                    st.dataframe(pd.DataFrame(dribble_rows), use_container_width=True, hide_index=True)
-                            with c2:
-                                if recovery_rows:
-                                    st.markdown("#### High recoveries")
-                                    st.dataframe(pd.DataFrame(recovery_rows), use_container_width=True, hide_index=True)
+                with tactical_tabs[2]:
+                    c1, c2 = st.columns([1.15, 1])
+                    with c1:
+                        if not shoot_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    shoot_df,
+                                    value_col="Shots",
+                                    title="Top shooters",
+                                    subtitle_col="xG",
+                                    secondary_label="xG",
+                                    color="#FF9F43",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
+                    with c2:
+                        st.plotly_chart(
+                            make_shot_source_chart(away_row),
+                            use_container_width=True,
+                            theme=None,
+                        )
+                    st.markdown("#### What it suggests")
+                    for line in insights.get("shooting", []):
+                        st.write(f"- {line}")
 
-                        if page_key == "finishing":
-                            creator_rows = tactical_tables.get("Key creators", [])
-                            if creator_rows:
-                                st.markdown("#### Main creators")
-                                st.dataframe(pd.DataFrame(creator_rows), use_container_width=True, hide_index=True)
+                with tactical_tabs[3]:
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        if not one_v_one_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    one_v_one_df,
+                                    value_col="Dribbles",
+                                    title="Most active 1v1 players",
+                                    subtitle_col="Per 90",
+                                    secondary_label="Per 90",
+                                    color="#7ED957",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
+                    with c2:
+                        if not recovery_df.empty:
+                            st.plotly_chart(
+                                make_ranked_bar_chart(
+                                    recovery_df,
+                                    value_col="Recoveries",
+                                    title="High recoveries",
+                                    subtitle_col="Shots after",
+                                    secondary_label="Shots after",
+                                    color="#4DA3FF",
+                                ),
+                                use_container_width=True,
+                                theme=None,
+                            )
+                    st.markdown("#### What it suggests")
+                    for line in insights.get("dribble", []):
+                        st.write(f"- {line}")
 
-                        if page_key == "set_pieces":
-                            fk_rows = tactical_tables.get("Free kicks", [])
-                            if fk_rows:
-                                st.markdown("#### Free-kick takers")
-                                st.dataframe(pd.DataFrame(fk_rows), use_container_width=True, hide_index=True)
+                with tactical_tabs[4]:
+                    total_xg = safe_num(away_row.get("xg", np.nan))
+                    sp_xg = safe_num(away_row.get("after_setpieces_xg", 0)) or 0
+                    cross_xg = safe_num(away_row.get("after_crosses_xg", 0)) or 0
+                    open_play_xg = max(0, (total_xg or 0) - sp_xg - cross_xg)
+
+                    c1, c2 = st.columns([1.0, 1.1])
+                    with c1:
+                        st.plotly_chart(
+                            make_metric_share_chart(
+                                ["Open play xG", "Cross xG", "Set-piece xG"],
+                                [open_play_xg, cross_xg, sp_xg],
+                                "Where their xG comes from",
+                                colors=["#4DA3FF", "#FFD900", "#FF9F43"],
+                            ),
+                            use_container_width=True,
+                            theme=None,
+                        )
+                    with c2:
+                        s1, s2, s3 = st.columns(3)
+                        s1.metric("Set-piece shots", f"{safe_num(away_row.get('after_setpieces_shots', np.nan)):.0f}")
+                        s2.metric("Set-piece xG", f"{sp_xg:.2f}")
+                        s3.metric("Set-piece goals", f"{safe_num(away_row.get('after_setpieces_goals', np.nan)):.0f}")
+                        st.markdown("#### What it suggests")
+                        for line in insights.get("setpieces", []):
+                            st.write(f"- {line}")
+                        st.caption(
+                            "Current structured extraction gives reliable set-piece output (shots / xG / goals). "
+                            "Exact corner/free-kick routines or takers were not consistently extractable across all club PDFs."
+                        )
             else:
-                st.info("No visual tactical pages are available for this club yet.")
+                st.info("No structured tactical details are available for this club yet.")
 
             if not home_row_df.empty:
                 st.markdown(f"### {home_team} vs {away_team} — biggest style differences")
