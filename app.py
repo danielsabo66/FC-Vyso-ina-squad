@@ -516,6 +516,216 @@ def metric_category_options(available_metrics: list[str]) -> dict[str, list[str]
     return out
 
 
+FIELD_METRIC_COLUMNS = {
+    "Defensive": [
+        "Successful defensive actions per 90",
+        "Defensive duels per 90",
+        "Defensive duels won, %",
+        "Aerial duels per 90",
+        "Aerial duels won, %",
+        "Sliding tackles per 90",
+        "PAdj Sliding tackles",
+        "Shots blocked per 90",
+        "Interceptions per 90",
+        "PAdj Interceptions",
+        "Fouls per 90",
+    ],
+    "Offensive": [
+        "Goals",
+        "xG",
+        "Successful attacking actions per 90",
+        "Goals per 90",
+        "Non-penalty goals",
+        "Non-penalty goals per 90",
+        "xG per 90",
+        "Head goals",
+        "Head goals per 90",
+        "Shots",
+        "Shots per 90",
+        "Shots on target, %",
+        "Goal conversion, %",
+        "Dribbles per 90",
+        "Successful dribbles, %",
+        "Offensive duels per 90",
+        "Offensive duels won, %",
+        "Touches in box per 90",
+        "Progressive runs per 90",
+        "Accelerations per 90",
+        "Direct free kicks per 90",
+        "Direct free kicks on target, %",
+        "Penalties taken",
+        "Penalty conversion, %",
+    ],
+    "Passing": [
+        "Assists",
+        "xA",
+        "Assists per 90",
+        "Crosses per 90",
+        "Accurate crosses, %",
+        "Received passes per 90",
+        "Passes per 90",
+        "Accurate passes, %",
+        "Forward passes per 90",
+        "Accurate forward passes, %",
+        "Back passes per 90",
+        "Accurate back passes, %",
+        "Lateral passes per 90",
+        "Accurate lateral passes, %",
+        "Short / medium passes per 90",
+        "Accurate short / medium passes, %",
+        "Long passes per 90",
+        "Accurate long passes, %",
+        "xA per 90",
+        "Shot assists per 90",
+        "Second assists per 90",
+        "Smart passes per 90",
+        "Accurate smart passes, %",
+        "Key passes per 90",
+        "Passes to final third per 90",
+        "Accurate passes to final third, %",
+        "Passes to penalty area per 90",
+        "Accurate passes to penalty area, %",
+        "Through passes per 90",
+        "Accurate through passes, %",
+        "Deep completions per 90",
+        "Deep completed crosses per 90",
+        "Progressive passes per 90",
+        "Accurate progressive passes, %",
+        "Free kicks per 90",
+        "Corners per 90",
+    ],
+}
+
+
+def split_field_metrics(available_metrics: list[str]) -> dict[str, list[str]]:
+    available = set(available_metrics)
+    out = {}
+    assigned = set()
+    for label, ordered_metrics in FIELD_METRIC_COLUMNS.items():
+        values = [metric for metric in ordered_metrics if metric in available]
+        out[label] = values
+        assigned.update(values)
+
+    # Any newly introduced Wyscout metric remains accessible rather than silently
+    # disappearing.  Put uncategorised metrics into the closest general bucket.
+    leftovers = [metric for metric in available_metrics if metric not in assigned]
+    out["Passing"].extend(leftovers)
+    return out
+
+
+def three_column_metric_selector(
+    available_metrics: list[str],
+    default_metrics: list[str] | None,
+    key_prefix: str,
+    heading: str = "Comparison metrics",
+) -> list[str]:
+    groups = split_field_metrics(available_metrics)
+    default_set = set(default_metrics or [])
+
+    st.markdown(f"**{heading}**")
+    cols = st.columns(3)
+    selected = []
+    for col, category in zip(cols, ["Defensive", "Offensive", "Passing"]):
+        options = groups.get(category, [])
+        defaults = [metric for metric in options if metric in default_set]
+        # Cross-position views may have no position-specific defaults. Give each
+        # column a small useful starting selection without flooding the radar.
+        if not defaults and default_metrics is None:
+            defaults = options[: min(2, len(options))]
+        with col:
+            st.caption(category)
+            picked = st.multiselect(
+                f"{category} metrics",
+                options,
+                default=defaults,
+                key=f"{key_prefix}_{category.lower()}",
+                label_visibility="collapsed",
+            )
+            selected.extend(picked)
+    return selected
+
+
+def make_position_fit_radar(
+    source_row: pd.Series,
+    target_rows: pd.DataFrame,
+    metrics: list[str],
+    target_position: str,
+):
+    fig = go.Figure()
+    labels = [short_metric_label(metric) for metric in metrics]
+    percentiles = []
+    raw_values = []
+
+    for metric in metrics:
+        raw = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
+        raw_values.append(raw)
+        percentiles.append(display_percentile(metric, raw, target_rows))
+
+    # Target-role median reference.
+    if metrics:
+        fig.add_trace(
+            go.Scatterpolar(
+                r=[50] * (len(metrics) + 1),
+                theta=labels + [labels[0]],
+                mode="lines",
+                line=dict(color="rgba(255,255,255,0.32)", width=1.5, dash="dot"),
+                name=f"{target_position} median",
+                hoverinfo="skip",
+            )
+        )
+
+    if metrics and percentiles:
+        color = RADAR_COLORS[0]
+        fig.add_trace(
+            go.Scatterpolar(
+                r=percentiles + [percentiles[0]],
+                theta=labels + [labels[0]],
+                customdata=raw_values + [raw_values[0]],
+                mode="lines+markers",
+                line=dict(color=color, width=3.4),
+                marker=dict(color=color, size=7, line=dict(color="#07111F", width=1.4)),
+                fill="toself",
+                fillcolor=hex_to_rgba(color, 0.18),
+                name=f"{source_row.get('Name', 'Player')} as {target_position}",
+                hovertemplate=(
+                    "<b>%{fullData.name}</b>"
+                    "<br>%{theta}"
+                    "<br>Percentile vs target role: <b>%{r:.0f}</b>"
+                    "<br>Raw: <b>%{customdata:.2f}</b>"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+    fig.update_layout(
+        polar=dict(
+            bgcolor="#0B1626",
+            gridshape="linear",
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickmode="array",
+                tickvals=[20, 40, 60, 80, 100],
+                ticktext=["20", "40", "60", "80", "100"],
+                gridcolor="rgba(255,255,255,0.14)",
+                linecolor="rgba(255,255,255,0.18)",
+                tickfont=dict(color="rgba(255,255,255,0.62)", size=10),
+            ),
+            angularaxis=dict(
+                gridcolor="rgba(255,255,255,0.11)",
+                linecolor="rgba(255,255,255,0.18)",
+                tickfont=dict(color="#F5F7FA", size=11),
+            ),
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=650,
+        margin=dict(l=90, r=90, t=50, b=75),
+        legend=dict(orientation="h", y=-0.10, x=0.5, xanchor="center"),
+    )
+    return fig
+
+
 # ============================================================
 # DATA
 # ============================================================
@@ -543,72 +753,74 @@ def infer_position(filename: str) -> str:
 
 @st.cache_data(show_spinner=False)
 def load_all_data():
-    """Load the new full-metric field-player master plus a separate GK file.
+    """Load manually curated full-metric positional exports.
 
-    Field players are expanded into one row per mapped positional group so the
-    existing positional benchmark views keep working. Team names are normalised
-    and only clubs in the current Chance National Liga team database are kept.
+    The positional Excel file is the source of truth for PositionGroup.  This
+    deliberately avoids re-classifying players from Wyscout's multi-position
+    codes (e.g. a winger listed as AMF).  Team names are normalised and only
+    current Chance National Liga clubs are retained.  Goalkeepers remain in
+    their separate legacy export and are excluded from cross-position tools.
     """
     frames = []
     warnings = []
     allowed_teams = allowed_league_teams()
 
-    # Prefer the clean master file shipped with this version.
-    field_candidates = [
-        DATA_DIR / "field_players.xlsx",
-        DATA_DIR / "Data 1.xlsx",
-    ]
-    field_path = next((p for p in field_candidates if p.exists()), None)
+    positional_files = {
+        "CAM": DATA_DIR / "CAM.xlsx",
+        "CB": DATA_DIR / "CB.xlsx",
+        "CM/CDM": DATA_DIR / "CDM_CM.xlsx",
+        "LB": DATA_DIR / "LB.xlsx",
+        "RB": DATA_DIR / "RB.xlsx",
+        "RW/LW": DATA_DIR / "RW_LW.xlsx",
+        "ST": DATA_DIR / "ST.xlsx",
+    }
 
-    if field_path is not None:
+    for position_group, file_path in positional_files.items():
+        if not file_path.exists():
+            warnings.append(f"{file_path.name}: file not found")
+            continue
+
         try:
-            field = pd.read_excel(field_path)
-            field.columns = [str(col).strip() for col in field.columns]
-            if "Player" in field.columns and "Name" not in field.columns:
-                field = field.rename(columns={"Player": "Name"})
-            if "Minutes" in field.columns and "Minutes played" not in field.columns:
-                field = field.rename(columns={"Minutes": "Minutes played"})
+            frame = pd.read_excel(file_path)
+            frame.columns = [str(col).strip() for col in frame.columns]
 
-            required = {"Name", "Team", "Position"}
-            if not required.issubset(field.columns):
-                warnings.append(
-                    f"{field_path.name}: missing one of required columns Name/Team/Position"
-                )
-            else:
-                field["Team"] = field["Team"].astype(str).map(canonical_team_name)
-                field = field[field["Team"].isin(allowed_teams)].copy()
-                field["Original position"] = field["Position"].astype(str)
-                field["Mapped groups"] = field["Position"].apply(map_position_codes)
-                field = field[field["Mapped groups"].map(bool)].copy()
-                field["PlayerGroups"] = field["Mapped groups"].apply(
-                    lambda groups: ", ".join(broad_groups_for_position_groups(groups))
-                )
-                field["SourceFile"] = field_path.name
+            if "Player" in frame.columns and "Name" not in frame.columns:
+                frame = frame.rename(columns={"Player": "Name"})
+            if "Minutes" in frame.columns and "Minutes played" not in frame.columns:
+                frame = frame.rename(columns={"Minutes": "Minutes played"})
+            if "Team" not in frame.columns:
+                frame["Team"] = ""
 
-                expanded_rows = []
-                for _, row in field.iterrows():
-                    groups = row["Mapped groups"]
-                    broad_groups = broad_groups_for_position_groups(groups)
-                    for group in groups:
-                        item = row.copy()
-                        item["PositionGroup"] = group
-                        matching_broad = [
-                            broad for broad, detailed in BROAD_GROUPS.items()
-                            if group in detailed
-                        ]
-                        item["PlayerGroup"] = matching_broad[0] if matching_broad else "Other"
-                        expanded_rows.append(item)
+            if "Name" not in frame.columns:
+                warnings.append(f"{file_path.name}: missing Player/Name column")
+                continue
 
-                if expanded_rows:
-                    expanded = pd.DataFrame(expanded_rows).drop(columns=["Mapped groups"], errors="ignore")
-                    frames.append(expanded)
+            frame["Team"] = frame["Team"].astype(str).map(canonical_team_name)
+            frame = frame[frame["Team"].isin(allowed_teams)].copy()
+
+            frame["Original position"] = (
+                frame["Position"].astype(str)
+                if "Position" in frame.columns
+                else position_group
+            )
+            frame["PositionGroup"] = position_group
+            matching_broad = next(
+                (broad for broad, positions in BROAD_GROUPS.items() if position_group in positions),
+                "Other",
+            )
+            frame["PlayerGroup"] = matching_broad
+            frame["PlayerGroups"] = matching_broad
+            frame["SourceFile"] = file_path.name
+            frames.append(frame)
         except Exception as exc:
-            warnings.append(f"{field_path.name}: {exc}")
-    else:
-        warnings.append("field_players.xlsx not found")
+            warnings.append(f"{file_path.name}: {exc}")
 
-    # Goalkeepers are intentionally separate from cross-position analysis.
-    gk_candidates = [DATA_DIR / "GK Data.xlsx", DATA_DIR / "gk_players.xlsx", DATA_DIR / "GK.xlsx"]
+    # Keep goalkeepers from the previous application/data version.
+    gk_candidates = [
+        DATA_DIR / "GK Data.xlsx",
+        DATA_DIR / "gk_players.xlsx",
+        DATA_DIR / "GK.xlsx",
+    ]
     gk_path = next((p for p in gk_candidates if p.exists()), None)
     if gk_path is not None:
         try:
@@ -630,17 +842,16 @@ def load_all_data():
             frames.append(gk)
         except Exception as exc:
             warnings.append(f"{gk_path.name}: {exc}")
+    else:
+        warnings.append("Goalkeeper file not found")
 
     if not frames:
         return pd.DataFrame(), warnings
 
     out = pd.concat(frames, ignore_index=True, sort=False)
-
-    # Drop exact duplicate positional rows while preserving legitimate multi-position entries.
     dedupe_cols = [col for col in ["Name", "Team", "PositionGroup"] if col in out.columns]
     if dedupe_cols:
         out = out.drop_duplicates(subset=dedupe_cols, keep="first")
-
     return out, warnings
 
 
@@ -4197,16 +4408,28 @@ with tab_compare:
             key="manual_compare_players",
         )
 
-    compare_metrics = st.multiselect(
-        "Comparison metrics",
-        metrics,
-        default=preferred_metrics(
-            selected_position,
+    if selected_position == "GK":
+        compare_metrics = st.multiselect(
+            "Comparison metrics",
             metrics,
-            maximum=min(8, len(metrics)),
-        ),
-        key="comparison_metrics",
-    )
+            default=preferred_metrics(
+                selected_position,
+                metrics,
+                maximum=min(8, len(metrics)),
+            ),
+            key="comparison_metrics_gk",
+        )
+    else:
+        compare_metrics = three_column_metric_selector(
+            metrics,
+            preferred_metrics(
+                selected_position,
+                metrics,
+                maximum=min(9, len(metrics)),
+            ),
+            key_prefix=f"comparison_{selected_position.replace('/', '_')}",
+            heading="Comparison metrics",
+        )
 
     if compare_players and "Minutes played" in comparison_df.columns:
         below_cutoff = []
@@ -4734,11 +4957,11 @@ with tab_ranking:
 with tab_cross:
     st.subheader("Cross-position analysis")
     st.caption(
-        "Raw-data comparison only — no player percentiles. Goalkeepers are intentionally excluded from this workspace."
+        "Compare any outfield player across broad groups. Goalkeepers remain separate. "
+        "Player vs Player uses raw values; Position Fit benchmarks the selected player against a specific target role."
     )
 
     field_data = all_data[all_data["PositionGroup"].ne("GK")].copy()
-    # One row per player/team for raw-data lookup; metrics are identical across duplicated mapped-position rows.
     player_master = field_data.drop_duplicates(subset=["Name", "Team"], keep="first").copy()
 
     analysis_mode = st.radio(
@@ -4749,44 +4972,37 @@ with tab_cross:
     )
 
     def _player_selector(prefix: str, label_prefix: str):
-        c1, c2, c3 = st.columns([1, 1, 1.7])
-        with c1:
-            broad = st.selectbox(
-                f"{label_prefix} group",
-                list(BROAD_GROUPS.keys()),
-                key=f"{prefix}_broad",
-            )
-        with c2:
-            detailed_options = [
-                p for p in BROAD_GROUPS[broad]
-                if p in field_data["PositionGroup"].dropna().astype(str).unique()
-            ]
-            detailed = st.selectbox(
-                f"{label_prefix} position",
-                detailed_options,
-                key=f"{prefix}_detailed",
-            )
-        with c3:
-            rows = field_data[field_data["PositionGroup"].eq(detailed)][["Name", "Team"]].drop_duplicates()
-            labels = [f"{r.Name} — {r.Team}" for r in rows.itertuples(index=False)]
-            selected_label = st.selectbox(
-                f"{label_prefix} player",
-                labels,
-                key=f"{prefix}_player",
-            )
+        broad = st.radio(
+            f"{label_prefix} player group",
+            list(BROAD_GROUPS.keys()),
+            horizontal=True,
+            key=f"{prefix}_broad",
+        )
+        allowed_positions = BROAD_GROUPS[broad]
+        rows = field_data[
+            field_data["PositionGroup"].isin(allowed_positions)
+        ][["Name", "Team"]].drop_duplicates().sort_values(["Name", "Team"])
+        labels = [f"{r.Name} — {r.Team}" for r in rows.itertuples(index=False)]
         if not labels:
-            return broad, detailed, None
+            st.warning(f"No players available in {broad}.")
+            return broad, None
+        selected_label = st.selectbox(
+            f"{label_prefix} player",
+            labels,
+            key=f"{prefix}_player",
+        )
         name, team = selected_label.rsplit(" — ", 1)
         row = player_master[
-            player_master["Name"].astype(str).eq(name) & player_master["Team"].astype(str).eq(team)
+            player_master["Name"].astype(str).eq(name)
+            & player_master["Team"].astype(str).eq(team)
         ]
-        return broad, detailed, (row.iloc[0] if not row.empty else None)
+        return broad, (row.iloc[0] if not row.empty else None)
 
     if analysis_mode == "Player vs Player":
         st.markdown("#### Player A")
-        _, pos_a, row_a = _player_selector("cross_a", "A")
+        broad_a, row_a = _player_selector("cross_a", "A")
         st.markdown("#### Player B")
-        _, pos_b, row_b = _player_selector("cross_b", "B")
+        broad_b, row_b = _player_selector("cross_b", "B")
 
         if row_a is not None and row_b is not None:
             common_metrics = []
@@ -4797,19 +5013,16 @@ with tab_cross:
                 b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
                 if pd.notna(a) and pd.notna(b):
                     common_metrics.append(metric)
-            common_metrics = sorted(common_metrics)
-            cat_map = metric_category_options(common_metrics)
-            category = st.selectbox("Metric category", list(cat_map.keys()), key="pvp_category")
-            available = cat_map[category]
-            default_metrics = available[: min(8, len(available))]
-            selected_metrics = st.multiselect(
-                "Metrics to compare",
-                available,
-                default=default_metrics,
-                key="pvp_metrics",
+
+            selected_metrics = three_column_metric_selector(
+                common_metrics,
+                default_metrics=None,
+                key_prefix="pvp",
+                heading="Metrics to compare",
             )
+
             if selected_metrics:
-                rows=[]
+                rows = []
                 for metric in selected_metrics:
                     a = pd.to_numeric(pd.Series([row_a.get(metric)]), errors="coerce").iloc[0]
                     b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
@@ -4817,32 +5030,38 @@ with tab_cross:
                         "Metric": metric,
                         str(row_a["Name"]): a,
                         str(row_b["Name"]): b,
-                        "Raw difference A − B": (a-b) if pd.notna(a) and pd.notna(b) else np.nan,
+                        "Raw difference A − B": (a - b) if pd.notna(a) and pd.notna(b) else np.nan,
                     })
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-                st.caption(f"{row_a['Name']} ({pos_a}) vs {row_b['Name']} ({pos_b}) · values are raw Wyscout metrics.")
+                st.caption(
+                    f"{row_a['Name']} ({broad_a}) vs {row_b['Name']} ({broad_b}) · raw Wyscout values only, no percentiles."
+                )
 
     else:
         st.markdown("#### Player to test")
-        _, source_pos, source_row = _player_selector("fit_source", "Player")
+        source_broad, source_row = _player_selector("fit_source", "Player")
 
-        t1, t2, t3 = st.columns([1,1,1])
-        with t1:
-            target_broad = st.selectbox("Target group", list(BROAD_GROUPS.keys()), key="fit_target_broad")
-        with t2:
-            target_options = [
-                p for p in BROAD_GROUPS[target_broad]
-                if p in field_data["PositionGroup"].dropna().astype(str).unique()
-            ]
-            target_position = st.selectbox("Target position", target_options, key="fit_target_position")
-        with t3:
-            benchmark_type = st.selectbox("Benchmark", ["League average", "Top 50%", "Top 25%"], key="fit_benchmark")
+        c1, c2 = st.columns([1, 1])
+        with c1:
+            target_position = st.selectbox(
+                "Target role",
+                ["CB", "LB", "RB", "CM/CDM", "CAM", "RW/LW", "ST"],
+                key="fit_target_position",
+            )
+        with c2:
+            benchmark_type = st.selectbox(
+                "Raw-data benchmark",
+                ["League average", "Top 50%", "Top 25%"],
+                key="fit_benchmark",
+            )
 
         target_rows = field_data[field_data["PositionGroup"].eq(target_position)].copy()
         target_rows = target_rows.drop_duplicates(subset=["Name", "Team"], keep="first")
-        max_target_minutes = int(pd.to_numeric(target_rows.get("Minutes played", pd.Series([1])), errors="coerce").max() or 1)
+        max_target_minutes = int(
+            pd.to_numeric(target_rows.get("Minutes played", pd.Series([1])), errors="coerce").max() or 1
+        )
         fit_min_minutes = st.number_input(
-            "Minimum minutes for target-position benchmark",
+            "Minimum minutes for target-role benchmark",
             min_value=1,
             max_value=max(1, max_target_minutes),
             value=min(450, max(1, max_target_minutes)),
@@ -4856,42 +5075,70 @@ with tab_cross:
 
         if source_row is not None and not target_rows.empty:
             target_metrics = set(get_metrics(target_rows))
-            source_metrics = set()
-            for metric in target_metrics:
+            common_metrics = []
+            for metric in get_metrics(target_rows):
                 value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
-                if pd.notna(value):
-                    source_metrics.add(metric)
-            common_metrics = sorted(source_metrics & target_metrics)
-            cat_map = metric_category_options(common_metrics)
-            category = st.selectbox("Metric category", list(cat_map.keys()), key="fit_category")
-            available = cat_map[category]
-            default_metrics = available[: min(8, len(available))]
-            selected_metrics = st.multiselect(
-                "Metrics used for position-fit check",
-                available,
-                default=default_metrics,
-                key="fit_metrics",
+                if metric in target_metrics and pd.notna(value):
+                    common_metrics.append(metric)
+
+            selected_metrics = three_column_metric_selector(
+                common_metrics,
+                default_metrics=None,
+                key_prefix="fit",
+                heading="Metrics used for Position Fit",
             )
 
             if selected_metrics:
-                out=[]
+                st.markdown(f"### {source_row['Name']} as {target_position}")
+                st.caption(
+                    f"Each radar value is the player's percentile inside the {target_position} league distribution, "
+                    f"not their percentile in their current position. 50 = target-role median."
+                )
+                st.plotly_chart(
+                    make_position_fit_radar(source_row, target_rows, selected_metrics, target_position),
+                    use_container_width=True,
+                    theme=None,
+                )
+
+                out = []
                 for metric in selected_metrics:
                     player_value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
                     benchmark_value = position_fit_benchmark(target_rows[metric], benchmark_type, metric)
-                    raw_diff = player_value - benchmark_value if pd.notna(player_value) and pd.notna(benchmark_value) else np.nan
-                    rel = (player_value / benchmark_value * 100) if pd.notna(player_value) and pd.notna(benchmark_value) and benchmark_value != 0 else np.nan
+                    raw_diff = (
+                        player_value - benchmark_value
+                        if pd.notna(player_value) and pd.notna(benchmark_value)
+                        else np.nan
+                    )
+                    target_percentile = display_percentile(metric, player_value, target_rows)
+                    rel = (
+                        player_value / benchmark_value * 100
+                        if pd.notna(player_value)
+                        and pd.notna(benchmark_value)
+                        and benchmark_value != 0
+                        else np.nan
+                    )
                     out.append({
                         "Metric": metric,
                         "Player value": player_value,
-                        f"{target_position} benchmark": benchmark_value,
+                        f"{target_position} {benchmark_type}": benchmark_value,
                         "Raw difference": raw_diff,
+                        f"Percentile vs {target_position}": target_percentile,
                         "Relative index": rel,
                     })
+
                 fit_table = pd.DataFrame(out)
                 st.dataframe(
                     fit_table.drop(columns=["Relative index"]),
                     use_container_width=True,
                     hide_index=True,
+                    column_config={
+                        f"Percentile vs {target_position}": st.column_config.ProgressColumn(
+                            f"Percentile vs {target_position}",
+                            min_value=0,
+                            max_value=100,
+                            format="%.0f",
+                        )
+                    },
                 )
                 st.plotly_chart(
                     raw_comparison_chart(fit_table, str(source_row["Name"])),
@@ -4899,10 +5146,10 @@ with tab_cross:
                     theme=None,
                 )
                 st.caption(
-                    f"Benchmark cohort: {len(target_rows)} players listed at {target_position}, minimum {fit_min_minutes} minutes. "
-                    "Relative index is not a percentile: 100 simply means the player's raw value equals the selected benchmark. "
-                    "For context/style metrics, a higher value is not automatically better."
+                    f"Benchmark cohort: {len(target_rows)} {target_position} players with at least {fit_min_minutes} minutes. "
+                    "The radar is a true target-role percentile radar. The raw table/chart below still compares actual values "
+                    f"against the selected {benchmark_type.lower()} benchmark."
                 )
         elif target_rows.empty:
-            st.warning("No target-position players remain after the minutes filter.")
+            st.warning("No target-role players remain after the minutes filter.")
 
