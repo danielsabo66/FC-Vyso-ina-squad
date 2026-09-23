@@ -698,6 +698,67 @@ def three_column_metric_selector(
     return list(st.session_state.get(state_key, []))
 
 
+
+
+def batched_three_column_metric_selector(
+    available_metrics: list[str],
+    default_metrics: list[str] | None,
+    key_prefix: str,
+    heading: str = "Comparison metrics",
+) -> list[str]:
+    """Metric selector intended for use inside st.form.
+
+    Users can select many metrics without triggering a Streamlit rerun. The
+    selections are submitted together by the form's Apply button.
+    """
+    groups = split_field_metrics(available_metrics)
+    available_metrics = list(dict.fromkeys(available_metrics))
+    defaults = [m for m in (default_metrics or []) if m in available_metrics]
+
+    st.markdown(f"**{heading}**")
+    cols = st.columns(3)
+    picked: list[str] = []
+
+    for col, category in zip(cols, ["Defensive", "Offensive", "Passing"]):
+        category_options = groups.get(category, [])
+        category_defaults = [m for m in defaults if m in category_options]
+        with col:
+            st.caption(category)
+            # Keep the page clean: selected chips live inside the popover while
+            # the combined applied set is shown in one shared box below.
+            with st.popover(
+                f"Choose {category.lower()} metrics",
+                use_container_width=True,
+            ):
+                chosen = st.multiselect(
+                    category,
+                    category_options,
+                    default=category_defaults,
+                    key=f"{key_prefix}_{category.lower()}_batch",
+                    label_visibility="collapsed",
+                )
+                picked.extend(chosen)
+
+    return list(dict.fromkeys(picked))
+
+
+def show_applied_metrics(
+    selected_metrics: list[str],
+    key_prefix: str,
+    heading: str = "Applied metrics",
+):
+    if not selected_metrics:
+        return
+    st.caption(heading)
+    st.multiselect(
+        heading,
+        options=selected_metrics,
+        default=selected_metrics,
+        disabled=True,
+        key=f"{key_prefix}_applied_display",
+        label_visibility="collapsed",
+    )
+
 def make_position_fit_radar(
     source_row: pd.Series,
     target_rows: pd.DataFrame,
@@ -1061,17 +1122,44 @@ def short_team(team: str) -> str:
     return team[:17] + "…"
 
 
+def own_player_marker(team: str) -> str:
+    return "🟡 " if str(team or "").strip() == OWN_TEAM else ""
+
+
+def display_player_name(player_name: str, team: str) -> str:
+    return f"{own_player_marker(team)}{player_name}"
+
+
 def player_label(frame: pd.DataFrame, player_name: str):
     row = frame.loc[frame["Name"] == player_name].iloc[0]
     team = str(row.get("Team", "") or "").strip()
-    our_tag = " • OUR" if team == OWN_TEAM else ""
-
-    return f"{player_name} — {team or 'Unknown team'}{our_tag}"
+    return f"{display_player_name(player_name, team)} — {team or 'Unknown team'}"
 
 
 def radar_player_label(frame: pd.DataFrame, player_name: str):
     row = frame.loc[frame["Name"] == player_name].iloc[0]
-    return f"{player_name} · {short_team(row.get('Team', ''))}"
+    team = str(row.get("Team", "") or "").strip()
+    return f"{display_player_name(player_name, team)} · {short_team(team)}"
+
+
+def add_display_player_column(
+    frame: pd.DataFrame,
+    source_name_col: str = "Name",
+    team_col: str = "Team",
+    display_col: str = "Player",
+):
+    out = frame.copy()
+    if source_name_col in out.columns:
+        teams = (
+            out[team_col].fillna("").astype(str)
+            if team_col in out.columns
+            else pd.Series("", index=out.index)
+        )
+        out[display_col] = [
+            display_player_name(name, team)
+            for name, team in zip(out[source_name_col].astype(str), teams)
+        ]
+    return out
 
 
 def metric_note(metric: str):
@@ -3844,7 +3932,8 @@ with st.sidebar:
 
     st.divider()
     st.caption("OUR TEAM")
-    st.write(OWN_TEAM)
+    st.write(f"🟡 {OWN_TEAM}")
+    st.caption("🟡 marks FC Vysočina players throughout the app.")
 
     st.caption("REFERENCE SAMPLE")
     st.write(
@@ -3930,8 +4019,16 @@ with tab_overview:
     # PLAYER SEARCH
     # --------------------------------------------------------
 
-    player_options = sorted(
-        view["Name"].dropna().astype(str).unique()
+    player_options = (
+        view[["Name", "Team"]]
+        .dropna(subset=["Name"])
+        .assign(
+            Name=lambda d: d["Name"].astype(str),
+            Team=lambda d: d["Team"].fillna("").astype(str),
+        )
+        .sort_values(["Team", "Name"], key=lambda s: s.str.casefold())
+        .drop_duplicates(subset=["Name"], keep="first")["Name"]
+        .tolist()
     )
 
     if (
@@ -3954,6 +4051,7 @@ with tab_overview:
         selected_overview_player = st.selectbox(
             "Search player",
             player_options,
+            format_func=lambda x: player_label(view, x),
             index=(
                 player_options.index(
                     st.session_state[
@@ -3994,19 +4092,26 @@ with tab_overview:
     if "Minutes played" in view.columns:
         overview_base_columns.append("Minutes played")
 
-    overview_base_columns.append("Our player")
-
-    overview_display = view[
+    overview_source = view[
         overview_base_columns + quick_metrics
     ].reset_index(drop=True)
+
+    overview_display = add_display_player_column(
+        overview_source,
+        source_name_col="Name",
+        team_col="Team",
+        display_col="Player",
+    )
+    overview_display = overview_display[
+        ["Player", "Team"]
+        + (["Minutes played"] if "Minutes played" in overview_display.columns else [])
+        + quick_metrics
+    ]
 
     overview_event = st.dataframe(
         overview_display,
         use_container_width=True,
         hide_index=True,
-        column_config={
-            "Our player": st.column_config.CheckboxColumn("OUR"),
-        },
         on_select="rerun",
         selection_mode="single-row",
         key=f"overview_table_select_{selected_position}",
@@ -4022,7 +4127,7 @@ with tab_overview:
 
         if 0 <= selected_index < len(overview_display):
             clicked_player = str(
-                overview_display.iloc[
+                overview_source.iloc[
                     selected_index
                 ]["Name"]
             )
@@ -4107,20 +4212,34 @@ with tab_overview:
                 maximum=min(6, len(metrics)),
             )
 
-            trait_metrics = st.multiselect(
-                "Traits shown on radar",
-                metrics,
-                default=default_trait_metrics,
-                max_selections=min(
-                    8,
-                    len(metrics),
-                ),
-                key=f"overview_traits_{selected_position}",
-                help=(
-                    "Choose up to 8 metrics. "
-                    "The number next to each trait is the league percentile."
-                ),
-            )
+            with st.form(f"overview_traits_form_{selected_position}"):
+                if selected_position == "GK":
+                    trait_metrics = st.multiselect(
+                        "Traits shown on radar",
+                        metrics,
+                        default=default_trait_metrics,
+                        max_selections=min(8, len(metrics)),
+                        key=f"overview_traits_{selected_position}",
+                        help="Choose up to 8 metrics.",
+                    )
+                else:
+                    trait_metrics = batched_three_column_metric_selector(
+                        metrics,
+                        default_trait_metrics,
+                        key_prefix=f"overview_traits_{selected_position.replace('/', '_')}",
+                        heading="Traits shown on radar",
+                    )[:8]
+                st.form_submit_button(
+                    "Apply radar metrics",
+                    use_container_width=True,
+                    type="primary",
+                )
+
+            if selected_position != "GK":
+                show_applied_metrics(
+                    trait_metrics,
+                    key_prefix=f"overview_traits_{selected_position.replace('/', '_')}",
+                )
 
             if len(trait_metrics) >= 3:
                 radar_col, summary_col = st.columns(
@@ -4231,7 +4350,6 @@ with tab_overview:
         [
             "Name",
             "Team",
-            "Our player",
             metric,
             f"PCTL__{metric}",
         ]
@@ -4240,10 +4358,16 @@ with tab_overview:
     ranking.columns = [
         "Name",
         "Team",
-        "Our player",
         "Raw",
         "Percentile",
     ]
+
+    ranking = add_display_player_column(
+        ranking,
+        source_name_col="Name",
+        team_col="Team",
+        display_col="Player",
+    )
 
     ranking = ranking.sort_values(
         "Percentile",
@@ -4260,12 +4384,15 @@ with tab_overview:
 
     ranking = ranking.reset_index(drop=True)
 
+    ranking_display = ranking[
+        ["Rank", "Player", "Team", "Raw", "Percentile"]
+    ]
+
     st.dataframe(
-        ranking,
+        ranking_display,
         use_container_width=True,
         hide_index=True,
         column_config={
-            "Our player": st.column_config.CheckboxColumn("OUR"),
             "Percentile": st.column_config.ProgressColumn(
                 "Percentile",
                 min_value=0,
@@ -4288,23 +4415,48 @@ with tab_our:
             f"No {selected_position} player with Team = {OWN_TEAM} was found."
         )
     else:
-        selected_player = st.selectbox(
-            "Our player",
-            our_players,
-            format_func=lambda x: player_label(position_df, x),
-            key="our_player",
-        )
+        with st.form(f"our_vs_league_form_{selected_position}"):
+            selected_player = st.selectbox(
+                "Our player",
+                our_players,
+                format_func=lambda x: player_label(position_df, x),
+                key="our_player",
+            )
 
-        selected_metrics = st.multiselect(
-            "Radar metrics",
-            metrics,
-            default=preferred_metrics(
-                selected_position,
-                metrics,
-                maximum=min(8, len(metrics)),
-            ),
-            key="our_radar_metrics",
-        )
+            if selected_position == "GK":
+                selected_metrics = st.multiselect(
+                    "Radar metrics",
+                    metrics,
+                    default=preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(8, len(metrics)),
+                    ),
+                    key="our_radar_metrics",
+                )
+            else:
+                selected_metrics = batched_three_column_metric_selector(
+                    metrics,
+                    preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(8, len(metrics)),
+                    ),
+                    key_prefix=f"our_league_{selected_position.replace('/', '_')}",
+                    heading="Radar metrics",
+                )
+
+            st.form_submit_button(
+                "Apply selection",
+                use_container_width=True,
+                type="primary",
+            )
+
+        if selected_position != "GK":
+            show_applied_metrics(
+                selected_metrics,
+                key_prefix=f"our_league_{selected_position.replace('/', '_')}",
+            )
 
         if selected_metrics:
             row = position_df.loc[
@@ -4403,85 +4555,139 @@ with tab_compare:
         compare_mode = "Manual 2–4 players"
 
     if compare_mode == "Our player vs opponent":
-        left, right = st.columns(2)
-
-        with left:
-            our_pick = st.selectbox(
-                "Our player",
-                comparison_our_players,
-                format_func=lambda x: player_label(comparison_df, x),
-                key="compare_our_player",
-            )
-
         opponent_teams = [
             team
             for team in comparison_teams
             if team != OWN_TEAM
         ]
 
-        with right:
-            opponent_team = st.selectbox(
-                "Opponent team",
-                opponent_teams,
-                key="opponent_team",
-            )
+        # Team choice changes the available player list, so this lightweight
+        # dependency stays outside the form. Player + metric choices are batched.
+        opponent_team = st.selectbox(
+            "Opponent team",
+            opponent_teams,
+            key="opponent_team",
+        )
 
-            opponent_players = comparison_df.loc[
+        opponent_players = sorted(
+            comparison_df.loc[
                 comparison_df["Team"] == opponent_team,
                 "Name",
-            ].tolist()
+            ].dropna().astype(str).tolist(),
+            key=str.casefold,
+        )
 
-            opponent_pick = st.selectbox(
-                "Opponent player",
-                opponent_players,
-                format_func=lambda x: player_label(comparison_df, x),
-                key="opponent_player",
+        with st.form(f"comparison_apply_{selected_position}"):
+            left, right = st.columns(2)
+            with left:
+                our_pick = st.selectbox(
+                    "Our player",
+                    comparison_our_players,
+                    format_func=lambda x: player_label(comparison_df, x),
+                    key="compare_our_player",
+                )
+            with right:
+                opponent_pick = st.selectbox(
+                    "Opponent player",
+                    opponent_players,
+                    format_func=lambda x: player_label(comparison_df, x),
+                    key="opponent_player",
+                )
+
+            compare_players = [our_pick, opponent_pick]
+
+            if selected_position == "GK":
+                compare_metrics = st.multiselect(
+                    "Comparison metrics",
+                    metrics,
+                    default=preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(8, len(metrics)),
+                    ),
+                    key="comparison_metrics_gk",
+                )
+            else:
+                compare_metrics = batched_three_column_metric_selector(
+                    metrics,
+                    preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(9, len(metrics)),
+                    ),
+                    key_prefix=f"comparison_{selected_position.replace('/', '_')}",
+                    heading="Comparison metrics",
+                )
+
+            st.form_submit_button(
+                "Apply selection",
+                use_container_width=True,
+                type="primary",
             )
 
-        compare_players = [
-            our_pick,
-            opponent_pick,
-        ]
-
     else:
-        defaults = comparison_our_players[:1]
+        comparison_player_options = (
+            comparison_df[["Name", "Team"]]
+            .dropna(subset=["Name"])
+            .assign(
+                Name=lambda d: d["Name"].astype(str),
+                Team=lambda d: d["Team"].fillna("").astype(str),
+            )
+            .sort_values(["Team", "Name"], key=lambda s: s.str.casefold())
+            .drop_duplicates(subset=["Name"], keep="first")["Name"]
+            .tolist()
+        )
 
+        defaults = comparison_our_players[:1]
         defaults += [
             player
-            for player in comparison_df["Name"].tolist()
+            for player in comparison_player_options
             if player not in defaults
         ][: max(0, 2 - len(defaults))]
 
-        compare_players = st.multiselect(
-            "Select 2–4 players",
-            comparison_df["Name"].tolist(),
-            default=defaults,
-            max_selections=4,
-            format_func=lambda x: player_label(comparison_df, x),
-            key="manual_compare_players",
-        )
+        with st.form(f"comparison_manual_apply_{selected_position}"):
+            compare_players = st.multiselect(
+                "Select 2–4 players",
+                comparison_player_options,
+                default=defaults,
+                max_selections=4,
+                format_func=lambda x: player_label(comparison_df, x),
+                key="manual_compare_players",
+            )
 
-    if selected_position == "GK":
-        compare_metrics = st.multiselect(
-            "Comparison metrics",
-            metrics,
-            default=preferred_metrics(
-                selected_position,
-                metrics,
-                maximum=min(8, len(metrics)),
-            ),
-            key="comparison_metrics_gk",
-        )
-    else:
-        compare_metrics = three_column_metric_selector(
-            metrics,
-            preferred_metrics(
-                selected_position,
-                metrics,
-                maximum=min(9, len(metrics)),
-            ),
-            key_prefix=f"comparison_{selected_position.replace('/', '_')}",
-            heading="Comparison metrics",
+            if selected_position == "GK":
+                compare_metrics = st.multiselect(
+                    "Comparison metrics",
+                    metrics,
+                    default=preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(8, len(metrics)),
+                    ),
+                    key="comparison_metrics_gk_manual",
+                )
+            else:
+                compare_metrics = batched_three_column_metric_selector(
+                    metrics,
+                    preferred_metrics(
+                        selected_position,
+                        metrics,
+                        maximum=min(9, len(metrics)),
+                    ),
+                    key_prefix=f"comparison_manual_{selected_position.replace('/', '_')}",
+                    heading="Comparison metrics",
+                )
+
+            st.form_submit_button(
+                "Apply selection",
+                use_container_width=True,
+                type="primary",
+            )
+
+    if selected_position != "GK":
+        show_applied_metrics(
+            compare_metrics,
+            key_prefix=f"comparison_display_{selected_position.replace('/', '_')}_{compare_mode}",
         )
 
     if compare_players and "Minutes played" in comparison_df.columns:
@@ -4698,12 +4904,32 @@ with tab_ranking:
             maximum=min(8, len(metrics)),
         )
 
-        ranking_metrics = st.multiselect(
-            "Metrics included in overall ranking",
-            metrics,
-            default=default_ranking_metrics,
-            key="overall_ranking_metrics",
-        )
+        with st.form(f"ranking_metrics_form_{selected_position}"):
+            if selected_position == "GK":
+                ranking_metrics = st.multiselect(
+                    "Metrics included in overall ranking",
+                    metrics,
+                    default=default_ranking_metrics,
+                    key="overall_ranking_metrics",
+                )
+            else:
+                ranking_metrics = batched_three_column_metric_selector(
+                    metrics,
+                    default_ranking_metrics,
+                    key_prefix=f"ranking_{selected_position.replace('/', '_')}",
+                    heading="Metrics included in overall ranking",
+                )
+            st.form_submit_button(
+                "Apply ranking metrics",
+                use_container_width=True,
+                type="primary",
+            )
+
+        if selected_position != "GK":
+            show_applied_metrics(
+                ranking_metrics,
+                key_prefix=f"ranking_{selected_position.replace('/', '_')}",
+            )
 
         if not ranking_metrics:
             st.info("Select at least one metric.")
@@ -4780,9 +5006,9 @@ with tab_ranking:
 
                 record = {
                     "Name": row["Name"],
+                    "Player": display_player_name(row["Name"], row["Team"]),
                     "Team": row["Team"],
                     "Minutes played": row.get("Minutes played", np.nan),
-                    "Our player": row["Our player"],
                     "Overall percentile": score,
                     "Average metric rank": avg_rank,
                 }
@@ -4843,7 +5069,6 @@ with tab_ranking:
             )
 
             column_config = {
-                "Our player": st.column_config.CheckboxColumn("OUR"),
                 "Overall percentile": st.column_config.ProgressColumn(
                     "Overall percentile",
                     min_value=0,
@@ -4863,10 +5088,9 @@ with tab_ranking:
             overall_display = overall_df[
                 [
                     "Overall rank",
-                    "Name",
+                    "Player",
                     "Team",
                     "Minutes played",
-                    "Our player",
                     "Overall percentile",
                     "Average metric rank",
                 ]
@@ -4882,12 +5106,19 @@ with tab_ranking:
 
             top_n = min(10, len(overall_df))
 
+            chart_top = overall_df.head(top_n).iloc[::-1].copy()
+            chart_colors = [
+                "#FFD900" if str(team) == OWN_TEAM else "#4DA3FF"
+                for team in chart_top["Team"]
+            ]
+
             ranking_chart = go.Figure(
                 go.Bar(
-                    x=overall_df.head(top_n)["Overall percentile"][::-1],
-                    y=overall_df.head(top_n)["Name"][::-1],
+                    x=chart_top["Overall percentile"],
+                    y=chart_top["Player"],
                     orientation="h",
-                    text=overall_df.head(top_n)["Overall percentile"][::-1].map(
+                    marker=dict(color=chart_colors),
+                    text=chart_top["Overall percentile"].map(
                         lambda x: f"{x:.1f}"
                     ),
                     textposition="outside",
@@ -4940,9 +5171,9 @@ with tab_ranking:
             rank_data.append(
                 {
                     "Name": row["Name"],
+                    "Player": display_player_name(row["Name"], row["Team"]),
                     "Team": row["Team"],
                     "Minutes played": row.get("Minutes played", np.nan),
-                    "Our player": row["Our player"],
                     "Raw": raw,
                     "Percentile": row[f"PCTL__{ranking_metric}"],
                     "Rank": league_rank(
@@ -4961,12 +5192,15 @@ with tab_ranking:
 
         ranking_df = ranking_df.reset_index(drop=True)
 
+        ranking_display = ranking_df[
+            ["Rank", "Player", "Team", "Minutes played", "Raw", "Percentile"]
+        ]
+
         st.dataframe(
-            ranking_df,
+            ranking_display,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Our player": st.column_config.CheckboxColumn("OUR"),
                 "Percentile": st.column_config.ProgressColumn(
                     "Percentile",
                     min_value=0,
@@ -5011,7 +5245,8 @@ with tab_cross:
     st.subheader("Cross-position analysis")
     st.caption(
         "Compare any outfield player across broad groups. Goalkeepers remain separate. "
-        "Player vs Player uses raw values; Position Fit benchmarks the selected player against a specific target role."
+        "Broad group / target role changes are lightweight; player and metric selections "
+        "are applied together only when you press Apply selection."
     )
 
     field_data = all_data[all_data["PositionGroup"].ne("GK")].copy()
@@ -5024,185 +5259,256 @@ with tab_cross:
         key="cross_position_mode",
     )
 
-    def _player_selector(prefix: str, label_prefix: str):
-        broad = st.radio(
-            f"{label_prefix} player group",
-            list(BROAD_GROUPS.keys()),
-            horizontal=True,
-            key=f"{prefix}_broad",
-        )
+    def _broad_group_rows(broad: str):
         allowed_positions = BROAD_GROUPS[broad]
-        rows = field_data[
-            field_data["PositionGroup"].isin(allowed_positions)
-        ][["Name", "Team"]].drop_duplicates().sort_values(["Name", "Team"])
-        labels = [f"{r.Name} — {r.Team}" for r in rows.itertuples(index=False)]
-        if not labels:
-            st.warning(f"No players available in {broad}.")
-            return broad, None
-        selected_label = st.selectbox(
-            f"{label_prefix} player",
-            labels,
-            key=f"{prefix}_player",
+        return (
+            field_data[field_data["PositionGroup"].isin(allowed_positions)]
+            [["Name", "Team"]]
+            .drop_duplicates()
+            .assign(
+                Name=lambda d: d["Name"].astype(str),
+                Team=lambda d: d["Team"].fillna("").astype(str),
+            )
+            .sort_values(["Team", "Name"], key=lambda s: s.str.casefold())
         )
+
+    def _labels_for_rows(rows):
+        return [
+            f"{display_player_name(r.Name, r.Team)} — {r.Team}"
+            for r in rows.itertuples(index=False)
+        ]
+
+    def _row_from_label(selected_label: str):
         name, team = selected_label.rsplit(" — ", 1)
+        name = name.removeprefix("🟡 ").strip()
         row = player_master[
             player_master["Name"].astype(str).eq(name)
             & player_master["Team"].astype(str).eq(team)
         ]
-        return broad, (row.iloc[0] if not row.empty else None)
+        return row.iloc[0] if not row.empty else None
 
     if analysis_mode == "Player vs Player":
-        st.markdown("#### Player A")
-        broad_a, row_a = _player_selector("cross_a", "A")
-        st.markdown("#### Player B")
-        broad_b, row_b = _player_selector("cross_b", "B")
-
-        if row_a is not None and row_b is not None:
-            common_metrics = []
-            for metric in player_master.columns:
-                if metric in NON_METRIC_COLUMNS or metric == "Position":
-                    continue
-                a = pd.to_numeric(pd.Series([row_a.get(metric)]), errors="coerce").iloc[0]
-                b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
-                if pd.notna(a) and pd.notna(b):
-                    common_metrics.append(metric)
-
-            selected_metrics = three_column_metric_selector(
-                common_metrics,
-                default_metrics=None,
-                key_prefix="pvp",
-                heading="Metrics to compare",
+        g1, g2 = st.columns(2)
+        with g1:
+            broad_a = st.radio(
+                "Player A group",
+                list(BROAD_GROUPS.keys()),
+                horizontal=True,
+                key="cross_a_broad",
+            )
+        with g2:
+            broad_b = st.radio(
+                "Player B group",
+                list(BROAD_GROUPS.keys()),
+                horizontal=True,
+                key="cross_b_broad",
             )
 
-            if selected_metrics:
+        rows_a = _broad_group_rows(broad_a)
+        rows_b = _broad_group_rows(broad_b)
+        labels_a = _labels_for_rows(rows_a)
+        labels_b = _labels_for_rows(rows_b)
+
+        # Use the common numeric metric universe of the two broad groups so
+        # changing the actual player inside the form does not require an interim rerun.
+        frame_a = field_data[field_data["PositionGroup"].isin(BROAD_GROUPS[broad_a])]
+        frame_b = field_data[field_data["PositionGroup"].isin(BROAD_GROUPS[broad_b])]
+        common_metrics = [m for m in get_metrics(frame_a) if m in set(get_metrics(frame_b))]
+
+        if labels_a and labels_b:
+            with st.form("cross_player_vs_player_apply"):
+                p1, p2 = st.columns(2)
+                with p1:
+                    selected_a = st.selectbox(
+                        "Player A",
+                        labels_a,
+                        key="cross_a_player_batch",
+                    )
+                with p2:
+                    selected_b = st.selectbox(
+                        "Player B",
+                        labels_b,
+                        key="cross_b_player_batch",
+                    )
+
+                selected_metrics = batched_three_column_metric_selector(
+                    common_metrics,
+                    default_metrics=None,
+                    key_prefix="pvp_batch",
+                    heading="Metrics to compare",
+                )
+
+                st.form_submit_button(
+                    "Apply selection",
+                    use_container_width=True,
+                    type="primary",
+                )
+
+            show_applied_metrics(
+                selected_metrics,
+                key_prefix="pvp_batch",
+            )
+
+            row_a = _row_from_label(selected_a)
+            row_b = _row_from_label(selected_b)
+
+            if row_a is not None and row_b is not None and selected_metrics:
                 rows = []
                 for metric in selected_metrics:
                     a = pd.to_numeric(pd.Series([row_a.get(metric)]), errors="coerce").iloc[0]
                     b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
+                    if pd.isna(a) and pd.isna(b):
+                        continue
                     rows.append({
                         "Metric": metric,
                         str(row_a["Name"]): a,
                         str(row_b["Name"]): b,
                         "Raw difference A − B": (a - b) if pd.notna(a) and pd.notna(b) else np.nan,
                     })
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                if rows:
+                    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
                 st.caption(
-                    f"{row_a['Name']} ({broad_a}) vs {row_b['Name']} ({broad_b}) · raw Wyscout values only, no percentiles."
+                    f"{row_a['Name']} ({broad_a}) vs {row_b['Name']} ({broad_b}) · "
+                    "raw Wyscout values only, no percentiles."
                 )
+        else:
+            st.warning("No players are available for the selected broad group.")
 
     else:
-        st.markdown("#### Player to test")
-        source_broad, source_row = _player_selector("fit_source", "Player")
-
-        c1, c2 = st.columns([1, 1])
-        with c1:
+        setup_1, setup_2 = st.columns(2)
+        with setup_1:
+            source_broad = st.radio(
+                "Player group",
+                list(BROAD_GROUPS.keys()),
+                horizontal=True,
+                key="fit_source_broad",
+            )
+        with setup_2:
             target_position = st.selectbox(
                 "Target role",
                 ["CB", "LB", "RB", "CM/CDM", "CAM", "RW/LW", "ST"],
                 key="fit_target_position",
             )
-        with c2:
-            benchmark_type = st.selectbox(
-                "Raw-data benchmark",
-                ["League average", "Top 50%", "Top 25%"],
-                key="fit_benchmark",
-            )
 
-        target_rows = field_data[field_data["PositionGroup"].eq(target_position)].copy()
-        target_rows = target_rows.drop_duplicates(subset=["Name", "Team"], keep="first")
+        source_rows = _broad_group_rows(source_broad)
+        source_labels = _labels_for_rows(source_rows)
+        target_rows_all = field_data[field_data["PositionGroup"].eq(target_position)].copy()
+        target_rows_all = target_rows_all.drop_duplicates(subset=["Name", "Team"], keep="first")
+
+        source_frame = field_data[field_data["PositionGroup"].isin(BROAD_GROUPS[source_broad])]
+        target_metric_set = set(get_metrics(target_rows_all))
+        common_metrics = [m for m in get_metrics(source_frame) if m in target_metric_set]
+
         max_target_minutes = int(
-            pd.to_numeric(target_rows.get("Minutes played", pd.Series([1])), errors="coerce").max() or 1
+            pd.to_numeric(
+                target_rows_all.get("Minutes played", pd.Series([1])),
+                errors="coerce",
+            ).max() or 1
         )
-        fit_min_minutes = st.number_input(
-            "Minimum minutes for target-role benchmark",
-            min_value=1,
-            max_value=max(1, max_target_minutes),
-            value=min(450, max(1, max_target_minutes)),
-            step=90,
-            key="fit_min_minutes",
-        )
-        if "Minutes played" in target_rows.columns:
-            target_rows = target_rows[
-                pd.to_numeric(target_rows["Minutes played"], errors="coerce").fillna(0) >= fit_min_minutes
-            ]
 
-        if source_row is not None and not target_rows.empty:
-            target_metrics = set(get_metrics(target_rows))
-            common_metrics = []
-            for metric in get_metrics(target_rows):
-                value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
-                if metric in target_metrics and pd.notna(value):
-                    common_metrics.append(metric)
+        if source_labels:
+            with st.form("position_fit_apply"):
+                source_label = st.selectbox(
+                    "Player to test",
+                    source_labels,
+                    key="fit_source_player_batch",
+                )
 
-            selected_metrics = three_column_metric_selector(
-                common_metrics,
-                default_metrics=None,
-                key_prefix="fit",
-                heading="Metrics used for Position Fit",
+                bc1, bc2 = st.columns(2)
+                with bc1:
+                    benchmark_type = st.selectbox(
+                        "Raw-data benchmark",
+                        ["League average", "Top 50%", "Top 25%"],
+                        key="fit_benchmark_batch",
+                    )
+                with bc2:
+                    fit_min_minutes = st.number_input(
+                        "Minimum minutes for target-role benchmark",
+                        min_value=1,
+                        max_value=max(1, max_target_minutes),
+                        value=min(450, max(1, max_target_minutes)),
+                        step=90,
+                        key="fit_min_minutes_batch",
+                    )
+
+                selected_metrics = batched_three_column_metric_selector(
+                    common_metrics,
+                    default_metrics=None,
+                    key_prefix="fit_batch",
+                    heading="Metrics used for Position Fit",
+                )
+
+                st.form_submit_button(
+                    "Apply selection",
+                    use_container_width=True,
+                    type="primary",
+                )
+
+            show_applied_metrics(
+                selected_metrics,
+                key_prefix="fit_batch",
             )
 
-            if selected_metrics:
-                st.markdown(f"### {source_row['Name']} as {target_position}")
-                st.caption(
-                    f"Each radar value is the player's percentile inside the {target_position} league distribution, "
-                    f"not their percentile in their current position. 50 = target-role median."
-                )
-                st.plotly_chart(
-                    make_position_fit_radar(source_row, target_rows, selected_metrics, target_position),
-                    use_container_width=True,
-                    theme=None,
-                )
+            source_row = _row_from_label(source_label)
+            target_rows = target_rows_all.copy()
+            if "Minutes played" in target_rows.columns:
+                target_rows = target_rows[
+                    pd.to_numeric(target_rows["Minutes played"], errors="coerce").fillna(0)
+                    >= fit_min_minutes
+                ]
 
-                out = []
+            if source_row is not None and not target_rows.empty and selected_metrics:
+                valid_metrics = []
                 for metric in selected_metrics:
-                    player_value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
-                    benchmark_value = position_fit_benchmark(target_rows[metric], benchmark_type, metric)
-                    raw_diff = (
-                        player_value - benchmark_value
-                        if pd.notna(player_value) and pd.notna(benchmark_value)
-                        else np.nan
-                    )
-                    target_percentile = display_percentile(metric, player_value, target_rows)
-                    rel = (
-                        player_value / benchmark_value * 100
-                        if pd.notna(player_value)
-                        and pd.notna(benchmark_value)
-                        and benchmark_value != 0
-                        else np.nan
-                    )
-                    out.append({
-                        "Metric": metric,
-                        "Player value": player_value,
-                        f"{target_position} {benchmark_type}": benchmark_value,
-                        "Raw difference": raw_diff,
-                        f"Percentile vs {target_position}": target_percentile,
-                        "Relative index": rel,
-                    })
+                    value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
+                    if pd.notna(value) and metric in target_rows.columns:
+                        valid_metrics.append(metric)
 
-                fit_table = pd.DataFrame(out)
-                st.dataframe(
-                    fit_table.drop(columns=["Relative index"]),
-                    use_container_width=True,
-                    hide_index=True,
-                    column_config={
-                        f"Percentile vs {target_position}": st.column_config.ProgressColumn(
-                            f"Percentile vs {target_position}",
-                            min_value=0,
-                            max_value=100,
-                            format="%.0f",
+                if valid_metrics:
+                    st.markdown(f"### {source_row['Name']} as {target_position}")
+                    st.caption(
+                        f"Each radar value is the player's percentile inside the {target_position} league distribution, "
+                        "not their percentile in their current position. 50 = target-role median."
+                    )
+                    st.plotly_chart(
+                        make_position_fit_radar(source_row, target_rows, valid_metrics, target_position),
+                        use_container_width=True,
+                        theme=None,
+                    )
+
+                    out = []
+                    for metric in valid_metrics:
+                        player_value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
+                        benchmark_value = position_fit_benchmark(target_rows[metric], benchmark_type, metric)
+                        raw_diff = (
+                            player_value - benchmark_value
+                            if pd.notna(player_value) and pd.notna(benchmark_value)
+                            else np.nan
                         )
-                    },
-                )
-                st.plotly_chart(
-                    raw_comparison_chart(fit_table, str(source_row["Name"])),
-                    use_container_width=True,
-                    theme=None,
-                )
-                st.caption(
-                    f"Benchmark cohort: {len(target_rows)} {target_position} players with at least {fit_min_minutes} minutes. "
-                    "The radar is a true target-role percentile radar. The raw table/chart below still compares actual values "
-                    f"against the selected {benchmark_type.lower()} benchmark."
-                )
-        elif target_rows.empty:
-            st.warning("No target-role players remain after the minutes filter.")
+                        target_percentile = display_percentile(metric, player_value, target_rows)
+                        out.append({
+                            "Metric": metric,
+                            "Player value": player_value,
+                            f"{benchmark_type} · {target_position}": benchmark_value,
+                            "Raw difference": raw_diff,
+                            f"Percentile vs {target_position}": target_percentile,
+                        })
+
+                    st.dataframe(
+                        pd.DataFrame(out),
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            f"Percentile vs {target_position}": st.column_config.ProgressColumn(
+                                f"Percentile vs {target_position}",
+                                min_value=0,
+                                max_value=100,
+                                format="%.0f",
+                            )
+                        },
+                    )
+                else:
+                    st.info("The selected player has no values for the chosen metrics.")
+        else:
+            st.warning("No players are available in the selected group.")
 
