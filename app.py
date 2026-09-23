@@ -715,10 +715,10 @@ def batched_three_column_metric_selector(
     key_prefix: str,
     heading: str = "Comparison metrics",
 ) -> list[str]:
-    """Metric selector intended for use inside st.form.
+    """Three categorized metric pickers plus one common editable selection box.
 
-    Users can select many metrics without triggering a Streamlit rerun. The
-    selections are submitted together by the form's Apply button.
+    Intended for use inside st.form, so choosing options does not trigger a
+    full app rerun. The common box sits directly above the form submit button.
     """
     groups = split_field_metrics(available_metrics)
     available_metrics = list(dict.fromkeys(available_metrics))
@@ -731,16 +731,15 @@ def batched_three_column_metric_selector(
     for col, category in zip(cols, ["Defensive", "Offensive", "Passing"]):
         category_options = groups.get(category, [])
         category_defaults = [m for m in defaults if m in category_options]
+
         with col:
             st.caption(category)
-            # Keep the page clean: selected chips live inside the popover while
-            # the combined applied set is shown in one shared box below.
             with st.popover(
                 f"Choose {category.lower()} metrics",
                 use_container_width=True,
             ):
                 chosen = st.multiselect(
-                    category,
+                    f"{category} metrics",
                     category_options,
                     default=category_defaults,
                     key=f"{key_prefix}_{category.lower()}_batch",
@@ -748,7 +747,27 @@ def batched_three_column_metric_selector(
                 )
                 picked.extend(chosen)
 
-    return list(dict.fromkeys(picked))
+    picked = list(dict.fromkeys(picked))
+
+    # A changing key lets the common box refresh after a submitted change in
+    # the category pickers, while remaining editable between submissions.
+    signature = "_".join(
+        str(available_metrics.index(metric))
+        for metric in picked
+        if metric in available_metrics
+    ) or "empty"
+
+    st.caption("Selected metrics")
+    selected = st.multiselect(
+        "Selected metrics",
+        options=available_metrics,
+        default=picked,
+        key=f"{key_prefix}_combined_{signature}",
+        label_visibility="collapsed",
+        placeholder="Metrics selected above will appear here",
+    )
+
+    return list(dict.fromkeys(selected))
 
 
 def show_applied_metrics(
@@ -1120,7 +1139,7 @@ def average_metric_rank(row, metrics: list[str], frame: pd.DataFrame):
 # ============================================================
 
 def short_team(team: str) -> str:
-    team = str(team or "").strip()
+    team = canonical_team_name(team)
 
     if team == OWN_TEAM:
         return "Jihlava"
@@ -1132,22 +1151,24 @@ def short_team(team: str) -> str:
 
 
 def own_player_marker(team: str) -> str:
-    return "🟡 " if str(team or "").strip() == OWN_TEAM else ""
+    team = canonical_team_name(team)
+    return "🟡 " if team == OWN_TEAM else ""
 
 
 def display_player_name(player_name: str, team: str) -> str:
+    team = canonical_team_name(team)
     return f"{own_player_marker(team)}{player_name}"
 
 
 def player_label(frame: pd.DataFrame, player_name: str):
     row = frame.loc[frame["Name"] == player_name].iloc[0]
-    team = str(row.get("Team", "") or "").strip()
+    team = canonical_team_name(row.get("Team", ""))
     return f"{display_player_name(player_name, team)} — {team or 'Unknown team'}"
 
 
 def radar_player_label(frame: pd.DataFrame, player_name: str):
     row = frame.loc[frame["Name"] == player_name].iloc[0]
-    team = str(row.get("Team", "") or "").strip()
+    team = canonical_team_name(row.get("Team", ""))
     return f"{display_player_name(player_name, team)} · {short_team(team)}"
 
 
@@ -1160,10 +1181,12 @@ def add_display_player_column(
     out = frame.copy()
     if source_name_col in out.columns:
         teams = (
-            out[team_col].fillna("").astype(str)
+            out[team_col].fillna("").astype(str).map(canonical_team_name)
             if team_col in out.columns
             else pd.Series("", index=out.index)
         )
+        if team_col in out.columns:
+            out[team_col] = teams
         out[display_col] = [
             display_player_name(name, team)
             for name, team in zip(out[source_name_col].astype(str), teams)
@@ -4251,12 +4274,6 @@ with tab_overview:
                     type="primary",
                 )
 
-            if selected_position != "GK":
-                show_applied_metrics(
-                    trait_metrics,
-                    key_prefix=f"overview_traits_{selected_position.replace('/', '_')}",
-                )
-
             if len(trait_metrics) >= 3:
                 radar_col, summary_col = st.columns(
                     [2.2, 1],
@@ -4466,12 +4483,6 @@ with tab_our:
                 "Apply selection",
                 use_container_width=True,
                 type="primary",
-            )
-
-        if selected_position != "GK":
-            show_applied_metrics(
-                selected_metrics,
-                key_prefix=f"our_league_{selected_position.replace('/', '_')}",
             )
 
         if selected_metrics:
@@ -4699,12 +4710,6 @@ with tab_compare:
                 use_container_width=True,
                 type="primary",
             )
-
-    if selected_position != "GK":
-        show_applied_metrics(
-            compare_metrics,
-            key_prefix=f"comparison_display_{selected_position.replace('/', '_')}_{compare_mode}",
-        )
 
     if compare_players and "Minutes played" in comparison_df.columns:
         below_cutoff = []
@@ -4939,12 +4944,6 @@ with tab_ranking:
                 "Apply ranking metrics",
                 use_container_width=True,
                 type="primary",
-            )
-
-        if selected_position != "GK":
-            show_applied_metrics(
-                ranking_metrics,
-                key_prefix=f"ranking_{selected_position.replace('/', '_')}",
             )
 
         if not ranking_metrics:
@@ -5290,16 +5289,18 @@ with tab_cross:
 
     def _labels_for_rows(rows):
         return [
-            f"{display_player_name(r.Name, r.Team)} — {r.Team}"
+            f"{display_player_name(r.Name, canonical_team_name(r.Team))} — "
+            f"{canonical_team_name(r.Team)}"
             for r in rows.itertuples(index=False)
         ]
 
     def _row_from_label(selected_label: str):
         name, team = selected_label.rsplit(" — ", 1)
         name = name.removeprefix("🟡 ").strip()
+        team = canonical_team_name(team)
         row = player_master[
             player_master["Name"].astype(str).eq(name)
-            & player_master["Team"].astype(str).eq(team)
+            & player_master["Team"].astype(str).map(canonical_team_name).eq(team)
         ]
         return row.iloc[0] if not row.empty else None
 
@@ -5359,11 +5360,6 @@ with tab_cross:
                     use_container_width=True,
                     type="primary",
                 )
-
-            show_applied_metrics(
-                selected_metrics,
-                key_prefix="pvp_batch",
-            )
 
             row_a = _row_from_label(selected_a)
             row_b = _row_from_label(selected_b)
@@ -5459,11 +5455,6 @@ with tab_cross:
                     use_container_width=True,
                     type="primary",
                 )
-
-            show_applied_metrics(
-                selected_metrics,
-                key_prefix="fit_batch",
-            )
 
             source_row = _row_from_label(source_label)
             target_rows = target_rows_all.copy()
