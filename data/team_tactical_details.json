@@ -1,0 +1,6398 @@
+{
+  "Příbram": {
+    "pages": {
+      "attack": "assets/team_reports/pribram/attack.jpg",
+      "set_pieces": "assets/team_reports/pribram/set_pieces.jpg",
+      "build_up": "assets/team_reports/pribram/build_up.jpg",
+      "finishing": "assets/team_reports/pribram/finishing.jpg",
+      "transitions": "assets/team_reports/pribram/transitions.jpg",
+      "one_v_one": "assets/team_reports/pribram/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Piško",
+          "Passes": 63,
+          "Accurate": 50,
+          "Accuracy %": 79.4
+        },
+        {
+          "Player": "P. Nghabo",
+          "Passes": 25,
+          "Accurate": 19,
+          "Accuracy %": 76.0
+        },
+        {
+          "Player": "J. Urbanec",
+          "Passes": 19,
+          "Accurate": 12,
+          "Accuracy %": 63.2
+        },
+        {
+          "Player": "D. Roušar",
+          "Passes": 18,
+          "Accurate": 11,
+          "Accuracy %": 61.1
+        },
+        {
+          "Player": "J. Málek",
+          "Passes": 17,
+          "Accurate": 11,
+          "Accuracy %": 64.7
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "T. Svoboda",
+          "Crosses": 23,
+          "Successful": 8,
+          "Accuracy %": 34.8,
+          "xA": "0.40",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Málek",
+          "Crosses": 12,
+          "Successful": 4,
+          "Accuracy %": 33.3,
+          "xA": "0.35",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Urbanec",
+          "Crosses": 10,
+          "Successful": 7,
+          "Accuracy %": 70.0,
+          "xA": "0.66",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Vott",
+          "Crosses": 9,
+          "Successful": 2,
+          "Accuracy %": 22.2,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "L. Fila",
+          "Crosses": 8,
+          "Successful": 0,
+          "Accuracy %": 0.0,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Conte",
+          "Crosses": 6,
+          "Successful": 2,
+          "Accuracy %": 33.3,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Cadek",
+          "Crosses": 4,
+          "Successful": 2,
+          "Accuracy %": 50.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "A. Conte",
+          "Dribbles": 8,
+          "Team share %": 18.2,
+          "Shots after": 2,
+          "xG after": "0.11",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Svoboda",
+          "Dribbles": 7,
+          "Team share %": 15.9,
+          "Shots after": 2,
+          "xG after": "0.25",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Vott",
+          "Dribbles": 7,
+          "Team share %": 15.9,
+          "Shots after": 5,
+          "xG after": "0.67",
+          "Goals after": "2"
+        },
+        {
+          "Player": "M. Krulich",
+          "Dribbles": 6,
+          "Team share %": 13.6,
+          "Shots after": 2,
+          "xG after": "0.12",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Urbanec",
+          "Dribbles": 5,
+          "Team share %": 11.4,
+          "Shots after": 5,
+          "xG after": "0.60",
+          "Goals after": "1"
+        },
+        {
+          "Player": "J. Málek",
+          "Dribbles": 4,
+          "Team share %": 9.1,
+          "Shots after": 2,
+          "xG after": "0.26",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "D. Roušar",
+          "Recoveries": 9,
+          "Shots after": 2,
+          "On target": 2,
+          "xG after": "0.10",
+          "Goals after": "1"
+        },
+        {
+          "Player": "T. Svoboda",
+          "Recoveries": 6,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.23",
+          "Goals after": "1"
+        },
+        {
+          "Player": "T. Jedlička",
+          "Recoveries": 6,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.44",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Vott",
+          "Recoveries": 6,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.03",
+          "Goals after": "-"
+        },
+        {
+          "Player": "P. Švestka",
+          "Recoveries": 5,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.22",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "M. Krulich",
+          "Minutes": 405,
+          "Shots": 10,
+          "On target": 3,
+          "On target %": 30.0,
+          "xG": "1.30",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Málek",
+          "Minutes": 573,
+          "Shots": 9,
+          "On target": 5,
+          "On target %": 55.6,
+          "xG": "1.39",
+          "Goals": 2
+        },
+        {
+          "Player": "P. Nghabo",
+          "Minutes": 579,
+          "Shots": 8,
+          "On target": 1,
+          "On target %": 12.5,
+          "xG": "0.54",
+          "Goals": 1
+        },
+        {
+          "Player": "D. Vott",
+          "Minutes": 551,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "0.79",
+          "Goals": 1
+        },
+        {
+          "Player": "A. Conte",
+          "Minutes": 256,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "1.45",
+          "Goals": 0
+        },
+        {
+          "Player": "L. Fila",
+          "Minutes": 464,
+          "Shots": 6,
+          "On target": 4,
+          "On target %": 66.7,
+          "xG": "0.68",
+          "Goals": 3
+        },
+        {
+          "Player": "D. Roušar",
+          "Minutes": 538,
+          "Shots": 6,
+          "On target": 3,
+          "On target %": 50.0,
+          "xG": "0.71",
+          "Goals": 0
+        },
+        {
+          "Player": "Z. Desouza Apea",
+          "Minutes": 137,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.97",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Málek",
+          "Minutes": 573,
+          "Key passes": 12,
+          "xA": "1.54",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Svoboda",
+          "Minutes": 579,
+          "Key passes": 5,
+          "xA": "0.55",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Urbanec",
+          "Minutes": 285,
+          "Key passes": 4,
+          "xA": "0.66",
+          "Assists": 3
+        },
+        {
+          "Player": "A. Conte",
+          "Minutes": 256,
+          "Key passes": 4,
+          "xA": "0.33",
+          "Assists": 1
+        },
+        {
+          "Player": "T. Jedlička",
+          "Minutes": 181,
+          "Key passes": 4,
+          "xA": "0.88",
+          "Assists": 0
+        },
+        {
+          "Player": "L. Fila",
+          "Minutes": 464,
+          "Key passes": 3,
+          "xA": "0.29",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Roušar",
+          "Minutes": 538,
+          "Key passes": 2,
+          "xA": "0.64",
+          "Assists": 1
+        },
+        {
+          "Player": "R. Faye",
+          "Minutes": 35,
+          "Key passes": 1,
+          "xA": "0.23",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "A. Conte",
+          "Minutes": 256,
+          "Dribbles": 24,
+          "Per 90": 8.4,
+          "Won": "13",
+          "Lost": "11"
+        },
+        {
+          "Player": "D. Vott",
+          "Minutes": 551,
+          "Dribbles": 14,
+          "Per 90": 2.3,
+          "Won": "9",
+          "Lost": "5"
+        },
+        {
+          "Player": "T. Svoboda",
+          "Minutes": 579,
+          "Dribbles": 14,
+          "Per 90": 2.2,
+          "Won": "9",
+          "Lost": "5"
+        },
+        {
+          "Player": "J. Urbanec",
+          "Minutes": 285,
+          "Dribbles": 8,
+          "Per 90": 2.5,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Krulich",
+          "Minutes": 405,
+          "Dribbles": 8,
+          "Per 90": 1.8,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "J. Málek",
+          "Minutes": 573,
+          "Dribbles": 5,
+          "Per 90": 0.8,
+          "Won": "4",
+          "Lost": "1"
+        },
+        {
+          "Player": "D. Roušar",
+          "Minutes": 538,
+          "Dribbles": 4,
+          "Per 90": 0.7,
+          "Won": "3",
+          "Lost": "1"
+        },
+        {
+          "Player": "A. Cadek",
+          "Minutes": 65,
+          "Dribbles": 3,
+          "Per 90": 4.2,
+          "Won": "3",
+          "Lost": "-"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Prostějov": {
+    "pages": {
+      "attack": "assets/team_reports/prostejov/attack.jpg",
+      "set_pieces": "assets/team_reports/prostejov/set_pieces.jpg",
+      "build_up": "assets/team_reports/prostejov/build_up.jpg",
+      "finishing": "assets/team_reports/prostejov/finishing.jpg",
+      "transitions": "assets/team_reports/prostejov/transitions.jpg",
+      "one_v_one": "assets/team_reports/prostejov/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Šindelář",
+          "Passes": 88,
+          "Accurate": 70,
+          "Accuracy %": 79.5
+        },
+        {
+          "Player": "T. Ushiyama",
+          "Passes": 54,
+          "Accurate": 35,
+          "Accuracy %": 64.8
+        },
+        {
+          "Player": "M. Polášek",
+          "Passes": 24,
+          "Accurate": 17,
+          "Accuracy %": 70.8
+        },
+        {
+          "Player": "M. Surzyn",
+          "Passes": 23,
+          "Accurate": 10,
+          "Accuracy %": 43.5
+        },
+        {
+          "Player": "Š. Polášek",
+          "Passes": 21,
+          "Accurate": 9,
+          "Accuracy %": 42.9
+        },
+        {
+          "Player": "M. Kolařík",
+          "Passes": 19,
+          "Accurate": 19,
+          "Accuracy %": 100.0
+        },
+        {
+          "Player": "J. Kadlec",
+          "Passes": 19,
+          "Accurate": 10,
+          "Accuracy %": 52.6
+        },
+        {
+          "Player": "S. Jalovicor",
+          "Passes": 14,
+          "Accurate": 9,
+          "Accuracy %": 64.3
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "M. Surzyn",
+          "Crosses": 20,
+          "Successful": 6,
+          "Accuracy %": 30.0,
+          "xA": "0.21",
+          "Assists": "-"
+        },
+        {
+          "Player": "I. Aliyu",
+          "Crosses": 13,
+          "Successful": 5,
+          "Accuracy %": 38.5,
+          "xA": "0.85",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Kadlec",
+          "Crosses": 13,
+          "Successful": 3,
+          "Accuracy %": 23.1,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "S. Jalovicor",
+          "Crosses": 5,
+          "Successful": 2,
+          "Accuracy %": 40.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "J. Matoušek",
+          "Dribbles": 8,
+          "Team share %": 21.6,
+          "Shots after": 5,
+          "xG after": "0.56",
+          "Goals after": "1"
+        },
+        {
+          "Player": "J. Koudelka",
+          "Dribbles": 7,
+          "Team share %": 18.9,
+          "Shots after": 4,
+          "xG after": "0.27",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Halda",
+          "Dribbles": 3,
+          "Team share %": 8.1,
+          "Shots after": 2,
+          "xG after": "0.16",
+          "Goals after": "-"
+        },
+        {
+          "Player": "Š. Polášek",
+          "Dribbles": 2,
+          "Team share %": 5.4,
+          "Shots after": 1,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "M. Halda",
+          "Recoveries": 12,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "S. Jalovicor",
+          "Recoveries": 11,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.34",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Koudelka",
+          "Recoveries": 9,
+          "Shots after": 4,
+          "On target": 1,
+          "xG after": "0.86",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Polášek",
+          "Recoveries": 8,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.23",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Dziuba",
+          "Recoveries": 6,
+          "Shots after": 3,
+          "On target": 2,
+          "xG after": "0.36",
+          "Goals after": "1"
+        },
+        {
+          "Player": "Š. Polášek",
+          "Recoveries": 6,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.22",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "J. Koudelka",
+          "Minutes": 453,
+          "Shots": 13,
+          "On target": 3,
+          "On target %": 23.1,
+          "xG": "1.50",
+          "Goals": 0
+        },
+        {
+          "Player": "I. Aliyu",
+          "Minutes": 338,
+          "Shots": 10,
+          "On target": 4,
+          "On target %": 40.0,
+          "xG": "2.37",
+          "Goals": 3
+        },
+        {
+          "Player": "P. Voleský",
+          "Minutes": 564,
+          "Shots": 10,
+          "On target": 6,
+          "On target %": 60.0,
+          "xG": "2.75",
+          "Goals": 1
+        },
+        {
+          "Player": "E. Okeke",
+          "Minutes": 269,
+          "Shots": 8,
+          "On target": 2,
+          "On target %": 25.0,
+          "xG": "1.64",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Matoušek",
+          "Minutes": 167,
+          "Shots": 7,
+          "On target": 2,
+          "On target %": 28.6,
+          "xG": "0.77",
+          "Goals": 1
+        },
+        {
+          "Player": "S. Jalovicor",
+          "Minutes": 521,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.72",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Kadlec",
+          "Minutes": 354,
+          "Shots": 5,
+          "On target": 1,
+          "On target %": 20.0,
+          "xG": "0.04",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Surzyn",
+          "Minutes": 623,
+          "Shots": 3,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.55",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Koudelka",
+          "Minutes": 453,
+          "Key passes": 10,
+          "xA": "1.38",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Polášek",
+          "Minutes": 481,
+          "Key passes": 6,
+          "xA": "0.08",
+          "Assists": 0
+        },
+        {
+          "Player": "I. Aliyu",
+          "Minutes": 338,
+          "Key passes": 4,
+          "xA": "0.86",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Kadlec",
+          "Minutes": 354,
+          "Key passes": 4,
+          "xA": "0.48",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Surzyn",
+          "Minutes": 623,
+          "Key passes": 4,
+          "xA": "0.42",
+          "Assists": 0
+        },
+        {
+          "Player": "J. Matoušek",
+          "Minutes": 167,
+          "Key passes": 3,
+          "xA": "0.2",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Halda",
+          "Minutes": 564,
+          "Key passes": 2,
+          "xA": "0.96",
+          "Assists": 0
+        },
+        {
+          "Player": "E. Okeke",
+          "Minutes": 269,
+          "Key passes": 2,
+          "xA": "0.35",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "I. Aliyu",
+          "Minutes": 338,
+          "Dribbles": 14,
+          "Per 90": 3.7,
+          "Won": "11",
+          "Lost": "3"
+        },
+        {
+          "Player": "J. Koudelka",
+          "Minutes": 453,
+          "Dribbles": 10,
+          "Per 90": 2.0,
+          "Won": "8",
+          "Lost": "2"
+        },
+        {
+          "Player": "J. Matoušek",
+          "Minutes": 167,
+          "Dribbles": 9,
+          "Per 90": 4.9,
+          "Won": "8",
+          "Lost": "1"
+        },
+        {
+          "Player": "E. Okeke",
+          "Minutes": 269,
+          "Dribbles": 9,
+          "Per 90": 3.0,
+          "Won": "4",
+          "Lost": "5"
+        },
+        {
+          "Player": "M. Halda",
+          "Minutes": 564,
+          "Dribbles": 6,
+          "Per 90": 1.0,
+          "Won": "3",
+          "Lost": "3"
+        },
+        {
+          "Player": "J. Kadlec",
+          "Minutes": 354,
+          "Dribbles": 5,
+          "Per 90": 1.3,
+          "Won": "1",
+          "Lost": "4"
+        },
+        {
+          "Player": "M. Surzyn",
+          "Minutes": 623,
+          "Dribbles": 4,
+          "Per 90": 0.6,
+          "Won": "1",
+          "Lost": "3"
+        },
+        {
+          "Player": "Š. Polášek",
+          "Minutes": 334,
+          "Dribbles": 3,
+          "Per 90": 0.8,
+          "Won": "2",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Baník Ostrava II": {
+    "pages": {
+      "attack": "assets/team_reports/banik_ostrava_ii/attack.jpg",
+      "set_pieces": "assets/team_reports/banik_ostrava_ii/set_pieces.jpg",
+      "build_up": "assets/team_reports/banik_ostrava_ii/build_up.jpg",
+      "finishing": "assets/team_reports/banik_ostrava_ii/finishing.jpg",
+      "transitions": "assets/team_reports/banik_ostrava_ii/transitions.jpg",
+      "one_v_one": "assets/team_reports/banik_ostrava_ii/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "T. Sirotek",
+          "Passes": 35,
+          "Accurate": 26,
+          "Accuracy %": 74.3
+        },
+        {
+          "Player": "M. Temel",
+          "Passes": 33,
+          "Accurate": 27,
+          "Accuracy %": 81.8
+        },
+        {
+          "Player": "P. Měkota",
+          "Passes": 31,
+          "Accurate": 17,
+          "Accuracy %": 54.8
+        },
+        {
+          "Player": "D. Řeháček",
+          "Passes": 27,
+          "Accurate": 20,
+          "Accuracy %": 74.1
+        },
+        {
+          "Player": "T. Frýdl",
+          "Passes": 24,
+          "Accurate": 18,
+          "Accuracy %": 75.0
+        },
+        {
+          "Player": "K. Pojezný",
+          "Passes": 13,
+          "Accurate": 9,
+          "Accuracy %": 69.2
+        },
+        {
+          "Player": "Simon Vlna",
+          "Passes": 9,
+          "Accurate": 7,
+          "Accuracy %": 77.8
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "T. Sirotek",
+          "Crosses": 25,
+          "Successful": 9,
+          "Accuracy %": 36.0,
+          "xA": "0.58",
+          "Assists": "2"
+        },
+        {
+          "Player": "L. Dvořáček",
+          "Crosses": 20,
+          "Successful": 13,
+          "Accuracy %": 65.0,
+          "xA": "1.39",
+          "Assists": "1"
+        },
+        {
+          "Player": "D. Řeháček",
+          "Crosses": 14,
+          "Successful": 4,
+          "Accuracy %": 28.6,
+          "xA": "0.35",
+          "Assists": "-"
+        },
+        {
+          "Player": "Simon Vlna",
+          "Crosses": 12,
+          "Successful": 2,
+          "Accuracy %": 16.7,
+          "xA": "0.01",
+          "Assists": "-"
+        },
+        {
+          "Player": "P. Jaroň",
+          "Crosses": 12,
+          "Successful": 2,
+          "Accuracy %": 16.7,
+          "xA": "0.28",
+          "Assists": "1"
+        },
+        {
+          "Player": "T. Frýdl",
+          "Crosses": 10,
+          "Successful": 3,
+          "Accuracy %": 30.0,
+          "xA": "0.07",
+          "Assists": "-"
+        },
+        {
+          "Player": "F. Šancl",
+          "Crosses": 8,
+          "Successful": 1,
+          "Accuracy %": 12.5,
+          "xA": "0.06",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "L. Dvořáček",
+          "Dribbles": 23,
+          "Team share %": 39.0,
+          "Shots after": 11,
+          "xG after": "2.24",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Řeháček",
+          "Dribbles": 10,
+          "Team share %": 16.9,
+          "Shots after": 3,
+          "xG after": "0.09",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Šancl",
+          "Dribbles": 5,
+          "Team share %": 8.5,
+          "Shots after": 3,
+          "xG after": "0.35",
+          "Goals after": "1"
+        },
+        {
+          "Player": "Simon Vlna",
+          "Dribbles": 5,
+          "Team share %": 8.5,
+          "Shots after": 2,
+          "xG after": "0.03",
+          "Goals after": "-"
+        },
+        {
+          "Player": "P. Jaroň",
+          "Dribbles": 4,
+          "Team share %": 6.8,
+          "Shots after": 1,
+          "xG after": "0.25",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Havran",
+          "Dribbles": 4,
+          "Team share %": 6.8,
+          "Shots after": 4,
+          "xG after": "0.25",
+          "Goals after": "1"
+        },
+        {
+          "Player": "D. Nemec",
+          "Dribbles": 3,
+          "Team share %": 5.1,
+          "Shots after": 3,
+          "xG after": "0.26",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "T. Frýdl",
+          "Recoveries": 16,
+          "Shots after": 4,
+          "On target": 0,
+          "xG after": "0.25",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Dvořáček",
+          "Recoveries": 15,
+          "Shots after": 4,
+          "On target": 3,
+          "xG after": "0.24",
+          "Goals after": "1"
+        },
+        {
+          "Player": "P. Jaroň",
+          "Recoveries": 10,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.16",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Řeháček",
+          "Recoveries": 10,
+          "Shots after": 4,
+          "On target": 3,
+          "xG after": "0.67",
+          "Goals after": "1"
+        },
+        {
+          "Player": "M. Bitta",
+          "Recoveries": 9,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.13",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Sirotek",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "Simon Vlna",
+          "Recoveries": 8,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.12",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "L. Dvořáček",
+          "Minutes": 581,
+          "Shots": 22,
+          "On target": 9,
+          "On target %": 40.9,
+          "xG": "2.13",
+          "Goals": 2
+        },
+        {
+          "Player": "P. Jaroň",
+          "Minutes": 429,
+          "Shots": 16,
+          "On target": 6,
+          "On target %": 37.5,
+          "xG": "1.96",
+          "Goals": 1
+        },
+        {
+          "Player": "F. Šancl",
+          "Minutes": 344,
+          "Shots": 13,
+          "On target": 4,
+          "On target %": 30.8,
+          "xG": "1.12",
+          "Goals": 2
+        },
+        {
+          "Player": "D. Nemec",
+          "Minutes": 376,
+          "Shots": 11,
+          "On target": 4,
+          "On target %": 36.4,
+          "xG": "1.85",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Havran",
+          "Minutes": 274,
+          "Shots": 10,
+          "On target": 4,
+          "On target %": 40.0,
+          "xG": "1.55",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Bitta",
+          "Minutes": 255,
+          "Shots": 9,
+          "On target": 4,
+          "On target %": 44.4,
+          "xG": "1.40",
+          "Goals": 1
+        },
+        {
+          "Player": "D. Řeháček",
+          "Minutes": 636,
+          "Shots": 8,
+          "On target": 3,
+          "On target %": 37.5,
+          "xG": "0.96",
+          "Goals": 0
+        },
+        {
+          "Player": "Š. Drozd",
+          "Minutes": 247,
+          "Shots": 6,
+          "On target": 3,
+          "On target %": 50.0,
+          "xG": "1.78",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "L. Dvořáček",
+          "Minutes": 581,
+          "Key passes": 17,
+          "xA": "2.58",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Nemec",
+          "Minutes": 376,
+          "Key passes": 6,
+          "xA": "1.21",
+          "Assists": 0
+        },
+        {
+          "Player": "P. Jaroň",
+          "Minutes": 429,
+          "Key passes": 5,
+          "xA": "0.59",
+          "Assists": 2
+        },
+        {
+          "Player": "T. Frýdl",
+          "Minutes": 660,
+          "Key passes": 5,
+          "xA": "0.53",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Řeháček",
+          "Minutes": 636,
+          "Key passes": 5,
+          "xA": "0.46",
+          "Assists": 0
+        },
+        {
+          "Player": "Simon Vlna",
+          "Minutes": 485,
+          "Key passes": 5,
+          "xA": "0.23",
+          "Assists": 0
+        },
+        {
+          "Player": "F. Šancl",
+          "Minutes": 344,
+          "Key passes": 5,
+          "xA": "0.18",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Sirotek",
+          "Minutes": 603,
+          "Key passes": 4,
+          "xA": "0.58",
+          "Assists": 2
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "L. Dvořáček",
+          "Minutes": 581,
+          "Dribbles": 35,
+          "Per 90": 5.4,
+          "Won": "26",
+          "Lost": "9"
+        },
+        {
+          "Player": "D. Řeháček",
+          "Minutes": 636,
+          "Dribbles": 15,
+          "Per 90": 2.1,
+          "Won": "12",
+          "Lost": "3"
+        },
+        {
+          "Player": "Simon Vlna",
+          "Minutes": 485,
+          "Dribbles": 11,
+          "Per 90": 2.0,
+          "Won": "6",
+          "Lost": "5"
+        },
+        {
+          "Player": "M. Havran",
+          "Minutes": 274,
+          "Dribbles": 9,
+          "Per 90": 3.0,
+          "Won": "6",
+          "Lost": "3"
+        },
+        {
+          "Player": "D. Owusu",
+          "Minutes": 87,
+          "Dribbles": 6,
+          "Per 90": 6.2,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "F. Šancl",
+          "Minutes": 344,
+          "Dribbles": 6,
+          "Per 90": 1.6,
+          "Won": "5",
+          "Lost": "1"
+        },
+        {
+          "Player": "P. Jaroň",
+          "Minutes": 429,
+          "Dribbles": 6,
+          "Per 90": 1.3,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "D. Nemec",
+          "Minutes": 376,
+          "Dribbles": 5,
+          "Per 90": 1.2,
+          "Won": "4",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Vlašim": {
+    "pages": {
+      "attack": "assets/team_reports/vlasim/attack.jpg",
+      "set_pieces": "assets/team_reports/vlasim/set_pieces.jpg",
+      "build_up": "assets/team_reports/vlasim/build_up.jpg",
+      "finishing": "assets/team_reports/vlasim/finishing.jpg",
+      "transitions": "assets/team_reports/vlasim/transitions.jpg",
+      "one_v_one": "assets/team_reports/vlasim/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "F. Riha",
+          "Passes": 71,
+          "Accurate": 58,
+          "Accuracy %": 81.7
+        },
+        {
+          "Player": "J. Kulhánek",
+          "Passes": 58,
+          "Accurate": 48,
+          "Accuracy %": 82.8
+        },
+        {
+          "Player": "V. Jindra",
+          "Passes": 39,
+          "Accurate": 27,
+          "Accuracy %": 69.2
+        },
+        {
+          "Player": "D. Soukeník",
+          "Passes": 19,
+          "Accurate": 13,
+          "Accuracy %": 68.4
+        },
+        {
+          "Player": "P. Kůrka",
+          "Passes": 12,
+          "Accurate": 5,
+          "Accuracy %": 41.7
+        },
+        {
+          "Player": "D. Hájek",
+          "Passes": 10,
+          "Accurate": 6,
+          "Accuracy %": 60.0
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "J. Dufek",
+          "Crosses": 17,
+          "Successful": 3,
+          "Accuracy %": 17.6,
+          "xA": "0.09",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Záviška",
+          "Crosses": 16,
+          "Successful": 6,
+          "Accuracy %": 37.5,
+          "xA": "0.22",
+          "Assists": "1"
+        },
+        {
+          "Player": "B. Djordjić",
+          "Crosses": 13,
+          "Successful": 2,
+          "Accuracy %": 15.4,
+          "xA": "0.22",
+          "Assists": "1"
+        },
+        {
+          "Player": "J. Hrubes",
+          "Crosses": 12,
+          "Successful": 2,
+          "Accuracy %": 16.7,
+          "xA": "0.08",
+          "Assists": "-"
+        },
+        {
+          "Player": "V. Jindra",
+          "Crosses": 8,
+          "Successful": 2,
+          "Accuracy %": 25.0,
+          "xA": "0.02",
+          "Assists": "-"
+        },
+        {
+          "Player": "S. Pikolon",
+          "Crosses": 7,
+          "Successful": 3,
+          "Accuracy %": 42.9,
+          "xA": "0.66",
+          "Assists": "2"
+        },
+        {
+          "Player": "P. Kůrka",
+          "Crosses": 6,
+          "Successful": 2,
+          "Accuracy %": 33.3,
+          "xA": "0.45",
+          "Assists": "1"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "J. Dufek",
+          "Dribbles": 8,
+          "Team share %": 36.4,
+          "Shots after": 2,
+          "xG after": "0.07",
+          "Goals after": "-"
+        },
+        {
+          "Player": "B. Djordjić",
+          "Dribbles": 4,
+          "Team share %": 18.2,
+          "Shots after": 2,
+          "xG after": "0.29",
+          "Goals after": "1"
+        },
+        {
+          "Player": "J. Hrubes",
+          "Dribbles": 3,
+          "Team share %": 13.6,
+          "Shots after": 2,
+          "xG after": "0.18",
+          "Goals after": "-"
+        },
+        {
+          "Player": "R. Teterja",
+          "Dribbles": 1,
+          "Team share %": 4.5,
+          "Shots after": 1,
+          "xG after": "0.08",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "J. Záviška",
+          "Recoveries": 12,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.22",
+          "Goals after": "-"
+        },
+        {
+          "Player": "B. Djordjić",
+          "Recoveries": 11,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.32",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Soukeník",
+          "Recoveries": 11,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.07",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Dufek",
+          "Recoveries": 11,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.05",
+          "Goals after": "-"
+        },
+        {
+          "Player": "V. Jindra",
+          "Recoveries": 7,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.15",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "J. Hrubes",
+          "Minutes": 527,
+          "Shots": 15,
+          "On target": 4,
+          "On target %": 26.7,
+          "xG": "2.61",
+          "Goals": 4
+        },
+        {
+          "Player": "S. Pikolon",
+          "Minutes": 555,
+          "Shots": 9,
+          "On target": 4,
+          "On target %": 44.4,
+          "xG": "1.49",
+          "Goals": 2
+        },
+        {
+          "Player": "B. Djordjić",
+          "Minutes": 552,
+          "Shots": 8,
+          "On target": 4,
+          "On target %": 50.0,
+          "xG": "1.38",
+          "Goals": 3
+        },
+        {
+          "Player": "L. Musil",
+          "Minutes": 409,
+          "Shots": 6,
+          "On target": 2,
+          "On target %": 33.3,
+          "xG": "0.50",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Záviška",
+          "Minutes": 649,
+          "Shots": 6,
+          "On target": 1,
+          "On target %": 16.7,
+          "xG": "0.18",
+          "Goals": 0
+        },
+        {
+          "Player": "D. Soukeník",
+          "Minutes": 634,
+          "Shots": 3,
+          "On target": 1,
+          "On target %": 33.3,
+          "xG": "0.59",
+          "Goals": 0
+        },
+        {
+          "Player": "J. Dufek",
+          "Minutes": 609,
+          "Shots": 2,
+          "On target": 1,
+          "On target %": 50.0,
+          "xG": "0.54",
+          "Goals": 1
+        },
+        {
+          "Player": "O. Koval",
+          "Minutes": 39,
+          "Shots": 2,
+          "On target": 1,
+          "On target %": 50.0,
+          "xG": "0.55",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Dufek",
+          "Minutes": 609,
+          "Key passes": 6,
+          "xA": "1.49",
+          "Assists": 2
+        },
+        {
+          "Player": "J. Hrubes",
+          "Minutes": 527,
+          "Key passes": 5,
+          "xA": "0.48",
+          "Assists": 1
+        },
+        {
+          "Player": "B. Djordjić",
+          "Minutes": 552,
+          "Key passes": 4,
+          "xA": "0.45",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Soukeník",
+          "Minutes": 634,
+          "Key passes": 4,
+          "xA": "0.65",
+          "Assists": 0
+        },
+        {
+          "Player": "S. Pikolon",
+          "Minutes": 555,
+          "Key passes": 3,
+          "xA": "0.67",
+          "Assists": 2
+        },
+        {
+          "Player": "J. Záviška",
+          "Minutes": 649,
+          "Key passes": 2,
+          "xA": "0.22",
+          "Assists": 1
+        },
+        {
+          "Player": "V. Jindra",
+          "Minutes": 599,
+          "Key passes": 2,
+          "xA": "0.18",
+          "Assists": 1
+        },
+        {
+          "Player": "F. Riha",
+          "Minutes": 661,
+          "Key passes": 2,
+          "xA": "0.61",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "J. Dufek",
+          "Minutes": 609,
+          "Dribbles": 22,
+          "Per 90": 3.3,
+          "Won": "14",
+          "Lost": "8"
+        },
+        {
+          "Player": "B. Djordjić",
+          "Minutes": 552,
+          "Dribbles": 13,
+          "Per 90": 2.1,
+          "Won": "5",
+          "Lost": "8"
+        },
+        {
+          "Player": "J. Hrubes",
+          "Minutes": 527,
+          "Dribbles": 10,
+          "Per 90": 1.7,
+          "Won": "6",
+          "Lost": "4"
+        },
+        {
+          "Player": "V. Jindra",
+          "Minutes": 599,
+          "Dribbles": 7,
+          "Per 90": 1.1,
+          "Won": "5",
+          "Lost": "2"
+        },
+        {
+          "Player": "S. Pikolon",
+          "Minutes": 555,
+          "Dribbles": 6,
+          "Per 90": 1.0,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "D. Mane",
+          "Minutes": 81,
+          "Dribbles": 3,
+          "Per 90": 3.3,
+          "Won": "3",
+          "Lost": "-"
+        },
+        {
+          "Player": "P. Kůrka",
+          "Minutes": 201,
+          "Dribbles": 3,
+          "Per 90": 1.3,
+          "Won": "2",
+          "Lost": "1"
+        },
+        {
+          "Player": "L. Musil",
+          "Minutes": 409,
+          "Dribbles": 3,
+          "Per 90": 0.7,
+          "Won": "1",
+          "Lost": "2"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Vysočina Jihlava": {
+    "pages": {
+      "attack": "assets/team_reports/vysocina_jihlava/attack.jpg",
+      "set_pieces": "assets/team_reports/vysocina_jihlava/set_pieces.jpg",
+      "build_up": "assets/team_reports/vysocina_jihlava/build_up.jpg",
+      "finishing": "assets/team_reports/vysocina_jihlava/finishing.jpg",
+      "transitions": "assets/team_reports/vysocina_jihlava/transitions.jpg",
+      "one_v_one": "assets/team_reports/vysocina_jihlava/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "A. Čermák",
+          "Passes": 54,
+          "Accurate": 47,
+          "Accuracy %": 87.0
+        },
+        {
+          "Player": "V. Štrakl",
+          "Passes": 40,
+          "Accurate": 35,
+          "Accuracy %": 87.5
+        },
+        {
+          "Player": "D. Jambor",
+          "Passes": 32,
+          "Accurate": 27,
+          "Accuracy %": 84.4
+        },
+        {
+          "Player": "M. Hošek",
+          "Passes": 32,
+          "Accurate": 23,
+          "Accuracy %": 71.9
+        },
+        {
+          "Player": "D. Matoušek",
+          "Passes": 6,
+          "Accurate": 5,
+          "Accuracy %": 83.3
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "M. Hošek",
+          "Crosses": 13,
+          "Successful": 4,
+          "Accuracy %": 30.8,
+          "xA": "0.41",
+          "Assists": "-"
+        },
+        {
+          "Player": "T. Omotoye",
+          "Crosses": 11,
+          "Successful": 7,
+          "Accuracy %": 63.6,
+          "xA": "0.58",
+          "Assists": "1"
+        },
+        {
+          "Player": "M. Krehlik",
+          "Crosses": 11,
+          "Successful": 1,
+          "Accuracy %": 9.1,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "S. Ousmane",
+          "Crosses": 9,
+          "Successful": 4,
+          "Accuracy %": 44.4,
+          "xA": "0.39",
+          "Assists": "-"
+        },
+        {
+          "Player": "R. Křivánek",
+          "Crosses": 7,
+          "Successful": 3,
+          "Accuracy %": 42.9,
+          "xA": "0.21",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Lacko",
+          "Crosses": 6,
+          "Successful": 1,
+          "Accuracy %": 16.7,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "M. Hošek",
+          "Dribbles": 6,
+          "Team share %": 17.6,
+          "Shots after": 3,
+          "xG after": "0.45",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Omotoye",
+          "Dribbles": 5,
+          "Team share %": 14.7,
+          "Shots after": 3,
+          "xG after": "0.41",
+          "Goals after": "-"
+        },
+        {
+          "Player": "S. Ousmane",
+          "Dribbles": 5,
+          "Team share %": 14.7,
+          "Shots after": 1,
+          "xG after": "0.15",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Krehlik",
+          "Dribbles": 5,
+          "Team share %": 14.7,
+          "Shots after": 3,
+          "xG after": "0.28",
+          "Goals after": "-"
+        },
+        {
+          "Player": "I. Usman",
+          "Dribbles": 3,
+          "Team share %": 8.8,
+          "Shots after": 3,
+          "xG after": "0.90",
+          "Goals after": "1"
+        },
+        {
+          "Player": "B. Khalid",
+          "Dribbles": 2,
+          "Team share %": 5.9,
+          "Shots after": 2,
+          "xG after": "0.25",
+          "Goals after": "2"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "D. Jambor",
+          "Recoveries": 23,
+          "Shots after": 7,
+          "On target": 3,
+          "xG after": "0.70",
+          "Goals after": "1"
+        },
+        {
+          "Player": "M. Lacko",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.14",
+          "Goals after": "-"
+        },
+        {
+          "Player": "V. Štrakl",
+          "Recoveries": 6,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.05",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Hošek",
+          "Recoveries": 5,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.02",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "L. Moudrý",
+          "Minutes": 282,
+          "Shots": 10,
+          "On target": 3,
+          "On target %": 30.0,
+          "xG": "1.90",
+          "Goals": 1
+        },
+        {
+          "Player": "S. Ousmane",
+          "Minutes": 256,
+          "Shots": 10,
+          "On target": 3,
+          "On target %": 30.0,
+          "xG": "1.98",
+          "Goals": 0
+        },
+        {
+          "Player": "I. Usman",
+          "Minutes": 192,
+          "Shots": 9,
+          "On target": 3,
+          "On target %": 33.3,
+          "xG": "1.76",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Krehlik",
+          "Minutes": 449,
+          "Shots": 9,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.88",
+          "Goals": 0
+        },
+        {
+          "Player": "T. Omotoye",
+          "Minutes": 436,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "0.74",
+          "Goals": 0
+        },
+        {
+          "Player": "A. Čermák",
+          "Minutes": 555,
+          "Shots": 6,
+          "On target": 2,
+          "On target %": 33.3,
+          "xG": "0.68",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Hošek",
+          "Minutes": 480,
+          "Shots": 6,
+          "On target": 2,
+          "On target %": 33.3,
+          "xG": "0.17",
+          "Goals": 0
+        },
+        {
+          "Player": "B. Khalid",
+          "Minutes": 236,
+          "Shots": 5,
+          "On target": 3,
+          "On target %": 60.0,
+          "xG": "0.51",
+          "Goals": 3
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "S. Ousmane",
+          "Minutes": 256,
+          "Key passes": 6,
+          "xA": "0.93",
+          "Assists": 1
+        },
+        {
+          "Player": "T. Omotoye",
+          "Minutes": 436,
+          "Key passes": 6,
+          "xA": "0.61",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Lacko",
+          "Minutes": 527,
+          "Key passes": 5,
+          "xA": "0.83",
+          "Assists": 0
+        },
+        {
+          "Player": "I. Usman",
+          "Minutes": 192,
+          "Key passes": 4,
+          "xA": "0.63",
+          "Assists": 1
+        },
+        {
+          "Player": "L. Moudrý",
+          "Minutes": 282,
+          "Key passes": 4,
+          "xA": "0.49",
+          "Assists": 1
+        },
+        {
+          "Player": "R. Křivánek",
+          "Minutes": 287,
+          "Key passes": 4,
+          "xA": "0.35",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Jambor",
+          "Minutes": 576,
+          "Key passes": 3,
+          "xA": "1.16",
+          "Assists": 0
+        },
+        {
+          "Player": "B. Khalid",
+          "Minutes": 236,
+          "Key passes": 2,
+          "xA": "0.35",
+          "Assists": 1
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "M. Hošek",
+          "Minutes": 480,
+          "Dribbles": 9,
+          "Per 90": 1.7,
+          "Won": "7",
+          "Lost": "2"
+        },
+        {
+          "Player": "T. Omotoye",
+          "Minutes": 436,
+          "Dribbles": 8,
+          "Per 90": 1.7,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Krehlik",
+          "Minutes": 449,
+          "Dribbles": 8,
+          "Per 90": 1.6,
+          "Won": "5",
+          "Lost": "3"
+        },
+        {
+          "Player": "I. Usman",
+          "Minutes": 192,
+          "Dribbles": 6,
+          "Per 90": 2.8,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "S. Ousmane",
+          "Minutes": 256,
+          "Dribbles": 6,
+          "Per 90": 2.1,
+          "Won": "6",
+          "Lost": "-"
+        },
+        {
+          "Player": "R. Mokrovics",
+          "Minutes": 101,
+          "Dribbles": 5,
+          "Per 90": 4.5,
+          "Won": "3",
+          "Lost": "2"
+        },
+        {
+          "Player": "A. Čermák",
+          "Minutes": 555,
+          "Dribbles": 4,
+          "Per 90": 0.6,
+          "Won": "3",
+          "Lost": "1"
+        },
+        {
+          "Player": "B. Khalid",
+          "Minutes": 236,
+          "Dribbles": 3,
+          "Per 90": 1.1,
+          "Won": "3",
+          "Lost": "-"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Arsenal Česká Lípa": {
+    "pages": {
+      "attack": "assets/team_reports/arsenal_ceska_lipa/attack.jpg",
+      "set_pieces": "assets/team_reports/arsenal_ceska_lipa/set_pieces.jpg",
+      "build_up": "assets/team_reports/arsenal_ceska_lipa/build_up.jpg",
+      "finishing": "assets/team_reports/arsenal_ceska_lipa/finishing.jpg",
+      "transitions": "assets/team_reports/arsenal_ceska_lipa/transitions.jpg",
+      "one_v_one": "assets/team_reports/arsenal_ceska_lipa/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Kouřil",
+          "Passes": 54,
+          "Accurate": 39,
+          "Accuracy %": 72.2
+        },
+        {
+          "Player": "O. Žežulka",
+          "Passes": 36,
+          "Accurate": 24,
+          "Accuracy %": 66.7
+        },
+        {
+          "Player": "P. Haitl",
+          "Passes": 26,
+          "Accurate": 18,
+          "Accuracy %": 69.2
+        },
+        {
+          "Player": "V. Dudl",
+          "Passes": 23,
+          "Accurate": 14,
+          "Accuracy %": 60.9
+        },
+        {
+          "Player": "F. Blecha",
+          "Passes": 17,
+          "Accurate": 13,
+          "Accuracy %": 76.5
+        },
+        {
+          "Player": "F. Matys",
+          "Passes": 17,
+          "Accurate": 11,
+          "Accuracy %": 64.7
+        },
+        {
+          "Player": "A. Ondráček",
+          "Passes": 17,
+          "Accurate": 8,
+          "Accuracy %": 47.1
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "A. Ondráček",
+          "Crosses": 16,
+          "Successful": 7,
+          "Accuracy %": 43.8,
+          "xA": "0.44",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Masek",
+          "Crosses": 16,
+          "Successful": 5,
+          "Accuracy %": 31.3,
+          "xA": "0.36",
+          "Assists": "-"
+        },
+        {
+          "Player": "P. Schön",
+          "Crosses": 9,
+          "Successful": 6,
+          "Accuracy %": 66.7,
+          "xA": "0.56",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Vlk",
+          "Crosses": 9,
+          "Successful": 1,
+          "Accuracy %": 11.1,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "F. Blecha",
+          "Crosses": 6,
+          "Successful": 3,
+          "Accuracy %": 50.0,
+          "xA": "0.09",
+          "Assists": "-"
+        },
+        {
+          "Player": "V. Dudl",
+          "Crosses": 5,
+          "Successful": 1,
+          "Accuracy %": 20.0,
+          "xA": "0.13",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "A. Ondráček",
+          "Dribbles": 7,
+          "Team share %": 29.2,
+          "Shots after": 2,
+          "xG after": "0.14",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Masek",
+          "Dribbles": 4,
+          "Team share %": 16.7,
+          "Shots after": 2,
+          "xG after": "0.15",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Kaza",
+          "Dribbles": 3,
+          "Team share %": 12.5,
+          "Shots after": 1,
+          "xG after": "0.06",
+          "Goals after": "-"
+        },
+        {
+          "Player": "P. Schön",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 2,
+          "xG after": "0.05",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Havelka",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 2,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Šimon",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 1,
+          "xG after": "0.08",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Dufek",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 1,
+          "xG after": "0.10",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "V. Dudl",
+          "Recoveries": 10,
+          "Shots after": 3,
+          "On target": 2,
+          "xG after": "0.10",
+          "Goals after": "1"
+        },
+        {
+          "Player": "F. Havelka",
+          "Recoveries": 10,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.07",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Ondráček",
+          "Recoveries": 9,
+          "Shots after": 3,
+          "On target": 3,
+          "xG after": "0.27",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Šimon",
+          "Recoveries": 9,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.54",
+          "Goals after": "-"
+        },
+        {
+          "Player": "P. Haitl",
+          "Recoveries": 8,
+          "Shots after": 5,
+          "On target": 0,
+          "xG after": "0.19",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Vostřel",
+          "Recoveries": 7,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.15",
+          "Goals after": "1"
+        },
+        {
+          "Player": "D. Masek",
+          "Recoveries": 5,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "0.10",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "M. Šimon",
+          "Minutes": 393,
+          "Shots": 15,
+          "On target": 5,
+          "On target %": 33.3,
+          "xG": "2.86",
+          "Goals": 2
+        },
+        {
+          "Player": "A. Ondráček",
+          "Minutes": 636,
+          "Shots": 9,
+          "On target": 1,
+          "On target %": 11.1,
+          "xG": "0.79",
+          "Goals": 0
+        },
+        {
+          "Player": "V. Dudl",
+          "Minutes": 613,
+          "Shots": 5,
+          "On target": 1,
+          "On target %": 20.0,
+          "xG": "0.33",
+          "Goals": 1
+        },
+        {
+          "Player": "F. Havelka",
+          "Minutes": 477,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.37",
+          "Goals": 0
+        },
+        {
+          "Player": "P. Schön",
+          "Minutes": 259,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.22",
+          "Goals": 0
+        },
+        {
+          "Player": "J. Vostřel",
+          "Minutes": 430,
+          "Shots": 4,
+          "On target": 3,
+          "On target %": 75.0,
+          "xG": "0.77",
+          "Goals": 2
+        },
+        {
+          "Player": "D. Masek",
+          "Minutes": 570,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "0.08",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Červenka",
+          "Minutes": 253,
+          "Shots": 4,
+          "On target": 4,
+          "On target %": 100.0,
+          "xG": "1.33",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "A. Ondráček",
+          "Minutes": 636,
+          "Key passes": 8,
+          "xA": "1.06",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Masek",
+          "Minutes": 570,
+          "Key passes": 5,
+          "xA": "0.81",
+          "Assists": 0
+        },
+        {
+          "Player": "P. Schön",
+          "Minutes": 259,
+          "Key passes": 3,
+          "xA": "0.57",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Vlk",
+          "Minutes": 321,
+          "Key passes": 3,
+          "xA": "0.34",
+          "Assists": 0
+        },
+        {
+          "Player": "V. Dudl",
+          "Minutes": 613,
+          "Key passes": 3,
+          "xA": "0.23",
+          "Assists": 0
+        },
+        {
+          "Player": "F. Kaza",
+          "Minutes": 171,
+          "Key passes": 2,
+          "xA": "0.09",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Kouřil",
+          "Minutes": 664,
+          "Key passes": 2,
+          "xA": "0.43",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Červenka",
+          "Minutes": 253,
+          "Key passes": 2,
+          "xA": "0.37",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "A. Ondráček",
+          "Minutes": 636,
+          "Dribbles": 16,
+          "Per 90": 2.3,
+          "Won": "11",
+          "Lost": "5"
+        },
+        {
+          "Player": "D. Masek",
+          "Minutes": 570,
+          "Dribbles": 11,
+          "Per 90": 1.7,
+          "Won": "5",
+          "Lost": "6"
+        },
+        {
+          "Player": "P. Schön",
+          "Minutes": 259,
+          "Dribbles": 8,
+          "Per 90": 2.8,
+          "Won": "4",
+          "Lost": "4"
+        },
+        {
+          "Player": "F. Kaza",
+          "Minutes": 171,
+          "Dribbles": 6,
+          "Per 90": 3.2,
+          "Won": "3",
+          "Lost": "3"
+        },
+        {
+          "Player": "L. Dufek",
+          "Minutes": 175,
+          "Dribbles": 5,
+          "Per 90": 2.6,
+          "Won": "4",
+          "Lost": "1"
+        },
+        {
+          "Player": "M. Šimon",
+          "Minutes": 393,
+          "Dribbles": 5,
+          "Per 90": 1.1,
+          "Won": "4",
+          "Lost": "1"
+        },
+        {
+          "Player": "F. Blecha",
+          "Minutes": 296,
+          "Dribbles": 4,
+          "Per 90": 1.2,
+          "Won": "2",
+          "Lost": "2"
+        },
+        {
+          "Player": "F. Havelka",
+          "Minutes": 477,
+          "Dribbles": 4,
+          "Per 90": 0.8,
+          "Won": "3",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Dukla Praha": {
+    "pages": {
+      "attack": "assets/team_reports/dukla_praha/attack.jpg",
+      "set_pieces": "assets/team_reports/dukla_praha/set_pieces.jpg",
+      "build_up": "assets/team_reports/dukla_praha/build_up.jpg",
+      "finishing": "assets/team_reports/dukla_praha/finishing.jpg",
+      "transitions": "assets/team_reports/dukla_praha/transitions.jpg",
+      "one_v_one": "assets/team_reports/dukla_praha/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "J. Svozil",
+          "Passes": 90,
+          "Accurate": 68,
+          "Accuracy %": 75.6
+        },
+        {
+          "Player": "D. Hašek",
+          "Passes": 59,
+          "Accurate": 45,
+          "Accuracy %": 76.3
+        },
+        {
+          "Player": "D. Kozma",
+          "Passes": 36,
+          "Accurate": 27,
+          "Accuracy %": 75.0
+        },
+        {
+          "Player": "M. Hanousek",
+          "Passes": 26,
+          "Accurate": 14,
+          "Accuracy %": 53.8
+        },
+        {
+          "Player": "M. Ambler",
+          "Passes": 14,
+          "Accurate": 7,
+          "Accuracy %": 50.0
+        },
+        {
+          "Player": "D. Zamazal",
+          "Passes": 11,
+          "Accurate": 7,
+          "Accuracy %": 63.6
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "R. Mikuš",
+          "Crosses": 23,
+          "Successful": 7,
+          "Accuracy %": 30.4,
+          "xA": "0.71",
+          "Assists": "1"
+        },
+        {
+          "Player": "O. Tessilimi",
+          "Crosses": 17,
+          "Successful": 3,
+          "Accuracy %": 17.6,
+          "xA": "0.45",
+          "Assists": "-"
+        },
+        {
+          "Player": "Š. Sebrle",
+          "Crosses": 8,
+          "Successful": 1,
+          "Accuracy %": 12.5,
+          "xA": "0.10",
+          "Assists": "-"
+        },
+        {
+          "Player": "V. Diego",
+          "Crosses": 6,
+          "Successful": 1,
+          "Accuracy %": 16.7,
+          "xA": "0.18",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Kozma",
+          "Crosses": 4,
+          "Successful": 3,
+          "Accuracy %": 75.0,
+          "xA": "0.06",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Hanousek",
+          "Crosses": 3,
+          "Successful": 1,
+          "Accuracy %": 33.3,
+          "xA": "0.15",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "O. Tessilimi",
+          "Dribbles": 12,
+          "Team share %": 41.4,
+          "Shots after": 3,
+          "xG after": "0.36",
+          "Goals after": "1"
+        },
+        {
+          "Player": "R. Mikuš",
+          "Dribbles": 8,
+          "Team share %": 27.6,
+          "Shots after": 5,
+          "xG after": "0.46",
+          "Goals after": "1"
+        },
+        {
+          "Player": "D. Zamazal",
+          "Dribbles": 1,
+          "Team share %": 3.4,
+          "Shots after": 1,
+          "xG after": "0.06",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "R. Mikuš",
+          "Recoveries": 17,
+          "Shots after": 5,
+          "On target": 1,
+          "xG after": "0.61",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Zamazal",
+          "Recoveries": 10,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.65",
+          "Goals after": "1"
+        },
+        {
+          "Player": "V. Diego",
+          "Recoveries": 10,
+          "Shots after": 6,
+          "On target": 4,
+          "xG after": "0.47",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Hanousek",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "0.49",
+          "Goals after": "1"
+        },
+        {
+          "Player": "Š. Sebrle",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "0.02",
+          "Goals after": "1"
+        },
+        {
+          "Player": "E. Rotundo",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.02",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "R. Mikuš",
+          "Minutes": 655,
+          "Shots": 28,
+          "On target": 12,
+          "On target %": 42.9,
+          "xG": "2.40",
+          "Goals": 4
+        },
+        {
+          "Player": "T. Schanelec",
+          "Minutes": 480,
+          "Shots": 9,
+          "On target": 2,
+          "On target %": 22.2,
+          "xG": "2.30",
+          "Goals": 1
+        },
+        {
+          "Player": "O. Tessilimi",
+          "Minutes": 415,
+          "Shots": 7,
+          "On target": 6,
+          "On target %": 85.7,
+          "xG": "1.13",
+          "Goals": 3
+        },
+        {
+          "Player": "D. Hašek",
+          "Minutes": 472,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "1.74",
+          "Goals": 1
+        },
+        {
+          "Player": "Š. Sebrle",
+          "Minutes": 380,
+          "Shots": 5,
+          "On target": 1,
+          "On target %": 20.0,
+          "xG": "0.26",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Svozil",
+          "Minutes": 642,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.52",
+          "Goals": 0
+        },
+        {
+          "Player": "V. Diego",
+          "Minutes": 479,
+          "Shots": 5,
+          "On target": 1,
+          "On target %": 20.0,
+          "xG": "0.33",
+          "Goals": 0
+        },
+        {
+          "Player": "B. Diallo",
+          "Minutes": 173,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "0.54",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "R. Mikuš",
+          "Minutes": 655,
+          "Key passes": 11,
+          "xA": "1.44",
+          "Assists": 1
+        },
+        {
+          "Player": "V. Diego",
+          "Minutes": 479,
+          "Key passes": 9,
+          "xA": "1.11",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Svozil",
+          "Minutes": 642,
+          "Key passes": 5,
+          "xA": "1.13",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Zamazal",
+          "Minutes": 358,
+          "Key passes": 4,
+          "xA": "0.84",
+          "Assists": 3
+        },
+        {
+          "Player": "Š. Sebrle",
+          "Minutes": 380,
+          "Key passes": 3,
+          "xA": "0.16",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Hanousek",
+          "Minutes": 607,
+          "Key passes": 3,
+          "xA": "0.27",
+          "Assists": 0
+        },
+        {
+          "Player": "O. Tessilimi",
+          "Minutes": 415,
+          "Key passes": 2,
+          "xA": "0.55",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Kozma",
+          "Minutes": 546,
+          "Key passes": 2,
+          "xA": "0.48",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "R. Mikuš",
+          "Minutes": 655,
+          "Dribbles": 18,
+          "Per 90": 2.5,
+          "Won": "10",
+          "Lost": "8"
+        },
+        {
+          "Player": "O. Tessilimi",
+          "Minutes": 415,
+          "Dribbles": 15,
+          "Per 90": 3.3,
+          "Won": "13",
+          "Lost": "2"
+        },
+        {
+          "Player": "Š. Sebrle",
+          "Minutes": 380,
+          "Dribbles": 9,
+          "Per 90": 2.1,
+          "Won": "5",
+          "Lost": "4"
+        },
+        {
+          "Player": "V. Diego",
+          "Minutes": 479,
+          "Dribbles": 8,
+          "Per 90": 1.5,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "O. Lilling",
+          "Minutes": 459,
+          "Dribbles": 5,
+          "Per 90": 1.0,
+          "Won": "3",
+          "Lost": "2"
+        },
+        {
+          "Player": "D. Kozma",
+          "Minutes": 546,
+          "Dribbles": 5,
+          "Per 90": 0.8,
+          "Won": "3",
+          "Lost": "2"
+        },
+        {
+          "Player": "E. Rotundo",
+          "Minutes": 94,
+          "Dribbles": 2,
+          "Per 90": 1.9,
+          "Won": "-",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Ambler",
+          "Minutes": 259,
+          "Dribbles": 2,
+          "Per 90": 0.7,
+          "Won": "1",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Třinec": {
+    "pages": {
+      "attack": "assets/team_reports/trinec/attack.jpg",
+      "set_pieces": "assets/team_reports/trinec/set_pieces.jpg",
+      "build_up": "assets/team_reports/trinec/build_up.jpg",
+      "finishing": "assets/team_reports/trinec/finishing.jpg",
+      "transitions": "assets/team_reports/trinec/transitions.jpg",
+      "one_v_one": "assets/team_reports/trinec/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Helebrand",
+          "Passes": 51,
+          "Accurate": 34,
+          "Accuracy %": 66.7
+        },
+        {
+          "Player": "D. Simerský",
+          "Passes": 32,
+          "Accurate": 18,
+          "Accuracy %": 56.3
+        },
+        {
+          "Player": "V. Brak",
+          "Passes": 31,
+          "Accurate": 16,
+          "Accuracy %": 51.6
+        },
+        {
+          "Player": "J. Bolf",
+          "Passes": 23,
+          "Accurate": 14,
+          "Accuracy %": 60.9
+        },
+        {
+          "Player": "N. Zinhasovič",
+          "Passes": 18,
+          "Accurate": 13,
+          "Accuracy %": 72.2
+        },
+        {
+          "Player": "E. Šehić",
+          "Passes": 18,
+          "Accurate": 11,
+          "Accuracy %": 61.1
+        },
+        {
+          "Player": "M. Samiec",
+          "Passes": 12,
+          "Accurate": 9,
+          "Accuracy %": 75.0
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "T. Omasta",
+          "Crosses": 22,
+          "Successful": 6,
+          "Accuracy %": 27.3,
+          "xA": "0.49",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Bolf",
+          "Crosses": 21,
+          "Successful": 8,
+          "Accuracy %": 38.1,
+          "xA": "0.78",
+          "Assists": "2"
+        },
+        {
+          "Player": "E. Šehić",
+          "Crosses": 15,
+          "Successful": 5,
+          "Accuracy %": 33.3,
+          "xA": "0.39",
+          "Assists": "-"
+        },
+        {
+          "Player": "Lukas Cienciala",
+          "Crosses": 15,
+          "Successful": 5,
+          "Accuracy %": 33.3,
+          "xA": "0.57",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Skwarczek",
+          "Crosses": 8,
+          "Successful": 4,
+          "Accuracy %": 50.0,
+          "xA": "0.11",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "R. Dedič",
+          "Dribbles": 5,
+          "Team share %": 17.9,
+          "Shots after": 4,
+          "xG after": "0.20",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Omasta",
+          "Dribbles": 5,
+          "Team share %": 17.9,
+          "Shots after": 2,
+          "xG after": "0.38",
+          "Goals after": "1"
+        },
+        {
+          "Player": "Lukas Cienciala",
+          "Dribbles": 5,
+          "Team share %": 17.9,
+          "Shots after": 1,
+          "xG after": "0.12",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Abdoulkarim",
+          "Dribbles": 3,
+          "Team share %": 10.7,
+          "Shots after": 2,
+          "xG after": "0.17",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Bolf",
+          "Dribbles": 3,
+          "Team share %": 10.7,
+          "Shots after": 1,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "T. Omasta",
+          "Recoveries": 10,
+          "Shots after": 2,
+          "On target": 2,
+          "xG after": "0.07",
+          "Goals after": "2"
+        },
+        {
+          "Player": "M. Abdoulkarim",
+          "Recoveries": 9,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.17",
+          "Goals after": "-"
+        },
+        {
+          "Player": "E. Šehić",
+          "Recoveries": 8,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.28",
+          "Goals after": "-"
+        },
+        {
+          "Player": "N. Zinhasovič",
+          "Recoveries": 8,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.23",
+          "Goals after": "-"
+        },
+        {
+          "Player": "Lukas Cienciala",
+          "Recoveries": 6,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.36",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Samiec",
+          "Recoveries": 5,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.05",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Machuča",
+          "Recoveries": 4,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.09",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "R. Dedič",
+          "Minutes": 534,
+          "Shots": 16,
+          "On target": 6,
+          "On target %": 37.5,
+          "xG": "2.35",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Abdoulkarim",
+          "Minutes": 414,
+          "Shots": 11,
+          "On target": 4,
+          "On target %": 36.4,
+          "xG": "1.72",
+          "Goals": 1
+        },
+        {
+          "Player": "Lukas Cienciala",
+          "Minutes": 523,
+          "Shots": 11,
+          "On target": 7,
+          "On target %": 63.6,
+          "xG": "0.99",
+          "Goals": 1
+        },
+        {
+          "Player": "E. Šehić",
+          "Minutes": 377,
+          "Shots": 8,
+          "On target": 3,
+          "On target %": 37.5,
+          "xG": "0.48",
+          "Goals": 0
+        },
+        {
+          "Player": "T. Omasta",
+          "Minutes": 566,
+          "Shots": 6,
+          "On target": 1,
+          "On target %": 16.7,
+          "xG": "0.57",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Bolf",
+          "Minutes": 545,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "0.51",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Helebrand",
+          "Minutes": 666,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "0.68",
+          "Goals": 0
+        },
+        {
+          "Player": "C. Agbo",
+          "Minutes": 294,
+          "Shots": 4,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.50",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Bolf",
+          "Minutes": 545,
+          "Key passes": 7,
+          "xA": "1.18",
+          "Assists": 2
+        },
+        {
+          "Player": "E. Šehić",
+          "Minutes": 377,
+          "Key passes": 6,
+          "xA": "0.9",
+          "Assists": 0
+        },
+        {
+          "Player": "Lukas Cienciala",
+          "Minutes": 523,
+          "Key passes": 5,
+          "xA": "0.68",
+          "Assists": 0
+        },
+        {
+          "Player": "R. Dedič",
+          "Minutes": 534,
+          "Key passes": 4,
+          "xA": "0.81",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Omasta",
+          "Minutes": 566,
+          "Key passes": 4,
+          "xA": "0.78",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Helebrand",
+          "Minutes": 666,
+          "Key passes": 4,
+          "xA": "0.51",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Abdoulkarim",
+          "Minutes": 414,
+          "Key passes": 3,
+          "xA": "0.22",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Samiec",
+          "Minutes": 445,
+          "Key passes": 2,
+          "xA": "0.1",
+          "Assists": 1
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "Lukas Cienciala",
+          "Minutes": 523,
+          "Dribbles": 13,
+          "Per 90": 2.2,
+          "Won": "9",
+          "Lost": "4"
+        },
+        {
+          "Player": "J. Bolf",
+          "Minutes": 545,
+          "Dribbles": 13,
+          "Per 90": 2.1,
+          "Won": "6",
+          "Lost": "7"
+        },
+        {
+          "Player": "T. Omasta",
+          "Minutes": 566,
+          "Dribbles": 12,
+          "Per 90": 1.9,
+          "Won": "8",
+          "Lost": "4"
+        },
+        {
+          "Player": "R. Dedič",
+          "Minutes": 534,
+          "Dribbles": 8,
+          "Per 90": 1.3,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Abdoulkarim",
+          "Minutes": 414,
+          "Dribbles": 7,
+          "Per 90": 1.5,
+          "Won": "5",
+          "Lost": "2"
+        },
+        {
+          "Player": "C. Agbo",
+          "Minutes": 294,
+          "Dribbles": 6,
+          "Per 90": 1.8,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Vlachovský",
+          "Minutes": 86,
+          "Dribbles": 2,
+          "Per 90": 2.1,
+          "Won": "1",
+          "Lost": "1"
+        },
+        {
+          "Player": "N. An Khánh",
+          "Minutes": 87,
+          "Dribbles": 2,
+          "Per 90": 2.1,
+          "Won": "1",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Táborsko": {
+    "pages": {
+      "attack": "assets/team_reports/taborsko/attack.jpg",
+      "set_pieces": "assets/team_reports/taborsko/set_pieces.jpg",
+      "build_up": "assets/team_reports/taborsko/build_up.jpg",
+      "finishing": "assets/team_reports/taborsko/finishing.jpg",
+      "transitions": "assets/team_reports/taborsko/transitions.jpg",
+      "one_v_one": "assets/team_reports/taborsko/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "L. Havel",
+          "Passes": 93,
+          "Accurate": 75,
+          "Accuracy %": 80.6
+        },
+        {
+          "Player": "R. Holiš",
+          "Passes": 79,
+          "Accurate": 58,
+          "Accuracy %": 73.4
+        },
+        {
+          "Player": "P. Plachý",
+          "Passes": 31,
+          "Accurate": 20,
+          "Accuracy %": 64.5
+        },
+        {
+          "Player": "P. Heppner",
+          "Passes": 31,
+          "Accurate": 16,
+          "Accuracy %": 51.6
+        },
+        {
+          "Player": "O. Bláha",
+          "Passes": 27,
+          "Accurate": 17,
+          "Accuracy %": 63.0
+        },
+        {
+          "Player": "J. Kateřiňák",
+          "Passes": 24,
+          "Accurate": 22,
+          "Accuracy %": 91.7
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "J. Kateřiňák",
+          "Crosses": 20,
+          "Successful": 10,
+          "Accuracy %": 50.0,
+          "xA": "0.47",
+          "Assists": "1"
+        },
+        {
+          "Player": "P. Plachý",
+          "Crosses": 18,
+          "Successful": 8,
+          "Accuracy %": 44.4,
+          "xA": "0.63",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Rezek",
+          "Crosses": 15,
+          "Successful": 9,
+          "Accuracy %": 60.0,
+          "xA": "0.34",
+          "Assists": "-"
+        },
+        {
+          "Player": "L. Matějka",
+          "Crosses": 15,
+          "Successful": 4,
+          "Accuracy %": 26.7,
+          "xA": "0.59",
+          "Assists": "1"
+        },
+        {
+          "Player": "P. Heppner",
+          "Crosses": 12,
+          "Successful": 4,
+          "Accuracy %": 33.3,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Varacka",
+          "Crosses": 10,
+          "Successful": 3,
+          "Accuracy %": 30.0,
+          "xA": "0.21",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Miška",
+          "Crosses": 7,
+          "Successful": 1,
+          "Accuracy %": 14.3,
+          "xA": "0.07",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "M. Varacka",
+          "Dribbles": 9,
+          "Team share %": 26.5,
+          "Shots after": 4,
+          "xG after": "0.50",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Matějka",
+          "Dribbles": 6,
+          "Team share %": 17.6,
+          "Shots after": 2,
+          "xG after": "0.20",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Splichal",
+          "Dribbles": 5,
+          "Team share %": 14.7,
+          "Shots after": 3,
+          "xG after": "0.45",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Barac",
+          "Dribbles": 3,
+          "Team share %": 8.8,
+          "Shots after": 1,
+          "xG after": "0.32",
+          "Goals after": "1"
+        },
+        {
+          "Player": "L. Hruska",
+          "Dribbles": 3,
+          "Team share %": 8.8,
+          "Shots after": 3,
+          "xG after": "0.39",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Kateřiňák",
+          "Dribbles": 2,
+          "Team share %": 5.9,
+          "Shots after": 2,
+          "xG after": "0.42",
+          "Goals after": "1"
+        },
+        {
+          "Player": "P. Heppner",
+          "Dribbles": 2,
+          "Team share %": 5.9,
+          "Shots after": 1,
+          "xG after": "0.06",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "J. Kateřiňák",
+          "Recoveries": 10,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.02",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Bláha",
+          "Recoveries": 9,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.12",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Hruska",
+          "Recoveries": 9,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.32",
+          "Goals after": "-"
+        },
+        {
+          "Player": "R. Holiš",
+          "Recoveries": 8,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.23",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Varacka",
+          "Recoveries": 7,
+          "Shots after": 4,
+          "On target": 3,
+          "xG after": "0.66",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "L. Matějka",
+          "Minutes": 667,
+          "Shots": 13,
+          "On target": 5,
+          "On target %": 38.5,
+          "xG": "3.32",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Varacka",
+          "Minutes": 521,
+          "Shots": 11,
+          "On target": 5,
+          "On target %": 45.5,
+          "xG": "1.04",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Kateřiňák",
+          "Minutes": 671,
+          "Shots": 10,
+          "On target": 3,
+          "On target %": 30.0,
+          "xG": "0.69",
+          "Goals": 2
+        },
+        {
+          "Player": "J. Rezek",
+          "Minutes": 441,
+          "Shots": 10,
+          "On target": 2,
+          "On target %": 20.0,
+          "xG": "0.95",
+          "Goals": 0
+        },
+        {
+          "Player": "L. Hruska",
+          "Minutes": 266,
+          "Shots": 6,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.83",
+          "Goals": 0
+        },
+        {
+          "Player": "L. Havel",
+          "Minutes": 673,
+          "Shots": 5,
+          "On target": 2,
+          "On target %": 40.0,
+          "xG": "1.10",
+          "Goals": 2
+        },
+        {
+          "Player": "J. Splichal",
+          "Minutes": 369,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "1.12",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Miška",
+          "Minutes": 138,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "0.44",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Kateřiňák",
+          "Minutes": 671,
+          "Key passes": 15,
+          "xA": "1.19",
+          "Assists": 2
+        },
+        {
+          "Player": "L. Hruska",
+          "Minutes": 266,
+          "Key passes": 7,
+          "xA": "0.61",
+          "Assists": 0
+        },
+        {
+          "Player": "L. Matějka",
+          "Minutes": 667,
+          "Key passes": 4,
+          "xA": "0.6",
+          "Assists": 1
+        },
+        {
+          "Player": "P. Plachý",
+          "Minutes": 638,
+          "Key passes": 4,
+          "xA": "0.63",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Varacka",
+          "Minutes": 521,
+          "Key passes": 3,
+          "xA": "0.59",
+          "Assists": 0
+        },
+        {
+          "Player": "J. Rezek",
+          "Minutes": 441,
+          "Key passes": 2,
+          "xA": "0.34",
+          "Assists": 1
+        },
+        {
+          "Player": "R. Holiš",
+          "Minutes": 668,
+          "Key passes": 2,
+          "xA": "0.4",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Miška",
+          "Minutes": 138,
+          "Key passes": 2,
+          "xA": "0.13",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "M. Varacka",
+          "Minutes": 521,
+          "Dribbles": 13,
+          "Per 90": 2.2,
+          "Won": "13",
+          "Lost": "-"
+        },
+        {
+          "Player": "L. Matějka",
+          "Minutes": 667,
+          "Dribbles": 10,
+          "Per 90": 1.3,
+          "Won": "7",
+          "Lost": "3"
+        },
+        {
+          "Player": "J. Splichal",
+          "Minutes": 369,
+          "Dribbles": 7,
+          "Per 90": 1.7,
+          "Won": "7",
+          "Lost": "-"
+        },
+        {
+          "Player": "J. Zeronik",
+          "Minutes": 164,
+          "Dribbles": 6,
+          "Per 90": 3.3,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "L. Hruska",
+          "Minutes": 266,
+          "Dribbles": 6,
+          "Per 90": 2.0,
+          "Won": "3",
+          "Lost": "3"
+        },
+        {
+          "Player": "J. Rezek",
+          "Minutes": 441,
+          "Dribbles": 6,
+          "Per 90": 1.2,
+          "Won": "1",
+          "Lost": "5"
+        },
+        {
+          "Player": "P. Heppner",
+          "Minutes": 665,
+          "Dribbles": 5,
+          "Per 90": 0.7,
+          "Won": "4",
+          "Lost": "1"
+        },
+        {
+          "Player": "J. Barac",
+          "Minutes": 86,
+          "Dribbles": 3,
+          "Per 90": 3.1,
+          "Won": "3",
+          "Lost": "-"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Ústí nad Labem": {
+    "pages": {
+      "attack": "assets/team_reports/usti_nad_labem/attack.jpg",
+      "set_pieces": "assets/team_reports/usti_nad_labem/set_pieces.jpg",
+      "build_up": "assets/team_reports/usti_nad_labem/build_up.jpg",
+      "finishing": "assets/team_reports/usti_nad_labem/finishing.jpg",
+      "transitions": "assets/team_reports/usti_nad_labem/transitions.jpg",
+      "one_v_one": "assets/team_reports/usti_nad_labem/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "D. Březina",
+          "Passes": 70,
+          "Accurate": 46,
+          "Accuracy %": 65.7
+        },
+        {
+          "Player": "B. Yaméogo",
+          "Passes": 60,
+          "Accurate": 45,
+          "Accuracy %": 75.0
+        },
+        {
+          "Player": "J. Peterka",
+          "Passes": 51,
+          "Accurate": 46,
+          "Accuracy %": 90.2
+        },
+        {
+          "Player": "O. Ullman",
+          "Passes": 31,
+          "Accurate": 21,
+          "Accuracy %": 67.7
+        },
+        {
+          "Player": "T. Kott",
+          "Passes": 9,
+          "Accurate": 8,
+          "Accuracy %": 88.9
+        },
+        {
+          "Player": "D. Richter",
+          "Passes": 5,
+          "Accurate": 5,
+          "Accuracy %": 100.0
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Crosses": 23,
+          "Successful": 8,
+          "Accuracy %": 34.8,
+          "xA": "0.84",
+          "Assists": "1"
+        },
+        {
+          "Player": "P. Moulis",
+          "Crosses": 18,
+          "Successful": 8,
+          "Accuracy %": 44.4,
+          "xA": "0.57",
+          "Assists": "-"
+        },
+        {
+          "Player": "O. Ullman",
+          "Crosses": 13,
+          "Successful": 5,
+          "Accuracy %": 38.5,
+          "xA": "0.16",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Černý",
+          "Crosses": 12,
+          "Successful": 5,
+          "Accuracy %": 41.7,
+          "xA": "0.30",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Richter",
+          "Crosses": 7,
+          "Successful": 3,
+          "Accuracy %": 42.9,
+          "xA": "0.12",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Březina",
+          "Crosses": 7,
+          "Successful": 2,
+          "Accuracy %": 28.6,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Do Marcolino",
+          "Crosses": 6,
+          "Successful": 1,
+          "Accuracy %": 16.7,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Dribbles": 21,
+          "Team share %": 39.6,
+          "Shots after": 10,
+          "xG after": "1.86",
+          "Goals after": "3"
+        },
+        {
+          "Player": "D. Černý",
+          "Dribbles": 11,
+          "Team share %": 20.8,
+          "Shots after": 7,
+          "xG after": "1.10",
+          "Goals after": "1"
+        },
+        {
+          "Player": "P. Moulis",
+          "Dribbles": 6,
+          "Team share %": 11.3,
+          "Shots after": 2,
+          "xG after": "0.28",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Ullman",
+          "Dribbles": 3,
+          "Team share %": 5.7,
+          "Shots after": 1,
+          "xG after": "0.12",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Do Marcolino",
+          "Dribbles": 3,
+          "Team share %": 5.7,
+          "Shots after": 2,
+          "xG after": "0.48",
+          "Goals after": "1"
+        },
+        {
+          "Player": "D. Richter",
+          "Dribbles": 2,
+          "Team share %": 3.8,
+          "Shots after": 1,
+          "xG after": "0.03",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Bzura",
+          "Dribbles": 2,
+          "Team share %": 3.8,
+          "Shots after": 1,
+          "xG after": "0.13",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "T. Kott",
+          "Recoveries": 14,
+          "Shots after": 2,
+          "On target": 2,
+          "xG after": "0.46",
+          "Goals after": "2"
+        },
+        {
+          "Player": "D. Richter",
+          "Recoveries": 11,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.31",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Černý",
+          "Recoveries": 11,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.16",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Peterka",
+          "Recoveries": 10,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Ullman",
+          "Recoveries": 10,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.07",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Recoveries": 8,
+          "Shots after": 4,
+          "On target": 2,
+          "xG after": "1.07",
+          "Goals after": "1"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "A. Do Marcolino",
+          "Minutes": 562,
+          "Shots": 17,
+          "On target": 7,
+          "On target %": 41.2,
+          "xG": "3.72",
+          "Goals": 3
+        },
+        {
+          "Player": "D. Černý",
+          "Minutes": 511,
+          "Shots": 17,
+          "On target": 6,
+          "On target %": 35.3,
+          "xG": "2.06",
+          "Goals": 1
+        },
+        {
+          "Player": "P. Moulis",
+          "Minutes": 573,
+          "Shots": 15,
+          "On target": 7,
+          "On target %": 46.7,
+          "xG": "1.53",
+          "Goals": 1
+        },
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Minutes": 569,
+          "Shots": 13,
+          "On target": 6,
+          "On target %": 46.2,
+          "xG": "2.04",
+          "Goals": 4
+        },
+        {
+          "Player": "D. Březina",
+          "Minutes": 541,
+          "Shots": 7,
+          "On target": 4,
+          "On target %": 57.1,
+          "xG": "0.36",
+          "Goals": 2
+        },
+        {
+          "Player": "D. Richter",
+          "Minutes": 494,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "0.30",
+          "Goals": 0
+        },
+        {
+          "Player": "O. Ullman",
+          "Minutes": 546,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "0.12",
+          "Goals": 0
+        },
+        {
+          "Player": "T. Kott",
+          "Minutes": 667,
+          "Shots": 4,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.03",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "D. Černý",
+          "Minutes": 511,
+          "Key passes": 10,
+          "xA": "1",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Richter",
+          "Minutes": 494,
+          "Key passes": 9,
+          "xA": "1.67",
+          "Assists": 1
+        },
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Minutes": 569,
+          "Key passes": 7,
+          "xA": "1.69",
+          "Assists": 1
+        },
+        {
+          "Player": "P. Moulis",
+          "Minutes": 573,
+          "Key passes": 7,
+          "xA": "1.03",
+          "Assists": 1
+        },
+        {
+          "Player": "O. Ullman",
+          "Minutes": 546,
+          "Key passes": 6,
+          "xA": "0.33",
+          "Assists": 1
+        },
+        {
+          "Player": "A. Do Marcolino",
+          "Minutes": 562,
+          "Key passes": 2,
+          "xA": "0.5",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Březina",
+          "Minutes": 541,
+          "Key passes": 2,
+          "xA": "0.03",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Kott",
+          "Minutes": 667,
+          "Key passes": 2,
+          "xA": "0.03",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "F. Idumbo-Muzambo",
+          "Minutes": 569,
+          "Dribbles": 36,
+          "Per 90": 5.7,
+          "Won": "23",
+          "Lost": "13"
+        },
+        {
+          "Player": "D. Černý",
+          "Minutes": 511,
+          "Dribbles": 18,
+          "Per 90": 3.2,
+          "Won": "13",
+          "Lost": "5"
+        },
+        {
+          "Player": "A. Do Marcolino",
+          "Minutes": 562,
+          "Dribbles": 10,
+          "Per 90": 1.6,
+          "Won": "6",
+          "Lost": "4"
+        },
+        {
+          "Player": "P. Moulis",
+          "Minutes": 573,
+          "Dribbles": 9,
+          "Per 90": 1.4,
+          "Won": "6",
+          "Lost": "3"
+        },
+        {
+          "Player": "J. Bzura",
+          "Minutes": 75,
+          "Dribbles": 3,
+          "Per 90": 3.6,
+          "Won": "2",
+          "Lost": "1"
+        },
+        {
+          "Player": "P. Goj",
+          "Minutes": 169,
+          "Dribbles": 3,
+          "Per 90": 1.6,
+          "Won": "2",
+          "Lost": "1"
+        },
+        {
+          "Player": "Y. Diarra",
+          "Minutes": 62,
+          "Dribbles": 2,
+          "Per 90": 2.9,
+          "Won": "1",
+          "Lost": "1"
+        },
+        {
+          "Player": "S. Osaghae",
+          "Minutes": 145,
+          "Dribbles": 2,
+          "Per 90": 1.2,
+          "Won": "1",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Viktoria Žižkov": {
+    "pages": {
+      "attack": "assets/team_reports/viktoria_zizkov/attack.jpg",
+      "set_pieces": "assets/team_reports/viktoria_zizkov/set_pieces.jpg",
+      "build_up": "assets/team_reports/viktoria_zizkov/build_up.jpg",
+      "finishing": "assets/team_reports/viktoria_zizkov/finishing.jpg",
+      "transitions": "assets/team_reports/viktoria_zizkov/transitions.jpg",
+      "one_v_one": "assets/team_reports/viktoria_zizkov/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "D. Holasek",
+          "Passes": 48,
+          "Accurate": 33,
+          "Accuracy %": 68.8
+        },
+        {
+          "Player": "J. Divíšek",
+          "Passes": 35,
+          "Accurate": 24,
+          "Accuracy %": 68.6
+        },
+        {
+          "Player": "M. Hubínek",
+          "Passes": 35,
+          "Accurate": 23,
+          "Accuracy %": 65.7
+        },
+        {
+          "Player": "M. Richter",
+          "Passes": 28,
+          "Accurate": 19,
+          "Accuracy %": 67.9
+        },
+        {
+          "Player": "M. Žitný",
+          "Passes": 19,
+          "Accurate": 18,
+          "Accuracy %": 94.7
+        },
+        {
+          "Player": "M. Nový",
+          "Passes": 18,
+          "Accurate": 16,
+          "Accuracy %": 88.9
+        },
+        {
+          "Player": "R. Reiter",
+          "Passes": 18,
+          "Accurate": 12,
+          "Accuracy %": 66.7
+        },
+        {
+          "Player": "M. Hönig",
+          "Passes": 13,
+          "Accurate": 11,
+          "Accuracy %": 84.6
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "M. Nový",
+          "Crosses": 12,
+          "Successful": 1,
+          "Accuracy %": 8.3,
+          "xA": "0.13",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Hönig",
+          "Crosses": 11,
+          "Successful": 3,
+          "Accuracy %": 27.3,
+          "xA": "0.11",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Batioja",
+          "Crosses": 9,
+          "Successful": 3,
+          "Accuracy %": 33.3,
+          "xA": "0.23",
+          "Assists": "-"
+        },
+        {
+          "Player": "R. Hrubý",
+          "Crosses": 9,
+          "Successful": 3,
+          "Accuracy %": 33.3,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "M. Baafi",
+          "Crosses": 7,
+          "Successful": 1,
+          "Accuracy %": 14.3,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Kosek",
+          "Crosses": 5,
+          "Successful": 1,
+          "Accuracy %": 20.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "M. Hönig",
+          "Dribbles": 6,
+          "Team share %": 22.2,
+          "Shots after": 4,
+          "xG after": "0.35",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Batioja",
+          "Dribbles": 3,
+          "Team share %": 11.1,
+          "Shots after": 2,
+          "xG after": "0.11",
+          "Goals after": "-"
+        },
+        {
+          "Player": "R. Hrubý",
+          "Dribbles": 3,
+          "Team share %": 11.1,
+          "Shots after": 2,
+          "xG after": "0.11",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Papoušek",
+          "Dribbles": 3,
+          "Team share %": 11.1,
+          "Shots after": 2,
+          "xG after": "0.22",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "M. Hönig",
+          "Recoveries": 16,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.16",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Batioja",
+          "Recoveries": 13,
+          "Shots after": 4,
+          "On target": 1,
+          "xG after": "0.27",
+          "Goals after": "-"
+        },
+        {
+          "Player": "R. Hrubý",
+          "Recoveries": 10,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.10",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Hubínek",
+          "Recoveries": 6,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.19",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Kaulfus",
+          "Recoveries": 6,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "0.20",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Papoušek",
+          "Recoveries": 5,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.36",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "M. Hönig",
+          "Minutes": 559,
+          "Shots": 13,
+          "On target": 7,
+          "On target %": 53.8,
+          "xG": "0.67",
+          "Goals": 1
+        },
+        {
+          "Player": "F. Papoušek",
+          "Minutes": 330,
+          "Shots": 12,
+          "On target": 2,
+          "On target %": 16.7,
+          "xG": "1.20",
+          "Goals": 0
+        },
+        {
+          "Player": "A. Toula",
+          "Minutes": 485,
+          "Shots": 11,
+          "On target": 3,
+          "On target %": 27.3,
+          "xG": "1.97",
+          "Goals": 1
+        },
+        {
+          "Player": "R. Hrubý",
+          "Minutes": 358,
+          "Shots": 8,
+          "On target": 3,
+          "On target %": 37.5,
+          "xG": "0.60",
+          "Goals": 0
+        },
+        {
+          "Player": "V. Prošek",
+          "Minutes": 209,
+          "Shots": 6,
+          "On target": 1,
+          "On target %": 16.7,
+          "xG": "0.55",
+          "Goals": 0
+        },
+        {
+          "Player": "A. Batioja",
+          "Minutes": 650,
+          "Shots": 5,
+          "On target": 3,
+          "On target %": 60.0,
+          "xG": "1.09",
+          "Goals": 0
+        },
+        {
+          "Player": "M. Baafi",
+          "Minutes": 250,
+          "Shots": 4,
+          "On target": 3,
+          "On target %": 75.0,
+          "xG": "1.76",
+          "Goals": 2
+        },
+        {
+          "Player": "M. Jirásek",
+          "Minutes": 126,
+          "Shots": 3,
+          "On target": 1,
+          "On target %": 33.3,
+          "xG": "0.25",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "M. Nový",
+          "Minutes": 377,
+          "Key passes": 8,
+          "xA": "0.95",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Hönig",
+          "Minutes": 559,
+          "Key passes": 5,
+          "xA": "0.27",
+          "Assists": 0
+        },
+        {
+          "Player": "A. Batioja",
+          "Minutes": 650,
+          "Key passes": 4,
+          "xA": "0.49",
+          "Assists": 1
+        },
+        {
+          "Player": "R. Hrubý",
+          "Minutes": 358,
+          "Key passes": 4,
+          "xA": "0.4",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Kaulfus",
+          "Minutes": 363,
+          "Key passes": 3,
+          "xA": "0.53",
+          "Assists": 0
+        },
+        {
+          "Player": "F. Papoušek",
+          "Minutes": 330,
+          "Key passes": 3,
+          "xA": "0.39",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Baafi",
+          "Minutes": 250,
+          "Key passes": 3,
+          "xA": "0.16",
+          "Assists": 0
+        },
+        {
+          "Player": "V. Prošek",
+          "Minutes": 209,
+          "Key passes": 2,
+          "xA": "0.15",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "M. Baafi",
+          "Minutes": 250,
+          "Dribbles": 9,
+          "Per 90": 3.2,
+          "Won": "4",
+          "Lost": "5"
+        },
+        {
+          "Player": "R. Hrubý",
+          "Minutes": 358,
+          "Dribbles": 9,
+          "Per 90": 2.3,
+          "Won": "6",
+          "Lost": "3"
+        },
+        {
+          "Player": "M. Hönig",
+          "Minutes": 559,
+          "Dribbles": 9,
+          "Per 90": 1.4,
+          "Won": "8",
+          "Lost": "1"
+        },
+        {
+          "Player": "J. Vlček",
+          "Minutes": 196,
+          "Dribbles": 7,
+          "Per 90": 3.2,
+          "Won": "4",
+          "Lost": "3"
+        },
+        {
+          "Player": "A. Batioja",
+          "Minutes": 650,
+          "Dribbles": 7,
+          "Per 90": 1.0,
+          "Won": "5",
+          "Lost": "2"
+        },
+        {
+          "Player": "V. Prošek",
+          "Minutes": 209,
+          "Dribbles": 6,
+          "Per 90": 2.6,
+          "Won": "3",
+          "Lost": "3"
+        },
+        {
+          "Player": "F. Novotný",
+          "Minutes": 185,
+          "Dribbles": 4,
+          "Per 90": 1.9,
+          "Won": "2",
+          "Lost": "2"
+        },
+        {
+          "Player": "D. Kaulfus",
+          "Minutes": 363,
+          "Dribbles": 4,
+          "Per 90": 1.0,
+          "Won": "3",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Karviná": {
+    "pages": {
+      "attack": "assets/team_reports/karvina/attack.jpg",
+      "set_pieces": "assets/team_reports/karvina/set_pieces.jpg",
+      "build_up": "assets/team_reports/karvina/build_up.jpg",
+      "finishing": "assets/team_reports/karvina/finishing.jpg",
+      "transitions": "assets/team_reports/karvina/transitions.jpg",
+      "one_v_one": "assets/team_reports/karvina/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "S. Yakubu",
+          "Passes": 92,
+          "Accurate": 71,
+          "Accuracy %": 77.2
+        },
+        {
+          "Player": "N. Milić",
+          "Passes": 83,
+          "Accurate": 70,
+          "Accuracy %": 84.3
+        },
+        {
+          "Player": "J. Fleišman",
+          "Passes": 37,
+          "Accurate": 19,
+          "Accuracy %": 51.4
+        },
+        {
+          "Player": "R. Breite",
+          "Passes": 13,
+          "Accurate": 11,
+          "Accuracy %": 84.6
+        },
+        {
+          "Player": "A. Čičovský",
+          "Passes": 13,
+          "Accurate": 7,
+          "Accuracy %": 53.8
+        },
+        {
+          "Player": "D. Samko",
+          "Passes": 9,
+          "Accurate": 6,
+          "Accuracy %": 66.7
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "O. Condé",
+          "Crosses": 35,
+          "Successful": 11,
+          "Accuracy %": 31.4,
+          "xA": "0.78",
+          "Assists": "1"
+        },
+        {
+          "Player": "J. Fleišman",
+          "Crosses": 24,
+          "Successful": 8,
+          "Accuracy %": 33.3,
+          "xA": "0.31",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Samko",
+          "Crosses": 13,
+          "Successful": 2,
+          "Accuracy %": 15.4,
+          "xA": "0.14",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Čičovský",
+          "Crosses": 11,
+          "Successful": 3,
+          "Accuracy %": 27.3,
+          "xA": "0.12",
+          "Assists": "-"
+        },
+        {
+          "Player": "N. Milić",
+          "Crosses": 10,
+          "Successful": 6,
+          "Accuracy %": 60.0,
+          "xA": "0.26",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Kronus",
+          "Crosses": 10,
+          "Successful": 1,
+          "Accuracy %": 10.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "O. Condé",
+          "Dribbles": 15,
+          "Team share %": 42.9,
+          "Shots after": 7,
+          "xG after": "1.13",
+          "Goals after": "2"
+        },
+        {
+          "Player": "D. Samko",
+          "Dribbles": 6,
+          "Team share %": 17.1,
+          "Shots after": 4,
+          "xG after": "0.56",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Kronus",
+          "Dribbles": 2,
+          "Team share %": 5.7,
+          "Shots after": 1,
+          "xG after": "0.35",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Selnar",
+          "Dribbles": 2,
+          "Team share %": 5.7,
+          "Shots after": 1,
+          "xG after": "0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Fleišman",
+          "Dribbles": 1,
+          "Team share %": 2.9,
+          "Shots after": 1,
+          "xG after": "0.13",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "R. Breite",
+          "Recoveries": 13,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.17",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Čičovský",
+          "Recoveries": 13,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.17",
+          "Goals after": "1"
+        },
+        {
+          "Player": "J. Selnar",
+          "Recoveries": 13,
+          "Shots after": 4,
+          "On target": 0,
+          "xG after": "0.40",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Condé",
+          "Recoveries": 11,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.31",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Samko",
+          "Recoveries": 9,
+          "Shots after": 3,
+          "On target": 2,
+          "xG after": "0.51",
+          "Goals after": "1"
+        },
+        {
+          "Player": "A. Kronus",
+          "Recoveries": 8,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.08",
+          "Goals after": "1"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "J. Pira",
+          "Minutes": 435,
+          "Shots": 17,
+          "On target": 3,
+          "On target %": 17.6,
+          "xG": "4.20",
+          "Goals": 3
+        },
+        {
+          "Player": "D. Samko",
+          "Minutes": 650,
+          "Shots": 17,
+          "On target": 6,
+          "On target %": 35.3,
+          "xG": "1.76",
+          "Goals": 2
+        },
+        {
+          "Player": "O. Condé",
+          "Minutes": 635,
+          "Shots": 14,
+          "On target": 4,
+          "On target %": 28.6,
+          "xG": "2.39",
+          "Goals": 2
+        },
+        {
+          "Player": "J. Selnar",
+          "Minutes": 594,
+          "Shots": 12,
+          "On target": 4,
+          "On target %": 33.3,
+          "xG": "0.80",
+          "Goals": 2
+        },
+        {
+          "Player": "A. Kronus",
+          "Minutes": 461,
+          "Shots": 8,
+          "On target": 4,
+          "On target %": 50.0,
+          "xG": "1.47",
+          "Goals": 2
+        },
+        {
+          "Player": "F. Konate",
+          "Minutes": 153,
+          "Shots": 8,
+          "On target": 3,
+          "On target %": 37.5,
+          "xG": "0.78",
+          "Goals": 0
+        },
+        {
+          "Player": "J. Fleišman",
+          "Minutes": 488,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "0.38",
+          "Goals": 0
+        },
+        {
+          "Player": "A. Čičovský",
+          "Minutes": 585,
+          "Shots": 6,
+          "On target": 2,
+          "On target %": 33.3,
+          "xG": "0.22",
+          "Goals": 0
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "J. Selnar",
+          "Minutes": 594,
+          "Key passes": 13,
+          "xA": "1.35",
+          "Assists": 0
+        },
+        {
+          "Player": "O. Condé",
+          "Minutes": 635,
+          "Key passes": 12,
+          "xA": "1.65",
+          "Assists": 2
+        },
+        {
+          "Player": "D. Samko",
+          "Minutes": 650,
+          "Key passes": 7,
+          "xA": "0.47",
+          "Assists": 2
+        },
+        {
+          "Player": "J. Fleišman",
+          "Minutes": 488,
+          "Key passes": 7,
+          "xA": "0.8",
+          "Assists": 0
+        },
+        {
+          "Player": "A. Čičovský",
+          "Minutes": 585,
+          "Key passes": 5,
+          "xA": "0.25",
+          "Assists": 2
+        },
+        {
+          "Player": "N. Milić",
+          "Minutes": 670,
+          "Key passes": 5,
+          "xA": "0.85",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Pira",
+          "Minutes": 435,
+          "Key passes": 5,
+          "xA": "0.9",
+          "Assists": 0
+        },
+        {
+          "Player": "A. Kronus",
+          "Minutes": 461,
+          "Key passes": 3,
+          "xA": "0.25",
+          "Assists": 1
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "O. Condé",
+          "Minutes": 635,
+          "Dribbles": 27,
+          "Per 90": 3.8,
+          "Won": "21",
+          "Lost": "6"
+        },
+        {
+          "Player": "D. Samko",
+          "Minutes": 650,
+          "Dribbles": 13,
+          "Per 90": 1.8,
+          "Won": "12",
+          "Lost": "1"
+        },
+        {
+          "Player": "A. Čičovský",
+          "Minutes": 585,
+          "Dribbles": 11,
+          "Per 90": 1.7,
+          "Won": "7",
+          "Lost": "4"
+        },
+        {
+          "Player": "J. Selnar",
+          "Minutes": 594,
+          "Dribbles": 8,
+          "Per 90": 1.2,
+          "Won": "4",
+          "Lost": "4"
+        },
+        {
+          "Player": "A. Kronus",
+          "Minutes": 461,
+          "Dribbles": 4,
+          "Per 90": 0.8,
+          "Won": "2",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Yahaya",
+          "Minutes": 142,
+          "Dribbles": 2,
+          "Per 90": 1.3,
+          "Won": "1",
+          "Lost": "1"
+        },
+        {
+          "Player": "F. Konate",
+          "Minutes": 153,
+          "Dribbles": 2,
+          "Per 90": 1.2,
+          "Won": "1",
+          "Lost": "1"
+        },
+        {
+          "Player": "A. Marković",
+          "Minutes": 33,
+          "Dribbles": 1,
+          "Per 90": 2.7,
+          "Won": "1",
+          "Lost": "-"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Opava": {
+    "pages": {
+      "attack": "assets/team_reports/opava/attack.jpg",
+      "set_pieces": "assets/team_reports/opava/set_pieces.jpg",
+      "build_up": "assets/team_reports/opava/build_up.jpg",
+      "finishing": "assets/team_reports/opava/finishing.jpg",
+      "transitions": "assets/team_reports/opava/transitions.jpg",
+      "one_v_one": "assets/team_reports/opava/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "O. Lehoczki",
+          "Passes": 63,
+          "Accurate": 56,
+          "Accuracy %": 88.9
+        },
+        {
+          "Player": "J. Srubek",
+          "Passes": 44,
+          "Accurate": 32,
+          "Accuracy %": 72.7
+        },
+        {
+          "Player": "R. Zálešák",
+          "Passes": 33,
+          "Accurate": 23,
+          "Accuracy %": 69.7
+        },
+        {
+          "Player": "J. Janoščín",
+          "Passes": 29,
+          "Accurate": 23,
+          "Accuracy %": 79.3
+        },
+        {
+          "Player": "M. Helešic",
+          "Passes": 20,
+          "Accurate": 12,
+          "Accuracy %": 60.0
+        },
+        {
+          "Player": "T. Múdry",
+          "Passes": 10,
+          "Accurate": 8,
+          "Accuracy %": 80.0
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "M. Helešic",
+          "Crosses": 37,
+          "Successful": 12,
+          "Accuracy %": 32.4,
+          "xA": "0.28",
+          "Assists": "-"
+        },
+        {
+          "Player": "B. Lacik",
+          "Crosses": 28,
+          "Successful": 7,
+          "Accuracy %": 25.0,
+          "xA": "1.12",
+          "Assists": "-"
+        },
+        {
+          "Player": "R. Zálešák",
+          "Crosses": 23,
+          "Successful": 3,
+          "Accuracy %": 13.0,
+          "xA": "0.41",
+          "Assists": "-"
+        },
+        {
+          "Player": "F. Čejka",
+          "Crosses": 12,
+          "Successful": 4,
+          "Accuracy %": 33.3,
+          "xA": "0.07",
+          "Assists": "-"
+        },
+        {
+          "Player": "A. Diao",
+          "Crosses": 11,
+          "Successful": 3,
+          "Accuracy %": 27.3,
+          "xA": "0.12",
+          "Assists": "1"
+        },
+        {
+          "Player": "B. Sy",
+          "Crosses": 9,
+          "Successful": 3,
+          "Accuracy %": 33.3,
+          "xA": "0.07",
+          "Assists": "-"
+        },
+        {
+          "Player": "P. Juritka",
+          "Crosses": 5,
+          "Successful": 1,
+          "Accuracy %": 20.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "R. Zálešák",
+          "Dribbles": 3,
+          "Team share %": 12.5,
+          "Shots after": 1,
+          "xG after": "0.24",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Helešic",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 1,
+          "xG after": "0.13",
+          "Goals after": "-"
+        },
+        {
+          "Player": "N. Turanjanin",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 1,
+          "xG after": "0.02",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Darmovzal",
+          "Dribbles": 2,
+          "Team share %": 8.3,
+          "Shots after": 1,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "F. Čejka",
+          "Recoveries": 11,
+          "Shots after": 3,
+          "On target": 2,
+          "xG after": "0.51",
+          "Goals after": "1"
+        },
+        {
+          "Player": "M. Novak",
+          "Recoveries": 10,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.11",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Helešic",
+          "Recoveries": 9,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.14",
+          "Goals after": "-"
+        },
+        {
+          "Player": "B. Sy",
+          "Recoveries": 7,
+          "Shots after": 3,
+          "On target": 3,
+          "xG after": "0.17",
+          "Goals after": "-"
+        },
+        {
+          "Player": "P. Juritka",
+          "Recoveries": 5,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.13",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "M. Novak",
+          "Minutes": 674,
+          "Shots": 10,
+          "On target": 5,
+          "On target %": 50.0,
+          "xG": "0.72",
+          "Goals": 0
+        },
+        {
+          "Player": "N. Turanjanin",
+          "Minutes": 299,
+          "Shots": 9,
+          "On target": 3,
+          "On target %": 33.3,
+          "xG": "1.79",
+          "Goals": 0
+        },
+        {
+          "Player": "P. Juritka",
+          "Minutes": 307,
+          "Shots": 7,
+          "On target": 4,
+          "On target %": 57.1,
+          "xG": "1.61",
+          "Goals": 4
+        },
+        {
+          "Player": "F. Čejka",
+          "Minutes": 462,
+          "Shots": 7,
+          "On target": 3,
+          "On target %": 42.9,
+          "xG": "0.94",
+          "Goals": 1
+        },
+        {
+          "Player": "R. Zálešák",
+          "Minutes": 669,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "0.67",
+          "Goals": 1
+        },
+        {
+          "Player": "B. Lacik",
+          "Minutes": 494,
+          "Shots": 6,
+          "On target": 1,
+          "On target %": 16.7,
+          "xG": "0.92",
+          "Goals": 1
+        },
+        {
+          "Player": "B. Sy",
+          "Minutes": 421,
+          "Shots": 6,
+          "On target": 2,
+          "On target %": 33.3,
+          "xG": "1.37",
+          "Goals": 0
+        },
+        {
+          "Player": "T. Múdry",
+          "Minutes": 392,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "0.49",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "M. Helešic",
+          "Minutes": 674,
+          "Key passes": 8,
+          "xA": "0.71",
+          "Assists": 1
+        },
+        {
+          "Player": "B. Lacik",
+          "Minutes": 494,
+          "Key passes": 7,
+          "xA": "1.55",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Novak",
+          "Minutes": 674,
+          "Key passes": 6,
+          "xA": "0.55",
+          "Assists": 2
+        },
+        {
+          "Player": "B. Sy",
+          "Minutes": 421,
+          "Key passes": 4,
+          "xA": "0.22",
+          "Assists": 1
+        },
+        {
+          "Player": "F. Čejka",
+          "Minutes": 462,
+          "Key passes": 4,
+          "xA": "0.34",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Darmovzal",
+          "Minutes": 179,
+          "Key passes": 3,
+          "xA": "0.67",
+          "Assists": 1
+        },
+        {
+          "Player": "N. Turanjanin",
+          "Minutes": 299,
+          "Key passes": 3,
+          "xA": "0.61",
+          "Assists": 0
+        },
+        {
+          "Player": "R. Zálešák",
+          "Minutes": 669,
+          "Key passes": 3,
+          "xA": "0.44",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "F. Čejka",
+          "Minutes": 462,
+          "Dribbles": 11,
+          "Per 90": 2.1,
+          "Won": "9",
+          "Lost": "2"
+        },
+        {
+          "Player": "R. Zálešák",
+          "Minutes": 669,
+          "Dribbles": 5,
+          "Per 90": 0.7,
+          "Won": "5",
+          "Lost": "-"
+        },
+        {
+          "Player": "M. Helešic",
+          "Minutes": 674,
+          "Dribbles": 5,
+          "Per 90": 0.7,
+          "Won": "3",
+          "Lost": "2"
+        },
+        {
+          "Player": "P. Juritka",
+          "Minutes": 307,
+          "Dribbles": 4,
+          "Per 90": 1.2,
+          "Won": "2",
+          "Lost": "2"
+        },
+        {
+          "Player": "B. Lacik",
+          "Minutes": 494,
+          "Dribbles": 4,
+          "Per 90": 0.7,
+          "Won": "2",
+          "Lost": "2"
+        },
+        {
+          "Player": "M. Vladar",
+          "Minutes": 76,
+          "Dribbles": 3,
+          "Per 90": 3.6,
+          "Won": "3",
+          "Lost": "-"
+        },
+        {
+          "Player": "D. Darmovzal",
+          "Minutes": 179,
+          "Dribbles": 3,
+          "Per 90": 1.5,
+          "Won": "2",
+          "Lost": "1"
+        },
+        {
+          "Player": "A. Diao",
+          "Minutes": 265,
+          "Dribbles": 3,
+          "Per 90": 1.0,
+          "Won": "3",
+          "Lost": "-"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Hanácká": {
+    "pages": {
+      "attack": "assets/team_reports/hanacka/attack.jpg",
+      "set_pieces": "assets/team_reports/hanacka/set_pieces.jpg",
+      "build_up": "assets/team_reports/hanacka/build_up.jpg",
+      "finishing": "assets/team_reports/hanacka/finishing.jpg",
+      "transitions": "assets/team_reports/hanacka/transitions.jpg",
+      "one_v_one": "assets/team_reports/hanacka/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Hlinka",
+          "Passes": 71,
+          "Accurate": 55,
+          "Accuracy %": 77.5
+        },
+        {
+          "Player": "P. Kulíšek",
+          "Passes": 59,
+          "Accurate": 41,
+          "Accuracy %": 69.5
+        },
+        {
+          "Player": "T. Čelůstka",
+          "Passes": 33,
+          "Accurate": 21,
+          "Accuracy %": 63.6
+        },
+        {
+          "Player": "D. Kříž",
+          "Passes": 24,
+          "Accurate": 10,
+          "Accuracy %": 41.7
+        },
+        {
+          "Player": "Z. Říha",
+          "Passes": 18,
+          "Accurate": 11,
+          "Accuracy %": 61.1
+        },
+        {
+          "Player": "M. Mach",
+          "Passes": 15,
+          "Accurate": 8,
+          "Accuracy %": 53.3
+        },
+        {
+          "Player": "O. Stecha",
+          "Passes": 11,
+          "Accurate": 7,
+          "Accuracy %": 63.6
+        },
+        {
+          "Player": "D. Polák",
+          "Passes": 9,
+          "Accurate": 8,
+          "Accuracy %": 88.9
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "T. Čelůstka",
+          "Crosses": 19,
+          "Successful": 6,
+          "Accuracy %": 31.6,
+          "xA": "0.54",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Dockal",
+          "Crosses": 7,
+          "Successful": 2,
+          "Accuracy %": 28.6,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "L. Kubr",
+          "Crosses": 6,
+          "Successful": 4,
+          "Accuracy %": 66.7,
+          "xA": "0.13",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Polasek",
+          "Crosses": 6,
+          "Successful": 3,
+          "Accuracy %": 50.0,
+          "xA": "0.21",
+          "Assists": "-"
+        },
+        {
+          "Player": "R. Ovesny",
+          "Crosses": 6,
+          "Successful": 0,
+          "Accuracy %": 0.0,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "O. Stecha",
+          "Crosses": 6,
+          "Successful": 2,
+          "Accuracy %": 33.3,
+          "xA": "0.07",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "M. Kudela",
+          "Dribbles": 4,
+          "Team share %": 14.3,
+          "Shots after": 3,
+          "xG after": "0.44",
+          "Goals after": "1"
+        },
+        {
+          "Player": "R. Ovesny",
+          "Dribbles": 4,
+          "Team share %": 14.3,
+          "Shots after": 1,
+          "xG after": "0.02",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Stecha",
+          "Dribbles": 4,
+          "Team share %": 14.3,
+          "Shots after": 2,
+          "xG after": "0.09",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Kubr",
+          "Dribbles": 3,
+          "Team share %": 10.7,
+          "Shots after": 2,
+          "xG after": "0.13",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Moucka",
+          "Dribbles": 3,
+          "Team share %": 10.7,
+          "Shots after": 1,
+          "xG after": "0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Kříž",
+          "Dribbles": 2,
+          "Team share %": 7.1,
+          "Shots after": 1,
+          "xG after": "0.02",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Polasek",
+          "Dribbles": 2,
+          "Team share %": 7.1,
+          "Shots after": 1,
+          "xG after": "0.11",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "T. Korycan",
+          "Recoveries": 15,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.28",
+          "Goals after": "1"
+        },
+        {
+          "Player": "D. Kříž",
+          "Recoveries": 8,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.02",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Kudela",
+          "Recoveries": 7,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "<0.01",
+          "Goals after": "-"
+        },
+        {
+          "Player": "L. Holík",
+          "Recoveries": 6,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.06",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Čelůstka",
+          "Recoveries": 6,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.21",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Polasek",
+          "Recoveries": 6,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.02",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "T. Korycan",
+          "Minutes": 580,
+          "Shots": 13,
+          "On target": 3,
+          "On target %": 23.1,
+          "xG": "2.27",
+          "Goals": 0
+        },
+        {
+          "Player": "L. Holík",
+          "Minutes": 449,
+          "Shots": 7,
+          "On target": 5,
+          "On target %": 71.4,
+          "xG": "0.59",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Mach",
+          "Minutes": 276,
+          "Shots": 5,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.17",
+          "Goals": 0
+        },
+        {
+          "Player": "J. Dockal",
+          "Minutes": 437,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "0.37",
+          "Goals": 1
+        },
+        {
+          "Player": "D. Hais",
+          "Minutes": 208,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "0.64",
+          "Goals": 0
+        },
+        {
+          "Player": "D. Polasek",
+          "Minutes": 299,
+          "Shots": 4,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.22",
+          "Goals": 0
+        },
+        {
+          "Player": "P. Kulíšek",
+          "Minutes": 510,
+          "Shots": 3,
+          "On target": 1,
+          "On target %": 33.3,
+          "xG": "0.98",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Kudela",
+          "Minutes": 520,
+          "Shots": 3,
+          "On target": 1,
+          "On target %": 33.3,
+          "xG": "0.33",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "D. Kříž",
+          "Minutes": 427,
+          "Key passes": 6,
+          "xA": "0.92",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Čelůstka",
+          "Minutes": 521,
+          "Key passes": 5,
+          "xA": "0.6",
+          "Assists": 0
+        },
+        {
+          "Player": "L. Holík",
+          "Minutes": 449,
+          "Key passes": 4,
+          "xA": "0.56",
+          "Assists": 0
+        },
+        {
+          "Player": "L. Kubr",
+          "Minutes": 75,
+          "Key passes": 3,
+          "xA": "0.25",
+          "Assists": 1
+        },
+        {
+          "Player": "D. Hais",
+          "Minutes": 208,
+          "Key passes": 3,
+          "xA": "0.52",
+          "Assists": 0
+        },
+        {
+          "Player": "M. Kudela",
+          "Minutes": 520,
+          "Key passes": 3,
+          "xA": "0.09",
+          "Assists": 0
+        },
+        {
+          "Player": "T. Korycan",
+          "Minutes": 580,
+          "Key passes": 2,
+          "xA": "0.24",
+          "Assists": 2
+        },
+        {
+          "Player": "J. Dockal",
+          "Minutes": 437,
+          "Key passes": 2,
+          "xA": "0.43",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "M. Kudela",
+          "Minutes": 520,
+          "Dribbles": 16,
+          "Per 90": 2.8,
+          "Won": "9",
+          "Lost": "7"
+        },
+        {
+          "Player": "D. Moucka",
+          "Minutes": 396,
+          "Dribbles": 9,
+          "Per 90": 2.0,
+          "Won": "8",
+          "Lost": "1"
+        },
+        {
+          "Player": "D. Polasek",
+          "Minutes": 299,
+          "Dribbles": 8,
+          "Per 90": 2.4,
+          "Won": "4",
+          "Lost": "4"
+        },
+        {
+          "Player": "J. Dockal",
+          "Minutes": 437,
+          "Dribbles": 7,
+          "Per 90": 1.4,
+          "Won": "4",
+          "Lost": "3"
+        },
+        {
+          "Player": "L. Kubr",
+          "Minutes": 75,
+          "Dribbles": 6,
+          "Per 90": 7.2,
+          "Won": "5",
+          "Lost": "1"
+        },
+        {
+          "Player": "R. Ovesny",
+          "Minutes": 215,
+          "Dribbles": 6,
+          "Per 90": 2.5,
+          "Won": "4",
+          "Lost": "2"
+        },
+        {
+          "Player": "O. Stecha",
+          "Minutes": 193,
+          "Dribbles": 5,
+          "Per 90": 2.3,
+          "Won": "5",
+          "Lost": "-"
+        },
+        {
+          "Player": "D. Hais",
+          "Minutes": 208,
+          "Dribbles": 3,
+          "Per 90": 1.3,
+          "Won": "1",
+          "Lost": "2"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Kladno": {
+    "pages": {
+      "attack": "assets/team_reports/kladno/attack.jpg",
+      "set_pieces": "assets/team_reports/kladno/set_pieces.jpg",
+      "build_up": "assets/team_reports/kladno/build_up.jpg",
+      "finishing": "assets/team_reports/kladno/finishing.jpg",
+      "transitions": "assets/team_reports/kladno/transitions.jpg",
+      "one_v_one": "assets/team_reports/kladno/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "M. Toml",
+          "Passes": 75,
+          "Accurate": 67,
+          "Accuracy %": 89.3
+        },
+        {
+          "Player": "Marco Túlio",
+          "Passes": 28,
+          "Accurate": 16,
+          "Accuracy %": 57.1
+        },
+        {
+          "Player": "H. Hruska",
+          "Passes": 19,
+          "Accurate": 13,
+          "Accuracy %": 68.4
+        },
+        {
+          "Player": "J. Chalupa",
+          "Passes": 16,
+          "Accurate": 10,
+          "Accuracy %": 62.5
+        },
+        {
+          "Player": "J. Kozojed",
+          "Passes": 5,
+          "Accurate": 4,
+          "Accuracy %": 80.0
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "Marco Túlio",
+          "Crosses": 36,
+          "Successful": 8,
+          "Accuracy %": 22.2,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Gembicky",
+          "Crosses": 13,
+          "Successful": 5,
+          "Accuracy %": 38.5,
+          "xA": "0.13",
+          "Assists": "-"
+        },
+        {
+          "Player": "F. Růžička",
+          "Crosses": 10,
+          "Successful": 3,
+          "Accuracy %": 30.0,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Chalupa",
+          "Crosses": 7,
+          "Successful": 3,
+          "Accuracy %": 42.9,
+          "xA": "-",
+          "Assists": "-"
+        },
+        {
+          "Player": "J. Lacko",
+          "Crosses": 6,
+          "Successful": 1,
+          "Accuracy %": 16.7,
+          "xA": "0.23",
+          "Assists": "-"
+        },
+        {
+          "Player": "H. Hruska",
+          "Crosses": 3,
+          "Successful": 2,
+          "Accuracy %": 66.7,
+          "xA": "0.12",
+          "Assists": "-"
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Crosses": 3,
+          "Successful": 0,
+          "Accuracy %": 0.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "D. Gembicky",
+          "Dribbles": 11,
+          "Team share %": 26.8,
+          "Shots after": 7,
+          "xG after": "1.02",
+          "Goals after": "1"
+        },
+        {
+          "Player": "Marco Túlio",
+          "Dribbles": 8,
+          "Team share %": 19.5,
+          "Shots after": 3,
+          "xG after": "0.39",
+          "Goals after": "1"
+        },
+        {
+          "Player": "J. Chalupa",
+          "Dribbles": 5,
+          "Team share %": 12.2,
+          "Shots after": 2,
+          "xG after": "0.14",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Dribbles": 5,
+          "Team share %": 12.2,
+          "Shots after": 2,
+          "xG after": "0.39",
+          "Goals after": "-"
+        },
+        {
+          "Player": "O. Novotný",
+          "Dribbles": 3,
+          "Team share %": 7.3,
+          "Shots after": 2,
+          "xG after": "0.38",
+          "Goals after": "-"
+        },
+        {
+          "Player": "H. Hruska",
+          "Dribbles": 2,
+          "Team share %": 4.9,
+          "Shots after": 1,
+          "xG after": "0.06",
+          "Goals after": "-"
+        },
+        {
+          "Player": "J. Lacko",
+          "Dribbles": 2,
+          "Team share %": 4.9,
+          "Shots after": 1,
+          "xG after": "0.23",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "Tadeas Pospisil",
+          "Recoveries": 10,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.07",
+          "Goals after": "-"
+        },
+        {
+          "Player": "Marco Túlio",
+          "Recoveries": 9,
+          "Shots after": 4,
+          "On target": 2,
+          "xG after": "0.61",
+          "Goals after": "2"
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Recoveries": 9,
+          "Shots after": 2,
+          "On target": 1,
+          "xG after": "0.18",
+          "Goals after": "1"
+        },
+        {
+          "Player": "K. Hrubes",
+          "Recoveries": 7,
+          "Shots after": 5,
+          "On target": 1,
+          "xG after": "0.45",
+          "Goals after": "-"
+        },
+        {
+          "Player": "H. Hruska",
+          "Recoveries": 5,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.50",
+          "Goals after": "-"
+        },
+        {
+          "Player": "F. Růžička",
+          "Recoveries": 5,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.11",
+          "Goals after": "-"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "D. Gembicky",
+          "Minutes": 484,
+          "Shots": 16,
+          "On target": 8,
+          "On target %": 50.0,
+          "xG": "2.26",
+          "Goals": 2
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Minutes": 632,
+          "Shots": 14,
+          "On target": 7,
+          "On target %": 50.0,
+          "xG": "2.99",
+          "Goals": 3
+        },
+        {
+          "Player": "J. Lacko",
+          "Minutes": 290,
+          "Shots": 6,
+          "On target": 3,
+          "On target %": 50.0,
+          "xG": "0.76",
+          "Goals": 1
+        },
+        {
+          "Player": "F. Růžička",
+          "Minutes": 356,
+          "Shots": 6,
+          "On target": 3,
+          "On target %": 50.0,
+          "xG": "0.46",
+          "Goals": 0
+        },
+        {
+          "Player": "Tadeas Pospisil",
+          "Minutes": 531,
+          "Shots": 5,
+          "On target": 0,
+          "On target %": 0.0,
+          "xG": "0.50",
+          "Goals": 0
+        },
+        {
+          "Player": "J. Hudec",
+          "Minutes": 228,
+          "Shots": 4,
+          "On target": 1,
+          "On target %": 25.0,
+          "xG": "1.24",
+          "Goals": 1
+        },
+        {
+          "Player": "H. Hruska",
+          "Minutes": 415,
+          "Shots": 4,
+          "On target": 2,
+          "On target %": 50.0,
+          "xG": "0.17",
+          "Goals": 0
+        },
+        {
+          "Player": "M. Toml",
+          "Minutes": 661,
+          "Shots": 2,
+          "On target": 1,
+          "On target %": 50.0,
+          "xG": "0.43",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "Tadeas Pospisil",
+          "Minutes": 531,
+          "Key passes": 6,
+          "xA": "0.62",
+          "Assists": 1
+        },
+        {
+          "Player": "H. Hruska",
+          "Minutes": 415,
+          "Key passes": 6,
+          "xA": "0.81",
+          "Assists": 0
+        },
+        {
+          "Player": "Marco Túlio",
+          "Minutes": 661,
+          "Key passes": 5,
+          "xA": "0.74",
+          "Assists": 2
+        },
+        {
+          "Player": "D. Gembicky",
+          "Minutes": 484,
+          "Key passes": 5,
+          "xA": "0.54",
+          "Assists": 0
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Minutes": 632,
+          "Key passes": 4,
+          "xA": "0.55",
+          "Assists": 0
+        },
+        {
+          "Player": "V. Čítek",
+          "Minutes": 661,
+          "Key passes": 2,
+          "xA": "0.74",
+          "Assists": 1
+        },
+        {
+          "Player": "O. Novotný",
+          "Minutes": 120,
+          "Key passes": 2,
+          "xA": "0.57",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Lacko",
+          "Minutes": 290,
+          "Key passes": 2,
+          "xA": "0.36",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "Marco Túlio",
+          "Minutes": 661,
+          "Dribbles": 19,
+          "Per 90": 2.6,
+          "Won": "15",
+          "Lost": "4"
+        },
+        {
+          "Player": "D. Gembicky",
+          "Minutes": 484,
+          "Dribbles": 17,
+          "Per 90": 3.2,
+          "Won": "11",
+          "Lost": "6"
+        },
+        {
+          "Player": "D. Jurčenko",
+          "Minutes": 632,
+          "Dribbles": 8,
+          "Per 90": 1.1,
+          "Won": "6",
+          "Lost": "2"
+        },
+        {
+          "Player": "J. Chalupa",
+          "Minutes": 447,
+          "Dribbles": 6,
+          "Per 90": 1.2,
+          "Won": "5",
+          "Lost": "1"
+        },
+        {
+          "Player": "J. Lacko",
+          "Minutes": 290,
+          "Dribbles": 5,
+          "Per 90": 1.6,
+          "Won": "2",
+          "Lost": "3"
+        },
+        {
+          "Player": "H. Hruska",
+          "Minutes": 415,
+          "Dribbles": 5,
+          "Per 90": 1.1,
+          "Won": "2",
+          "Lost": "3"
+        },
+        {
+          "Player": "O. Novotný",
+          "Minutes": 120,
+          "Dribbles": 4,
+          "Per 90": 3.0,
+          "Won": "4",
+          "Lost": "-"
+        },
+        {
+          "Player": "D. Eichler",
+          "Minutes": 89,
+          "Dribbles": 3,
+          "Per 90": 3.0,
+          "Won": "2",
+          "Lost": "1"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  },
+  "Slavia Praha II": {
+    "pages": {
+      "attack": "assets/team_reports/slavia_praha_ii/attack.jpg",
+      "set_pieces": "assets/team_reports/slavia_praha_ii/set_pieces.jpg",
+      "build_up": "assets/team_reports/slavia_praha_ii/build_up.jpg",
+      "finishing": "assets/team_reports/slavia_praha_ii/finishing.jpg",
+      "transitions": "assets/team_reports/slavia_praha_ii/transitions.jpg",
+      "one_v_one": "assets/team_reports/slavia_praha_ii/one_v_one.jpg"
+    },
+    "tables": {
+      "Build-up hubs": [
+        {
+          "Player": "I. Okonkwo",
+          "Passes": 33,
+          "Accurate": 25,
+          "Accuracy %": 75.8
+        },
+        {
+          "Player": "D. Barčot",
+          "Passes": 22,
+          "Accurate": 18,
+          "Accuracy %": 81.8
+        },
+        {
+          "Player": "M. Suchý",
+          "Passes": 21,
+          "Accurate": 17,
+          "Accuracy %": 81.0
+        },
+        {
+          "Player": "J. Kolísek",
+          "Passes": 21,
+          "Accurate": 8,
+          "Accuracy %": 38.1
+        },
+        {
+          "Player": "M. Mervard",
+          "Passes": 19,
+          "Accurate": 16,
+          "Accuracy %": 84.2
+        },
+        {
+          "Player": "M. Konečný",
+          "Passes": 11,
+          "Accurate": 6,
+          "Accuracy %": 54.5
+        }
+      ],
+      "Top crossers": [
+        {
+          "Player": "J. Kolísek",
+          "Crosses": 21,
+          "Successful": 6,
+          "Accuracy %": 28.6,
+          "xA": "0.61",
+          "Assists": "1"
+        },
+        {
+          "Player": "A. Rajnoha",
+          "Crosses": 14,
+          "Successful": 3,
+          "Accuracy %": 21.4,
+          "xA": "0.52",
+          "Assists": "-"
+        },
+        {
+          "Player": "I. Okonkwo",
+          "Crosses": 10,
+          "Successful": 3,
+          "Accuracy %": 30.0,
+          "xA": "0.39",
+          "Assists": "1"
+        },
+        {
+          "Player": "M. Solarte",
+          "Crosses": 8,
+          "Successful": 3,
+          "Accuracy %": 37.5,
+          "xA": "0.22",
+          "Assists": "-"
+        },
+        {
+          "Player": "K. Belžík",
+          "Crosses": 7,
+          "Successful": 4,
+          "Accuracy %": 57.1,
+          "xA": "0.30",
+          "Assists": "-"
+        },
+        {
+          "Player": "B. Szywała",
+          "Crosses": 6,
+          "Successful": 2,
+          "Accuracy %": 33.3,
+          "xA": "0.12",
+          "Assists": "-"
+        },
+        {
+          "Player": "F. Herák",
+          "Crosses": 5,
+          "Successful": 1,
+          "Accuracy %": 20.0,
+          "xA": "-",
+          "Assists": "-"
+        }
+      ],
+      "Final-third dribblers": [
+        {
+          "Player": "J. Kolísek",
+          "Dribbles": 6,
+          "Team share %": 21.4,
+          "Shots after": 2,
+          "xG after": "0.03",
+          "Goals after": "1"
+        },
+        {
+          "Player": "K. Belžík",
+          "Dribbles": 5,
+          "Team share %": 17.9,
+          "Shots after": 2,
+          "xG after": "0.43",
+          "Goals after": "1"
+        },
+        {
+          "Player": "L. Savović",
+          "Dribbles": 3,
+          "Team share %": 10.7,
+          "Shots after": 2,
+          "xG after": "0.04",
+          "Goals after": "1"
+        },
+        {
+          "Player": "T. Necid",
+          "Dribbles": 1,
+          "Team share %": 3.6,
+          "Shots after": 1,
+          "xG after": "0.24",
+          "Goals after": "-"
+        },
+        {
+          "Player": "E. Piták",
+          "Dribbles": 1,
+          "Team share %": 3.6,
+          "Shots after": 1,
+          "xG after": "0.07",
+          "Goals after": "-"
+        }
+      ],
+      "High recoveries": [
+        {
+          "Player": "J. Kolísek",
+          "Recoveries": 14,
+          "Shots after": 4,
+          "On target": 0,
+          "xG after": "0.52",
+          "Goals after": "-"
+        },
+        {
+          "Player": "A. Rajnoha",
+          "Recoveries": 12,
+          "Shots after": 5,
+          "On target": 2,
+          "xG after": "0.56",
+          "Goals after": "1"
+        },
+        {
+          "Player": "K. Belžík",
+          "Recoveries": 12,
+          "Shots after": 3,
+          "On target": 1,
+          "xG after": "0.25",
+          "Goals after": "-"
+        },
+        {
+          "Player": "M. Solarte",
+          "Recoveries": 8,
+          "Shots after": 3,
+          "On target": 0,
+          "xG after": "0.09",
+          "Goals after": "-"
+        },
+        {
+          "Player": "T. Necid",
+          "Recoveries": 7,
+          "Shots after": 2,
+          "On target": 0,
+          "xG after": "0.43",
+          "Goals after": "-"
+        },
+        {
+          "Player": "I. Okonkwo",
+          "Recoveries": 7,
+          "Shots after": 1,
+          "On target": 0,
+          "xG after": "0.20",
+          "Goals after": "-"
+        },
+        {
+          "Player": "D. Barčot",
+          "Recoveries": 6,
+          "Shots after": 1,
+          "On target": 1,
+          "xG after": "0.02",
+          "Goals after": "1"
+        }
+      ],
+      "Top shooters": [
+        {
+          "Player": "T. Necid",
+          "Minutes": 516,
+          "Shots": 15,
+          "On target": 6,
+          "On target %": 40.0,
+          "xG": "3.21",
+          "Goals": 3
+        },
+        {
+          "Player": "L. Savović",
+          "Minutes": 403,
+          "Shots": 15,
+          "On target": 8,
+          "On target %": 53.3,
+          "xG": "1.75",
+          "Goals": 3
+        },
+        {
+          "Player": "K. Belžík",
+          "Minutes": 598,
+          "Shots": 9,
+          "On target": 5,
+          "On target %": 55.6,
+          "xG": "1.64",
+          "Goals": 3
+        },
+        {
+          "Player": "A. Rajnoha",
+          "Minutes": 630,
+          "Shots": 8,
+          "On target": 2,
+          "On target %": 25.0,
+          "xG": "1.41",
+          "Goals": 1
+        },
+        {
+          "Player": "J. Kolísek",
+          "Minutes": 544,
+          "Shots": 7,
+          "On target": 3,
+          "On target %": 42.9,
+          "xG": "0.55",
+          "Goals": 3
+        },
+        {
+          "Player": "A. Cedergren",
+          "Minutes": 216,
+          "Shots": 7,
+          "On target": 1,
+          "On target %": 14.3,
+          "xG": "1.15",
+          "Goals": 1
+        },
+        {
+          "Player": "M. Solarte",
+          "Minutes": 662,
+          "Shots": 7,
+          "On target": 2,
+          "On target %": 28.6,
+          "xG": "0.49",
+          "Goals": 0
+        },
+        {
+          "Player": "P. Potměšil",
+          "Minutes": 191,
+          "Shots": 4,
+          "On target": 3,
+          "On target %": 75.0,
+          "xG": "0.67",
+          "Goals": 1
+        }
+      ],
+      "Key creators": [
+        {
+          "Player": "K. Belžík",
+          "Minutes": 598,
+          "Key passes": 9,
+          "xA": "0.91",
+          "Assists": 1
+        },
+        {
+          "Player": "A. Rajnoha",
+          "Minutes": 630,
+          "Key passes": 8,
+          "xA": "1.37",
+          "Assists": 2
+        },
+        {
+          "Player": "T. Necid",
+          "Minutes": 516,
+          "Key passes": 7,
+          "xA": "1.55",
+          "Assists": 4
+        },
+        {
+          "Player": "J. Kolísek",
+          "Minutes": 544,
+          "Key passes": 4,
+          "xA": "0.62",
+          "Assists": 1
+        },
+        {
+          "Player": "I. Okonkwo",
+          "Minutes": 502,
+          "Key passes": 4,
+          "xA": "0.47",
+          "Assists": 1
+        },
+        {
+          "Player": "J. Palivec",
+          "Minutes": 141,
+          "Key passes": 3,
+          "xA": "0.79",
+          "Assists": 1
+        },
+        {
+          "Player": "M. Solarte",
+          "Minutes": 662,
+          "Key passes": 3,
+          "xA": "0.23",
+          "Assists": 1
+        },
+        {
+          "Player": "B. Szywała",
+          "Minutes": 268,
+          "Key passes": 2,
+          "xA": "0.21",
+          "Assists": 0
+        }
+      ],
+      "1v1 players": [
+        {
+          "Player": "K. Belžík",
+          "Minutes": 598,
+          "Dribbles": 18,
+          "Per 90": 2.7,
+          "Won": "11",
+          "Lost": "7"
+        },
+        {
+          "Player": "J. Kolísek",
+          "Minutes": 544,
+          "Dribbles": 14,
+          "Per 90": 2.3,
+          "Won": "8",
+          "Lost": "6"
+        },
+        {
+          "Player": "M. Solarte",
+          "Minutes": 662,
+          "Dribbles": 13,
+          "Per 90": 1.8,
+          "Won": "8",
+          "Lost": "5"
+        },
+        {
+          "Player": "B. Szywała",
+          "Minutes": 268,
+          "Dribbles": 12,
+          "Per 90": 4.0,
+          "Won": "2",
+          "Lost": "10"
+        },
+        {
+          "Player": "I. Okonkwo",
+          "Minutes": 502,
+          "Dribbles": 10,
+          "Per 90": 1.8,
+          "Won": "6",
+          "Lost": "4"
+        },
+        {
+          "Player": "L. Savović",
+          "Minutes": 403,
+          "Dribbles": 7,
+          "Per 90": 1.6,
+          "Won": "3",
+          "Lost": "4"
+        },
+        {
+          "Player": "D. Barčot",
+          "Minutes": 316,
+          "Dribbles": 6,
+          "Per 90": 1.7,
+          "Won": "2",
+          "Lost": "4"
+        },
+        {
+          "Player": "A. Cedergren",
+          "Minutes": 216,
+          "Dribbles": 5,
+          "Per 90": 2.1,
+          "Won": "1",
+          "Lost": "4"
+        }
+      ],
+      "Corners": [],
+      "Free kicks": []
+    }
+  }
+}
