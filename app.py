@@ -235,6 +235,9 @@ NON_METRIC_COLUMNS = {
     "Player",
     "Team",
     "PositionGroup",
+    "Original position",
+    "PlayerGroup",
+    "PlayerGroups",
     "SourceFile",
     "Our player",
     "Minutes",
@@ -341,6 +344,178 @@ PREFERRED_METRICS = {
 
 
 
+FIELD_POSITION_GROUPS = {
+    "CB": {"CB", "LCB", "RCB"},
+    "LB": {"LB", "LWB"},
+    "RB": {"RB", "RWB"},
+    "CM/CDM": {"DMF", "LDMF", "RDMF", "CMF", "LCMF", "RCMF"},
+    "CAM": {"AMF", "LAMF", "RAMF"},
+    "RW/LW": {"LW", "RW", "LWF", "RWF"},
+    "ST": {"CF", "ST"},
+}
+
+BROAD_GROUPS = {
+    "Defenders": ["CB", "LB", "RB"],
+    "Midfielders": ["CM/CDM", "CAM"],
+    "Attackers": ["RW/LW", "ST"],
+}
+
+TEAM_NAME_ALIASES = {
+    "Karviná II": "Karviná",
+    "Slavia Praha": "Slavia Praha II",
+    "Slavia Praha U19": "Slavia Praha II",
+    "Slavia Praha III": "Slavia Praha II",
+    "Baník Ostrava": "Baník Ostrava II",
+    "Dukla Praha II": "Dukla Praha",
+}
+
+METRIC_CATEGORIES = {
+    "Defensive": [
+        "Successful defensive actions per 90",
+        "Defensive duels per 90",
+        "Defensive duels won, %",
+        "Aerial duels per 90",
+        "Aerial duels won, %",
+        "Sliding tackles per 90",
+        "PAdj Sliding tackles",
+        "Shots blocked per 90",
+        "Interceptions per 90",
+        "PAdj Interceptions",
+        "Fouls per 90",
+    ],
+    "Passing": [
+        "Received passes per 90",
+        "Passes per 90",
+        "Accurate passes, %",
+        "Forward passes per 90",
+        "Accurate forward passes, %",
+        "Back passes per 90",
+        "Accurate back passes, %",
+        "Lateral passes per 90",
+        "Accurate lateral passes, %",
+        "Short / medium passes per 90",
+        "Accurate short / medium passes, %",
+        "Long passes per 90",
+        "Accurate long passes, %",
+    ],
+    "Progression": [
+        "Progressive runs per 90",
+        "Accelerations per 90",
+        "Passes to final third per 90",
+        "Accurate passes to final third, %",
+        "Passes to penalty area per 90",
+        "Accurate passes to penalty area, %",
+        "Through passes per 90",
+        "Accurate through passes, %",
+        "Deep completions per 90",
+        "Deep completed crosses per 90",
+        "Progressive passes per 90",
+        "Accurate progressive passes, %",
+    ],
+    "Chance creation": [
+        "Assists",
+        "xA",
+        "Assists per 90",
+        "xA per 90",
+        "Shot assists per 90",
+        "Second assists per 90",
+        "Smart passes per 90",
+        "Accurate smart passes, %",
+        "Key passes per 90",
+        "Crosses per 90",
+        "Accurate crosses, %",
+        "Passes to penalty area per 90",
+        "Accurate passes to penalty area, %",
+    ],
+    "Attacking / finishing": [
+        "Goals",
+        "xG",
+        "Successful attacking actions per 90",
+        "Goals per 90",
+        "Non-penalty goals",
+        "Non-penalty goals per 90",
+        "xG per 90",
+        "Head goals",
+        "Head goals per 90",
+        "Shots",
+        "Shots per 90",
+        "Shots on target, %",
+        "Goal conversion, %",
+        "Touches in box per 90",
+    ],
+    "1v1 / carrying": [
+        "Dribbles per 90",
+        "Successful dribbles, %",
+        "Offensive duels per 90",
+        "Offensive duels won, %",
+        "Progressive runs per 90",
+        "Accelerations per 90",
+    ],
+    "Set pieces": [
+        "Free kicks per 90",
+        "Direct free kicks per 90",
+        "Direct free kicks on target, %",
+        "Corners per 90",
+        "Penalties taken",
+        "Penalty conversion, %",
+    ],
+}
+
+
+def canonical_team_name(team: str) -> str:
+    team = str(team).strip()
+    return TEAM_NAME_ALIASES.get(team, team)
+
+
+def allowed_league_teams() -> set[str]:
+    path = DATA_DIR / "team_data.csv"
+    if path.exists():
+        try:
+            df = pd.read_csv(path)
+            if "Team" in df.columns:
+                return set(df["Team"].dropna().astype(str).str.strip())
+        except Exception:
+            pass
+    return {
+        "Příbram", "Prostějov", "Baník Ostrava II", "Vlašim",
+        "Vysočina Jihlava", "Arsenal Česká Lípa", "Dukla Praha", "Třinec",
+        "Táborsko", "Ústí nad Labem", "Viktoria Žižkov", "Karviná", "Opava",
+        "Hanácká", "Kladno", "Slavia Praha II",
+    }
+
+
+def map_position_codes(position_value: str) -> list[str]:
+    codes = {
+        code.strip().upper()
+        for code in str(position_value).split(",")
+        if code.strip()
+    }
+    groups = []
+    for group, group_codes in FIELD_POSITION_GROUPS.items():
+        if codes & group_codes:
+            groups.append(group)
+    return groups
+
+
+def broad_groups_for_position_groups(groups: list[str]) -> list[str]:
+    result = []
+    for broad, detailed in BROAD_GROUPS.items():
+        if any(group in detailed for group in groups):
+            result.append(broad)
+    return result
+
+
+def metric_category_options(available_metrics: list[str]) -> dict[str, list[str]]:
+    available = set(available_metrics)
+    out = {}
+    for category, metrics in METRIC_CATEGORIES.items():
+        vals = [m for m in metrics if m in available]
+        if vals:
+            out[category] = vals
+    out["All common metrics"] = sorted(available)
+    return out
+
+
 # ============================================================
 # DATA
 # ============================================================
@@ -368,54 +543,105 @@ def infer_position(filename: str) -> str:
 
 @st.cache_data(show_spinner=False)
 def load_all_data():
-    files = sorted(DATA_DIR.glob("*.xlsx"))
+    """Load the new full-metric field-player master plus a separate GK file.
+
+    Field players are expanded into one row per mapped positional group so the
+    existing positional benchmark views keep working. Team names are normalised
+    and only clubs in the current Chance National Liga team database are kept.
+    """
     frames = []
     warnings = []
+    allowed_teams = allowed_league_teams()
 
-    for file in files:
+    # Prefer the clean master file shipped with this version.
+    field_candidates = [
+        DATA_DIR / "field_players.xlsx",
+        DATA_DIR / "Data 1.xlsx",
+    ]
+    field_path = next((p for p in field_candidates if p.exists()), None)
+
+    if field_path is not None:
         try:
-            frame = pd.read_excel(file)
+            field = pd.read_excel(field_path)
+            field.columns = [str(col).strip() for col in field.columns]
+            if "Player" in field.columns and "Name" not in field.columns:
+                field = field.rename(columns={"Player": "Name"})
+            if "Minutes" in field.columns and "Minutes played" not in field.columns:
+                field = field.rename(columns={"Minutes": "Minutes played"})
+
+            required = {"Name", "Team", "Position"}
+            if not required.issubset(field.columns):
+                warnings.append(
+                    f"{field_path.name}: missing one of required columns Name/Team/Position"
+                )
+            else:
+                field["Team"] = field["Team"].astype(str).map(canonical_team_name)
+                field = field[field["Team"].isin(allowed_teams)].copy()
+                field["Original position"] = field["Position"].astype(str)
+                field["Mapped groups"] = field["Position"].apply(map_position_codes)
+                field = field[field["Mapped groups"].map(bool)].copy()
+                field["PlayerGroups"] = field["Mapped groups"].apply(
+                    lambda groups: ", ".join(broad_groups_for_position_groups(groups))
+                )
+                field["SourceFile"] = field_path.name
+
+                expanded_rows = []
+                for _, row in field.iterrows():
+                    groups = row["Mapped groups"]
+                    broad_groups = broad_groups_for_position_groups(groups)
+                    for group in groups:
+                        item = row.copy()
+                        item["PositionGroup"] = group
+                        matching_broad = [
+                            broad for broad, detailed in BROAD_GROUPS.items()
+                            if group in detailed
+                        ]
+                        item["PlayerGroup"] = matching_broad[0] if matching_broad else "Other"
+                        expanded_rows.append(item)
+
+                if expanded_rows:
+                    expanded = pd.DataFrame(expanded_rows).drop(columns=["Mapped groups"], errors="ignore")
+                    frames.append(expanded)
         except Exception as exc:
-            warnings.append(f"{file.name}: {exc}")
-            continue
+            warnings.append(f"{field_path.name}: {exc}")
+    else:
+        warnings.append("field_players.xlsx not found")
 
-        if frame.empty:
-            continue
-
-        # Normalize Excel headers to avoid KeyErrors from minor naming differences.
-        frame.columns = [str(col).strip() for col in frame.columns]
-
-        minute_aliases = {
-            "Minutes": "Minutes played",
-            "Minutes Played": "Minutes played",
-            "minutes played": "Minutes played",
-        }
-        frame = frame.rename(
-            columns={
-                col: minute_aliases[col]
-                for col in frame.columns
-                if col in minute_aliases
-            }
-        )
-
-        if "Player" in frame.columns and "Name" not in frame.columns:
-            frame = frame.rename(columns={"Player": "Name"})
-
-        if "Name" not in frame.columns:
-            warnings.append(f"{file.name}: missing Player/Name column")
-            continue
-
-        if "Team" not in frame.columns:
-            frame["Team"] = ""
-
-        frame["PositionGroup"] = infer_position(file.name)
-        frame["SourceFile"] = file.name
-        frames.append(frame)
+    # Goalkeepers are intentionally separate from cross-position analysis.
+    gk_candidates = [DATA_DIR / "GK Data.xlsx", DATA_DIR / "gk_players.xlsx", DATA_DIR / "GK.xlsx"]
+    gk_path = next((p for p in gk_candidates if p.exists()), None)
+    if gk_path is not None:
+        try:
+            gk = pd.read_excel(gk_path)
+            gk.columns = [str(col).strip() for col in gk.columns]
+            if "Player" in gk.columns and "Name" not in gk.columns:
+                gk = gk.rename(columns={"Player": "Name"})
+            if "Minutes" in gk.columns and "Minutes played" not in gk.columns:
+                gk = gk.rename(columns={"Minutes": "Minutes played"})
+            if "Team" not in gk.columns:
+                gk["Team"] = ""
+            gk["Team"] = gk["Team"].astype(str).map(canonical_team_name)
+            gk = gk[gk["Team"].isin(allowed_teams)].copy()
+            gk["PositionGroup"] = "GK"
+            gk["Original position"] = "GK"
+            gk["PlayerGroup"] = "Goalkeepers"
+            gk["PlayerGroups"] = "Goalkeepers"
+            gk["SourceFile"] = gk_path.name
+            frames.append(gk)
+        except Exception as exc:
+            warnings.append(f"{gk_path.name}: {exc}")
 
     if not frames:
         return pd.DataFrame(), warnings
 
-    return pd.concat(frames, ignore_index=True, sort=False), warnings
+    out = pd.concat(frames, ignore_index=True, sort=False)
+
+    # Drop exact duplicate positional rows while preserving legitimate multi-position entries.
+    dedupe_cols = [col for col in ["Name", "Team", "PositionGroup"] if col in out.columns]
+    if dedupe_cols:
+        out = out.drop_duplicates(subset=dedupe_cols, keep="first")
+
+    return out, warnings
 
 
 def get_metrics(frame: pd.DataFrame) -> list[str]:
@@ -1813,408 +2039,118 @@ def formation_summary(row: pd.Series):
     return " · ".join(parts) if parts else "—"
 
 
-def safe_num(value):
+def _safe_num(value):
     if pd.isna(value):
         return np.nan
     if isinstance(value, str):
-        value = value.strip().replace("%", "")
+        value = value.strip().replace("%", "").replace(",", ".")
         if value in {"", "-", "—", "None", "nan"}:
             return np.nan
-        value = value.replace(",", ".")
     return pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
 
 
-def tactical_table_frame(rows):
+def _tactical_frame(rows):
     if not rows:
         return pd.DataFrame()
-
-    frame = pd.DataFrame(rows).copy()
-
-    for col in frame.columns:
-        if col == "Player":
-            continue
-        frame[col] = frame[col].apply(safe_num)
-
-    return frame
+    df = pd.DataFrame(rows).copy()
+    for col in df.columns:
+        if col != "Player":
+            df[col] = df[col].apply(_safe_num)
+    return df
 
 
-def team_player_position_map(full_data: pd.DataFrame, team: str):
-    if full_data.empty or "Team" not in full_data.columns:
-        return {}
-
-    subset = full_data[
-        full_data["Team"].astype(str).eq(str(team))
-    ].copy()
-
-    if subset.empty:
-        return {}
-
-    subset = subset[[col for col in ["Name", "PositionGroup"] if col in subset.columns]].dropna()
-    if subset.empty:
-        return {}
-
-    counts = (
-        subset.groupby(["Name", "PositionGroup"]).size().reset_index(name="n")
-        .sort_values(["Name", "n"], ascending=[True, False])
-    )
-
-    best = counts.drop_duplicates(subset=["Name"], keep="first")
-    return dict(zip(best["Name"], best["PositionGroup"]))
-
-
-def position_family(position: str):
-    mapping = {
-        "GK": "goalkeeper",
-        "CB": "centre-backs",
-        "LB": "left-backs",
-        "RB": "right-backs",
-        "CM/CDM": "central midfielders",
-        "CAM": "attacking midfielders",
-        "RW/LW": "wingers",
-        "ST": "strikers",
-    }
-    return mapping.get(str(position), str(position).lower())
-
-
-def comma_names(names):
-    names = [str(name) for name in names if str(name).strip()]
-    if not names:
-        return "—"
-    if len(names) == 1:
-        return names[0]
-    if len(names) == 2:
-        return f"{names[0]} and {names[1]}"
-    return ", ".join(names[:-1]) + f", and {names[-1]}"
-
-
-def dominant_cross_side(team_row: pd.Series):
-    shares = {
-        "left": safe_num(team_row.get("cross_left_share", np.nan)),
-        "right": safe_num(team_row.get("cross_right_share", np.nan)),
-        "central": safe_num(team_row.get("cross_central_share", np.nan)),
-    }
-    valid = {k: v for k, v in shares.items() if pd.notna(v)}
-    if not valid:
-        return None, shares
-    side = max(valid, key=valid.get)
-    return side, shares
-
-
-def infer_build_up_channel(build_df: pd.DataFrame, position_map: dict):
-    if build_df.empty:
-        return None
-
-    top_names = build_df["Player"].astype(str).head(3).tolist()
-    roles = [position_map.get(name, "") for name in top_names]
-    wide_count = sum(role in {"LB", "RB", "RW/LW"} for role in roles)
-    central_count = sum(role in {"CB", "CM/CDM", "CAM", "ST"} for role in roles)
-
-    if wide_count >= 2:
-        return "Build-up appears to lean on wide outlets, especially full-backs / wingers."
-    if central_count >= 2:
-        return "Build-up appears to run mainly through the central spine."
-    return "Build-up responsibility is spread across multiple lines."
-
-
-def make_ranked_bar_chart(
-    df: pd.DataFrame,
-    value_col: str,
-    label_col: str = "Player",
-    color: str = "#FFD900",
-    title: str = "",
-    subtitle_col: str | None = None,
-    secondary_label: str | None = None,
-    max_rows: int = 6,
-):
-    if df.empty or value_col not in df.columns or label_col not in df.columns:
+def make_ranked_bar_chart(df, value_col, title, color="#FFD900", subtitle_col=None, max_rows=6):
+    if df.empty or value_col not in df.columns or "Player" not in df.columns:
         return go.Figure()
-
     work = df.copy()
     work[value_col] = pd.to_numeric(work[value_col], errors="coerce")
-    work = work.dropna(subset=[value_col])
-    if work.empty:
-        return go.Figure()
-
-    work = work.sort_values(value_col, ascending=True).tail(max_rows)
-
-    # Shorten very long names a bit, but keep them readable.
-    display_labels = []
-    for label in work[label_col].astype(str).tolist():
-        if len(label) > 22:
-            display_labels.append(label[:22] + "…")
+    work = work.dropna(subset=[value_col]).sort_values(value_col).tail(max_rows)
+    labels = [name if len(str(name)) <= 22 else str(name)[:22] + "…" for name in work["Player"]]
+    texts = []
+    for _, row in work.iterrows():
+        if subtitle_col and subtitle_col in work.columns and pd.notna(row.get(subtitle_col)):
+            texts.append(f"{row[value_col]:.1f} · {subtitle_col}: {row[subtitle_col]:.1f}")
         else:
-            display_labels.append(label)
-
-    text = []
-    customdata = []
-    if subtitle_col and subtitle_col in work.columns:
-        for _, row in work.iterrows():
-            sub = row.get(subtitle_col, np.nan)
-            if pd.notna(sub):
-                label = secondary_label or subtitle_col
-                text.append(f"{row[value_col]:.1f} · {label}: {sub:.1f}")
-                customdata.append(sub)
-            else:
-                text.append(f"{row[value_col]:.1f}")
-                customdata.append(np.nan)
-    else:
-        text = [f"{v:.1f}" for v in work[value_col]]
-        customdata = [np.nan] * len(work)
-
-    fig = go.Figure(
-        go.Bar(
-            x=work[value_col],
-            y=display_labels,
-            orientation="h",
-            marker=dict(color=color),
-            text=text,
-            textposition="outside",
-            cliponaxis=False,
-            customdata=customdata,
-            hovertemplate=(
-                "<b>%{customdata[1]}</b><br>"
-                + f"{value_col}: <b>%{{x:.2f}}</b>"
-                + (f"<br>{secondary_label or subtitle_col}: %{{customdata[0]:.2f}}" if subtitle_col and subtitle_col in work.columns else "")
-                + "<extra></extra>"
-            ),
-        )
-    )
-
-    # Store both the subtitle numeric value and full original player name for hover.
-    if subtitle_col and subtitle_col in work.columns:
-        fig.data[0].customdata = list(
-            zip(customdata, work[label_col].astype(str).tolist())
-        )
-    else:
-        fig.data[0].customdata = list(
-            zip([np.nan] * len(work), work[label_col].astype(str).tolist())
-        )
-
+            texts.append(f"{row[value_col]:.1f}")
+    fig = go.Figure(go.Bar(
+        x=work[value_col], y=labels, orientation="h",
+        marker=dict(color=color), text=texts, textposition="outside", cliponaxis=False,
+        customdata=work["Player"].astype(str),
+        hovertemplate="<b>%{customdata}</b><br>" + value_col + ": <b>%{x:.2f}</b><extra></extra>",
+    ))
     fig.update_layout(
-        title=title,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=150, r=70, t=45, b=20),
-        height=max(220, 46 * len(work) + 70),
-        xaxis=dict(
-            showgrid=True,
-            gridcolor="rgba(255,255,255,.08)",
-            zeroline=False,
-            tickfont=dict(color="#DDE5F0"),
-            title="",
-            automargin=True,
-        ),
-        yaxis=dict(
-            showgrid=False,
-            tickfont=dict(color="#F4F6F8", size=12),
-            title="",
-            automargin=True,
-        ),
-        showlegend=False,
+        title=title, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=145, r=70, t=45, b=20), height=max(220, 46*len(work)+70),
+        xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,.08)", zeroline=False, automargin=True),
+        yaxis=dict(showgrid=False, automargin=True), showlegend=False,
     )
     return fig
 
 
-def make_origin_split_chart(team_row: pd.Series):
+def make_cross_origin_chart(team_row):
     labels = ["Left", "Central", "Right"]
     values = [
-        max(0, safe_num(team_row.get("cross_left_share", 0)) or 0),
-        max(0, safe_num(team_row.get("cross_central_share", 0)) or 0),
-        max(0, safe_num(team_row.get("cross_right_share", 0)) or 0),
+        max(0, _safe_num(team_row.get("cross_left_share", 0)) or 0),
+        max(0, _safe_num(team_row.get("cross_central_share", 0)) or 0),
+        max(0, _safe_num(team_row.get("cross_right_share", 0)) or 0),
     ]
-
-    fig = go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            hole=0.58,
-            sort=False,
-            marker=dict(colors=["#4DA3FF", "#9AA6B2", "#FFD900"]),
-            textinfo="label+percent",
-            textfont=dict(color="white", size=12),
-            hovertemplate="%{label}: <b>%{value:.1f}%</b><extra></extra>",
-        )
-    )
-    fig.update_layout(
-        title="Crossing origin",
-        paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=10, t=45, b=10),
-        height=330,
-        showlegend=False,
-    )
+    fig = go.Figure(go.Pie(labels=labels, values=values, hole=.58, sort=False, textinfo="label+percent"))
+    fig.update_layout(title="Crossing origin", paper_bgcolor="rgba(0,0,0,0)", height=300, margin=dict(l=10,r=10,t=45,b=10), showlegend=False)
     return fig
 
 
-def make_shot_source_chart(team_row: pd.Series):
-    total_shots = safe_num(team_row.get("shots", np.nan))
-    cross_shots = safe_num(team_row.get("after_crosses_shots", 0)) or 0
-    setpiece_shots = safe_num(team_row.get("after_setpieces_shots", 0)) or 0
-    open_play_shots = max(0, (total_shots or 0) - cross_shots - setpiece_shots)
-
-    total_xg = safe_num(team_row.get("xg", np.nan))
-    cross_xg = safe_num(team_row.get("after_crosses_xg", 0)) or 0
-    setpiece_xg = safe_num(team_row.get("after_setpieces_xg", 0)) or 0
-    open_play_xg = max(0, (total_xg or 0) - cross_xg - setpiece_xg)
-
-    fig = go.Figure()
-    cats = ["Open play", "After crosses", "Set pieces"]
-    fig.add_trace(
-        go.Bar(
-            name="Shots",
-            x=cats,
-            y=[open_play_shots, cross_shots, setpiece_shots],
-            marker_color="#4DA3FF",
-            opacity=0.9,
-        )
-    )
-    fig.add_trace(
-        go.Bar(
-            name="xG",
-            x=cats,
-            y=[open_play_xg, cross_xg, setpiece_xg],
-            marker_color="#FFD900",
-            opacity=0.9,
-            yaxis="y2",
-        )
-    )
-
-    fig.update_layout(
-        title="Shooting profile by source",
-        barmode="group",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=10, t=45, b=20),
-        height=340,
-        xaxis=dict(tickfont=dict(color="#F4F6F8")),
-        yaxis=dict(title="Shots", showgrid=True, gridcolor="rgba(255,255,255,.08)", tickfont=dict(color="#DDE5F0")),
-        yaxis2=dict(title="xG", overlaying="y", side="right", showgrid=False, tickfont=dict(color="#DDE5F0")),
-        legend=dict(orientation="h", y=1.10, x=0.5, xanchor="center"),
-    )
+def make_shot_source_chart(team_row):
+    total_shots = _safe_num(team_row.get("shots", 0)) or 0
+    cross_shots = _safe_num(team_row.get("after_crosses_shots", 0)) or 0
+    sp_shots = _safe_num(team_row.get("after_setpieces_shots", 0)) or 0
+    open_shots = max(0, total_shots-cross_shots-sp_shots)
+    total_xg = _safe_num(team_row.get("xg", 0)) or 0
+    cross_xg = _safe_num(team_row.get("after_crosses_xg", 0)) or 0
+    sp_xg = _safe_num(team_row.get("after_setpieces_xg", 0)) or 0
+    open_xg = max(0, total_xg-cross_xg-sp_xg)
+    cats=["Open play","After crosses","Set pieces"]
+    fig=go.Figure()
+    fig.add_trace(go.Bar(name="Shots", x=cats, y=[open_shots,cross_shots,sp_shots]))
+    fig.add_trace(go.Bar(name="xG", x=cats, y=[open_xg,cross_xg,sp_xg], yaxis="y2"))
+    fig.update_layout(title="Shooting profile by source", barmode="group", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=320, margin=dict(l=10,r=10,t=45,b=20), yaxis2=dict(overlaying="y", side="right"), legend=dict(orientation="h"))
     return fig
 
 
-def make_metric_share_chart(labels, values, title, colors=None):
-    colors = colors or ["#FFD900", "#4DA3FF", "#7ED957"]
-    fig = go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            hole=0.58,
-            sort=False,
-            marker=dict(colors=colors[: len(labels)]),
-            textinfo="label+percent",
-            textfont=dict(color="white", size=12),
-        )
-    )
+def position_fit_benchmark(series: pd.Series, benchmark_type: str, metric: str):
+    values = pd.to_numeric(series, errors="coerce").dropna().sort_values()
+    if values.empty:
+        return np.nan
+    if benchmark_type == "League average":
+        return float(values.mean())
+    frac = 0.50 if benchmark_type == "Top 50%" else 0.25
+    count = max(1, int(np.ceil(len(values) * frac)))
+    if metric in LOWER_IS_MORE_FAVORABLE:
+        chosen = values.head(count)
+    else:
+        chosen = values.tail(count)
+    return float(chosen.mean())
+
+
+def raw_comparison_chart(table: pd.DataFrame, player_label: str):
+    if table.empty:
+        return go.Figure()
+    work = table.dropna(subset=["Relative index"]).copy()
+    if work.empty:
+        return go.Figure()
+    fig = go.Figure(go.Bar(
+        x=work["Relative index"], y=work["Metric"], orientation="h",
+        text=[f"{v:.0f}" for v in work["Relative index"]], textposition="outside",
+        marker=dict(color="#FFD900"), cliponaxis=False,
+        hovertemplate="<b>%{y}</b><br>" + player_label + " / benchmark × 100: <b>%{x:.1f}</b><extra></extra>",
+    ))
+    fig.add_vline(x=100, line_dash="dash", line_color="rgba(255,255,255,.55)")
     fig.update_layout(
-        title=title,
-        paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=10, t=45, b=10),
-        height=330,
-        showlegend=False,
+        title="Relative raw-value index · benchmark = 100", paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)", height=max(280, 44*len(work)+90),
+        margin=dict(l=180,r=60,t=55,b=30), xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,.08)"),
+        yaxis=dict(automargin=True), showlegend=False,
     )
     return fig
-
-
-def team_text_insights(team_row: pd.Series, tables: dict, full_data: pd.DataFrame, team: str):
-    build_df = tactical_table_frame(tables.get("Build-up hubs", []))
-    cross_df = tactical_table_frame(tables.get("Top crossers", []))
-    drib_df = tactical_table_frame(tables.get("Final-third dribblers", []))
-    recover_df = tactical_table_frame(tables.get("High recoveries", []))
-    shoot_df = tactical_table_frame(tables.get("Top shooters", []))
-    creators_df = tactical_table_frame(tables.get("Key creators", []))
-    one_v_one_df = tactical_table_frame(tables.get("1v1 players", []))
-    position_map = team_player_position_map(full_data, team)
-
-    insights = {
-        "build": [],
-        "attack": [],
-        "shooting": [],
-        "dribble": [],
-        "setpieces": [],
-    }
-
-    if not build_df.empty:
-        top_hubs = build_df.sort_values("Passes", ascending=False)["Player"].astype(str).head(3).tolist()
-        insights["build"].append(f"Main build-up hubs: {comma_names(top_hubs)}.")
-        top_row = build_df.sort_values("Passes", ascending=False).iloc[0]
-        insights["build"].append(
-            f"{top_row['Player']} leads their build-up volume with {top_row['Passes']:.0f} passes in the sample at {top_row['Accuracy %']:.1f}% accuracy."
-        )
-        channel_text = infer_build_up_channel(build_df.sort_values("Passes", ascending=False), position_map)
-        if channel_text:
-            insights["build"].append(channel_text)
-
-    side, shares = dominant_cross_side(team_row)
-    if side:
-        if side == "left":
-            insights["attack"].append(
-                f"Attacks appear to lean left: {shares['left']:.1f}% of listed crosses come from the left side."
-            )
-        elif side == "right":
-            insights["attack"].append(
-                f"Attacks appear to lean right: {shares['right']:.1f}% of listed crosses come from the right side."
-            )
-        else:
-            insights["attack"].append("Crosses are distributed relatively centrally / mixed rather than strongly one-sided.")
-
-    if not cross_df.empty:
-        top_crossers = cross_df.sort_values("Crosses", ascending=False)["Player"].astype(str).head(3).tolist()
-        insights["attack"].append(f"Main crossing players: {comma_names(top_crossers)}.")
-
-    if not drib_df.empty:
-        top_drib = drib_df.sort_values("Dribbles", ascending=False).iloc[0]
-        insights["attack"].append(
-            f"Top final-third dribbler: {top_drib['Player']} with {top_drib['Dribbles']:.0f} dribbles and a {top_drib.get('Team share %', np.nan):.1f}% team share."
-        )
-
-    if not shoot_df.empty:
-        top_shooter = shoot_df.sort_values("Shots", ascending=False).iloc[0]
-        insights["shooting"].append(
-            f"Top shooter: {top_shooter['Player']} ({top_shooter['Shots']:.0f} shots, xG {safe_num(top_shooter.get('xG', np.nan)):.2f}, {safe_num(top_shooter.get('Goals', np.nan)):.0f} goals)."
-        )
-
-    total_xg = safe_num(team_row.get("xg", np.nan))
-    cross_xg = safe_num(team_row.get("after_crosses_xg", np.nan))
-    setpiece_xg = safe_num(team_row.get("after_setpieces_xg", np.nan))
-    if pd.notna(total_xg) and total_xg > 0:
-        cross_share = 100 * (cross_xg / total_xg) if pd.notna(cross_xg) else 0
-        sp_share = 100 * (setpiece_xg / total_xg) if pd.notna(setpiece_xg) else 0
-        insights["shooting"].append(
-            f"Chance source split: {cross_share:.1f}% of team xG comes after crosses and {sp_share:.1f}% from set pieces."
-        )
-
-    if not creators_df.empty:
-        top_creator = creators_df.sort_values("Key passes", ascending=False).iloc[0]
-        insights["shooting"].append(
-            f"Main creator: {top_creator['Player']} with {top_creator['Key passes']:.0f} key passes and xA {safe_num(top_creator.get('xA', np.nan)):.2f}."
-        )
-
-    if not one_v_one_df.empty:
-        top_1v1 = one_v_one_df.sort_values("Dribbles", ascending=False)["Player"].astype(str).head(3).tolist()
-        insights["dribble"].append(f"Most active 1v1 players: {comma_names(top_1v1)}.")
-
-    if not recover_df.empty:
-        top_recover = recover_df.sort_values("Recoveries", ascending=False).iloc[0]
-        insights["dribble"].append(
-            f"Best high-recovery presence: {top_recover['Player']} with {top_recover['Recoveries']:.0f} recoveries, leading to {top_recover.get('Shots after', 0):.0f} shots after regains."
-        )
-
-    sp_shots = safe_num(team_row.get("after_setpieces_shots", np.nan))
-    sp_xg = safe_num(team_row.get("after_setpieces_xg", np.nan))
-    sp_goals = safe_num(team_row.get("after_setpieces_goals", np.nan))
-    if pd.notna(sp_shots):
-        insights["setpieces"].append(
-            f"Set-piece output so far: {sp_shots:.0f} shots, xG {sp_xg:.2f}, {sp_goals:.0f} goals."
-        )
-    if pd.notna(total_xg) and total_xg > 0 and pd.notna(sp_xg):
-        insights["setpieces"].append(
-            f"Set pieces account for {(100 * sp_xg / total_xg):.1f}% of total xG."
-        )
-    if not insights["setpieces"]:
-        insights["setpieces"].append("No structured set-piece taker table was extracted, so this section focuses on set-piece output rather than exact routines.")
-
-    return insights
 
 # ============================================================
 # MATCH OPPONENT REPORT
@@ -3113,198 +3049,57 @@ if app_mode == "Club vs Opponent":
 
             st.markdown("### Tactical visuals")
             st.caption(
-                "Custom team visualisations built from the structured data extracted from the Wyscout team report. "
-                "These views emphasise the key patterns rather than every single event."
+                "Custom visualisations built from the structured Wyscout team-report data — focused on the key patterns rather than every single event."
             )
-
             tactical_details = load_team_tactical_details()
-            club_tactical = tactical_details.get(str(away_team), {})
-            tactical_tables = club_tactical.get("tables", {})
-
+            tactical_tables = tactical_details.get(str(away_team), {}).get("tables", {})
             if tactical_tables:
-                build_df = tactical_table_frame(tactical_tables.get("Build-up hubs", []))
-                cross_df = tactical_table_frame(tactical_tables.get("Top crossers", []))
-                dribble_df = tactical_table_frame(tactical_tables.get("Final-third dribblers", []))
-                recovery_df = tactical_table_frame(tactical_tables.get("High recoveries", []))
-                shoot_df = tactical_table_frame(tactical_tables.get("Top shooters", []))
-                creator_df = tactical_table_frame(tactical_tables.get("Key creators", []))
-                one_v_one_df = tactical_table_frame(tactical_tables.get("1v1 players", []))
-                insights = team_text_insights(away_row, tactical_tables, all_data, away_team)
+                build_df = _tactical_frame(tactical_tables.get("Build-up hubs", []))
+                cross_df = _tactical_frame(tactical_tables.get("Top crossers", []))
+                dribble_df = _tactical_frame(tactical_tables.get("Final-third dribblers", []))
+                recover_df = _tactical_frame(tactical_tables.get("High recoveries", []))
+                shoot_df = _tactical_frame(tactical_tables.get("Top shooters", []))
+                creators_df = _tactical_frame(tactical_tables.get("Key creators", []))
+                onevone_df = _tactical_frame(tactical_tables.get("1v1 players", []))
 
-                tactical_tabs = st.tabs([
-                    "Passing flow",
-                    "Crosses & wide play",
-                    "Shooting & creation",
-                    "1v1 & transitions",
-                    "Set pieces",
+                tv1, tv2, tv3, tv4, tv5 = st.tabs([
+                    "Passing flow", "Crosses & wide play", "Shooting & creation", "1v1 & transitions", "Set pieces"
                 ])
-
-                with tactical_tabs[0]:
-                    left_viz, right_viz = st.columns([1.2, 1])
-                    with left_viz:
-                        if not build_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    build_df,
-                                    value_col="Passes",
-                                    title="Main build-up hubs",
-                                    subtitle_col="Accuracy %",
-                                    secondary_label="Accuracy %",
-                                    color="#4DA3FF",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
-                        else:
-                            st.info("No build-up table extracted for this team.")
-
-                    with right_viz:
-                        st.markdown("#### What it suggests")
-                        for line in insights.get("build", []):
-                            st.write(f"- {line}")
-                        if not creator_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    creator_df,
-                                    value_col="Key passes",
-                                    title="Main creators",
-                                    subtitle_col="xA",
-                                    secondary_label="xA",
-                                    color="#FFD900",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
-
-                with tactical_tabs[1]:
-                    top_row = st.columns([1.0, 1.2])
-                    with top_row[0]:
-                        st.plotly_chart(
-                            make_origin_split_chart(away_row),
-                            use_container_width=True,
-                            theme=None,
-                        )
-                    with top_row[1]:
+                with tv1:
+                    if not build_df.empty:
+                        st.plotly_chart(make_ranked_bar_chart(build_df, "Passes", "Main build-up hubs", "#4DA3FF", "Accuracy %"), use_container_width=True, theme=None)
+                    if not creators_df.empty:
+                        st.plotly_chart(make_ranked_bar_chart(creators_df, "Key passes", "Main creators", "#FFD900", "xA"), use_container_width=True, theme=None)
+                with tv2:
+                    c1,c2=st.columns([1,1.25])
+                    with c1:
+                        st.plotly_chart(make_cross_origin_chart(away_row), use_container_width=True, theme=None)
+                    with c2:
                         if not cross_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    cross_df,
-                                    value_col="Crosses",
-                                    title="Top crossers",
-                                    subtitle_col="Accuracy %",
-                                    secondary_label="Accuracy %",
-                                    color="#FFD900",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
-                    st.markdown("#### What it suggests")
-                    for line in insights.get("attack", []):
-                        st.write(f"- {line}")
+                            st.plotly_chart(make_ranked_bar_chart(cross_df, "Crosses", "Top crossers", "#FFD900", "Accuracy %"), use_container_width=True, theme=None)
                     if not dribble_df.empty:
-                        st.plotly_chart(
-                            make_ranked_bar_chart(
-                                dribble_df,
-                                value_col="Dribbles",
-                                title="Final-third dribblers",
-                                subtitle_col="Team share %",
-                                secondary_label="Team share %",
-                                color="#7ED957",
-                            ),
-                            use_container_width=True,
-                            theme=None,
-                        )
-
-                with tactical_tabs[2]:
-                    c1, c2 = st.columns([1.15, 1])
+                        st.plotly_chart(make_ranked_bar_chart(dribble_df, "Dribbles", "Final-third dribblers", "#7ED957", "Team share %"), use_container_width=True, theme=None)
+                with tv3:
+                    c1,c2=st.columns(2)
                     with c1:
                         if not shoot_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    shoot_df,
-                                    value_col="Shots",
-                                    title="Top shooters",
-                                    subtitle_col="xG",
-                                    secondary_label="xG",
-                                    color="#FF9F43",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
+                            st.plotly_chart(make_ranked_bar_chart(shoot_df, "Shots", "Top shooters", "#FF9F43", "xG"), use_container_width=True, theme=None)
                     with c2:
-                        st.plotly_chart(
-                            make_shot_source_chart(away_row),
-                            use_container_width=True,
-                            theme=None,
-                        )
-                    st.markdown("#### What it suggests")
-                    for line in insights.get("shooting", []):
-                        st.write(f"- {line}")
-
-                with tactical_tabs[3]:
-                    c1, c2 = st.columns(2)
+                        st.plotly_chart(make_shot_source_chart(away_row), use_container_width=True, theme=None)
+                with tv4:
+                    c1,c2=st.columns(2)
                     with c1:
-                        if not one_v_one_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    one_v_one_df,
-                                    value_col="Dribbles",
-                                    title="Most active 1v1 players",
-                                    subtitle_col="Per 90",
-                                    secondary_label="Per 90",
-                                    color="#7ED957",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
+                        if not onevone_df.empty:
+                            st.plotly_chart(make_ranked_bar_chart(onevone_df, "Dribbles", "Most active 1v1 players", "#7ED957", "Per 90"), use_container_width=True, theme=None)
                     with c2:
-                        if not recovery_df.empty:
-                            st.plotly_chart(
-                                make_ranked_bar_chart(
-                                    recovery_df,
-                                    value_col="Recoveries",
-                                    title="High recoveries",
-                                    subtitle_col="Shots after",
-                                    secondary_label="Shots after",
-                                    color="#4DA3FF",
-                                ),
-                                use_container_width=True,
-                                theme=None,
-                            )
-                    st.markdown("#### What it suggests")
-                    for line in insights.get("dribble", []):
-                        st.write(f"- {line}")
-
-                with tactical_tabs[4]:
-                    total_xg = safe_num(away_row.get("xg", np.nan))
-                    sp_xg = safe_num(away_row.get("after_setpieces_xg", 0)) or 0
-                    cross_xg = safe_num(away_row.get("after_crosses_xg", 0)) or 0
-                    open_play_xg = max(0, (total_xg or 0) - sp_xg - cross_xg)
-
-                    c1, c2 = st.columns([1.0, 1.1])
-                    with c1:
-                        st.plotly_chart(
-                            make_metric_share_chart(
-                                ["Open play xG", "Cross xG", "Set-piece xG"],
-                                [open_play_xg, cross_xg, sp_xg],
-                                "Where their xG comes from",
-                                colors=["#4DA3FF", "#FFD900", "#FF9F43"],
-                            ),
-                            use_container_width=True,
-                            theme=None,
-                        )
-                    with c2:
-                        s1, s2, s3 = st.columns(3)
-                        s1.metric("Set-piece shots", f"{safe_num(away_row.get('after_setpieces_shots', np.nan)):.0f}")
-                        s2.metric("Set-piece xG", f"{sp_xg:.2f}")
-                        s3.metric("Set-piece goals", f"{safe_num(away_row.get('after_setpieces_goals', np.nan)):.0f}")
-                        st.markdown("#### What it suggests")
-                        for line in insights.get("setpieces", []):
-                            st.write(f"- {line}")
-                        st.caption(
-                            "Current structured extraction gives reliable set-piece output (shots / xG / goals). "
-                            "Exact corner/free-kick routines or takers were not consistently extractable across all club PDFs."
-                        )
+                        if not recover_df.empty:
+                            st.plotly_chart(make_ranked_bar_chart(recover_df, "Recoveries", "High recoveries", "#4DA3FF", "Shots after"), use_container_width=True, theme=None)
+                with tv5:
+                    s1,s2,s3=st.columns(3)
+                    s1.metric("Set-piece shots", f"{_safe_num(away_row.get('after_setpieces_shots', np.nan)):.0f}")
+                    s2.metric("Set-piece xG", f"{_safe_num(away_row.get('after_setpieces_xg', np.nan)):.2f}")
+                    s3.metric("Set-piece goals", f"{_safe_num(away_row.get('after_setpieces_goals', np.nan)):.0f}")
+                    st.caption("Exact routines/takers are not consistently available in the structured extraction, so this view focuses on output.")
             else:
                 st.info("No structured tactical details are available for this club yet.")
 
@@ -3820,7 +3615,7 @@ c.metric("Our players", len(our_players))
 d.metric("Metrics", len(metrics))
 
 st.info(
-    "Each position uses only the metrics contained in its own Wyscout export. "
+    "All field positions now use the same full-metric league master dataset. "
     f"League tabs use players with at least {minimum_minutes} minutes. "
     "Manual Comparison keeps every player selectable, while its percentiles are "
     "still benchmarked against the filtered reference sample."
@@ -3836,12 +3631,13 @@ if load_warnings:
 # TABS
 # ============================================================
 
-tab_overview, tab_our, tab_compare, tab_ranking = st.tabs(
+tab_overview, tab_our, tab_compare, tab_ranking, tab_cross = st.tabs(
     [
         "Overview",
         "Our player vs league",
         "Comparison",
         "League ranking",
+        "Cross-position analysis",
     ]
 )
 
@@ -4930,3 +4726,183 @@ with tab_ranking:
             "75th raw percentile",
             f"{values.quantile(.75):.3f}",
         )
+
+# ============================================================
+# CROSS-POSITION ANALYSIS
+# ============================================================
+
+with tab_cross:
+    st.subheader("Cross-position analysis")
+    st.caption(
+        "Raw-data comparison only — no player percentiles. Goalkeepers are intentionally excluded from this workspace."
+    )
+
+    field_data = all_data[all_data["PositionGroup"].ne("GK")].copy()
+    # One row per player/team for raw-data lookup; metrics are identical across duplicated mapped-position rows.
+    player_master = field_data.drop_duplicates(subset=["Name", "Team"], keep="first").copy()
+
+    analysis_mode = st.radio(
+        "Analysis type",
+        ["Player vs Player", "Position Fit"],
+        horizontal=True,
+        key="cross_position_mode",
+    )
+
+    def _player_selector(prefix: str, label_prefix: str):
+        c1, c2, c3 = st.columns([1, 1, 1.7])
+        with c1:
+            broad = st.selectbox(
+                f"{label_prefix} group",
+                list(BROAD_GROUPS.keys()),
+                key=f"{prefix}_broad",
+            )
+        with c2:
+            detailed_options = [
+                p for p in BROAD_GROUPS[broad]
+                if p in field_data["PositionGroup"].dropna().astype(str).unique()
+            ]
+            detailed = st.selectbox(
+                f"{label_prefix} position",
+                detailed_options,
+                key=f"{prefix}_detailed",
+            )
+        with c3:
+            rows = field_data[field_data["PositionGroup"].eq(detailed)][["Name", "Team"]].drop_duplicates()
+            labels = [f"{r.Name} — {r.Team}" for r in rows.itertuples(index=False)]
+            selected_label = st.selectbox(
+                f"{label_prefix} player",
+                labels,
+                key=f"{prefix}_player",
+            )
+        if not labels:
+            return broad, detailed, None
+        name, team = selected_label.rsplit(" — ", 1)
+        row = player_master[
+            player_master["Name"].astype(str).eq(name) & player_master["Team"].astype(str).eq(team)
+        ]
+        return broad, detailed, (row.iloc[0] if not row.empty else None)
+
+    if analysis_mode == "Player vs Player":
+        st.markdown("#### Player A")
+        _, pos_a, row_a = _player_selector("cross_a", "A")
+        st.markdown("#### Player B")
+        _, pos_b, row_b = _player_selector("cross_b", "B")
+
+        if row_a is not None and row_b is not None:
+            common_metrics = []
+            for metric in player_master.columns:
+                if metric in NON_METRIC_COLUMNS or metric == "Position":
+                    continue
+                a = pd.to_numeric(pd.Series([row_a.get(metric)]), errors="coerce").iloc[0]
+                b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
+                if pd.notna(a) and pd.notna(b):
+                    common_metrics.append(metric)
+            common_metrics = sorted(common_metrics)
+            cat_map = metric_category_options(common_metrics)
+            category = st.selectbox("Metric category", list(cat_map.keys()), key="pvp_category")
+            available = cat_map[category]
+            default_metrics = available[: min(8, len(available))]
+            selected_metrics = st.multiselect(
+                "Metrics to compare",
+                available,
+                default=default_metrics,
+                key="pvp_metrics",
+            )
+            if selected_metrics:
+                rows=[]
+                for metric in selected_metrics:
+                    a = pd.to_numeric(pd.Series([row_a.get(metric)]), errors="coerce").iloc[0]
+                    b = pd.to_numeric(pd.Series([row_b.get(metric)]), errors="coerce").iloc[0]
+                    rows.append({
+                        "Metric": metric,
+                        str(row_a["Name"]): a,
+                        str(row_b["Name"]): b,
+                        "Raw difference A − B": (a-b) if pd.notna(a) and pd.notna(b) else np.nan,
+                    })
+                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                st.caption(f"{row_a['Name']} ({pos_a}) vs {row_b['Name']} ({pos_b}) · values are raw Wyscout metrics.")
+
+    else:
+        st.markdown("#### Player to test")
+        _, source_pos, source_row = _player_selector("fit_source", "Player")
+
+        t1, t2, t3 = st.columns([1,1,1])
+        with t1:
+            target_broad = st.selectbox("Target group", list(BROAD_GROUPS.keys()), key="fit_target_broad")
+        with t2:
+            target_options = [
+                p for p in BROAD_GROUPS[target_broad]
+                if p in field_data["PositionGroup"].dropna().astype(str).unique()
+            ]
+            target_position = st.selectbox("Target position", target_options, key="fit_target_position")
+        with t3:
+            benchmark_type = st.selectbox("Benchmark", ["League average", "Top 50%", "Top 25%"], key="fit_benchmark")
+
+        target_rows = field_data[field_data["PositionGroup"].eq(target_position)].copy()
+        target_rows = target_rows.drop_duplicates(subset=["Name", "Team"], keep="first")
+        max_target_minutes = int(pd.to_numeric(target_rows.get("Minutes played", pd.Series([1])), errors="coerce").max() or 1)
+        fit_min_minutes = st.number_input(
+            "Minimum minutes for target-position benchmark",
+            min_value=1,
+            max_value=max(1, max_target_minutes),
+            value=min(450, max(1, max_target_minutes)),
+            step=90,
+            key="fit_min_minutes",
+        )
+        if "Minutes played" in target_rows.columns:
+            target_rows = target_rows[
+                pd.to_numeric(target_rows["Minutes played"], errors="coerce").fillna(0) >= fit_min_minutes
+            ]
+
+        if source_row is not None and not target_rows.empty:
+            target_metrics = set(get_metrics(target_rows))
+            source_metrics = set()
+            for metric in target_metrics:
+                value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
+                if pd.notna(value):
+                    source_metrics.add(metric)
+            common_metrics = sorted(source_metrics & target_metrics)
+            cat_map = metric_category_options(common_metrics)
+            category = st.selectbox("Metric category", list(cat_map.keys()), key="fit_category")
+            available = cat_map[category]
+            default_metrics = available[: min(8, len(available))]
+            selected_metrics = st.multiselect(
+                "Metrics used for position-fit check",
+                available,
+                default=default_metrics,
+                key="fit_metrics",
+            )
+
+            if selected_metrics:
+                out=[]
+                for metric in selected_metrics:
+                    player_value = pd.to_numeric(pd.Series([source_row.get(metric)]), errors="coerce").iloc[0]
+                    benchmark_value = position_fit_benchmark(target_rows[metric], benchmark_type, metric)
+                    raw_diff = player_value - benchmark_value if pd.notna(player_value) and pd.notna(benchmark_value) else np.nan
+                    rel = (player_value / benchmark_value * 100) if pd.notna(player_value) and pd.notna(benchmark_value) and benchmark_value != 0 else np.nan
+                    out.append({
+                        "Metric": metric,
+                        "Player value": player_value,
+                        f"{target_position} benchmark": benchmark_value,
+                        "Raw difference": raw_diff,
+                        "Relative index": rel,
+                    })
+                fit_table = pd.DataFrame(out)
+                st.dataframe(
+                    fit_table.drop(columns=["Relative index"]),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.plotly_chart(
+                    raw_comparison_chart(fit_table, str(source_row["Name"])),
+                    use_container_width=True,
+                    theme=None,
+                )
+                st.caption(
+                    f"Benchmark cohort: {len(target_rows)} players listed at {target_position}, minimum {fit_min_minutes} minutes. "
+                    "Relative index is not a percentile: 100 simply means the player's raw value equals the selected benchmark. "
+                    "For context/style metrics, a higher value is not automatically better."
+                )
+        elif target_rows.empty:
+            st.warning("No target-position players remain after the minutes filter.")
+
