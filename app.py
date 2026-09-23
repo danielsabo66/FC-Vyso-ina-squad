@@ -367,6 +367,9 @@ TEAM_NAME_ALIASES = {
     "Slavia Praha III": "Slavia Praha II",
     "Baník Ostrava": "Baník Ostrava II",
     "Dukla Praha II": "Dukla Praha",
+    "Hanácká": "Kroměříž",
+    "Hanácká Slavia Kroměříž": "Kroměříž",
+    "SK Hanácká Slavia Kroměříž": "Kroměříž",
 }
 
 METRIC_CATEGORIES = {
@@ -473,14 +476,20 @@ def allowed_league_teams() -> set[str]:
         try:
             df = pd.read_csv(path)
             if "Team" in df.columns:
-                return set(df["Team"].dropna().astype(str).str.strip())
+                return set(
+                    df["Team"]
+                    .dropna()
+                    .astype(str)
+                    .str.strip()
+                    .map(canonical_team_name)
+                )
         except Exception:
             pass
     return {
         "Příbram", "Prostějov", "Baník Ostrava II", "Vlašim",
         "Vysočina Jihlava", "Arsenal Česká Lípa", "Dukla Praha", "Třinec",
         "Táborsko", "Ústí nad Labem", "Viktoria Žižkov", "Karviná", "Opava",
-        "Hanácká", "Kladno", "Slavia Praha II",
+        "Kroměříž", "Kladno", "Slavia Praha II",
     }
 
 
@@ -1181,7 +1190,7 @@ def short_metric_label(metric: str):
         "Offensive duels won": "Off. duels won",
         "Offensive duels": "Off. duels",
         "Aerial duels won": "Aerial won",
-        "Successful dribbles": "Dribbles won",
+        "Successful dribbles": "Dribble success",
         "Accurate crosses": "Cross accuracy",
         "Accurate forward passes": "Forward pass acc.",
         "Accurate passes to final third": "Final 3rd pass acc.",
@@ -2107,6 +2116,9 @@ def load_team_database():
 
     df = pd.read_csv(path)
 
+    if "Team" in df.columns:
+        df["Team"] = df["Team"].astype(str).map(canonical_team_name)
+
     numeric_cols = [
         col for col in df.columns
         if col not in {"Team", "Updated", "Formation_1", "Formation_2", "Formation_3"}
@@ -2124,7 +2136,11 @@ def load_team_tactical_details():
         return {}
     try:
         with open(TEAM_TACTICAL_PATH, "r", encoding="utf-8") as handle:
-            return json.load(handle)
+            raw = json.load(handle)
+        return {
+            canonical_team_name(team): details
+            for team, details in raw.items()
+        }
     except Exception:
         return {}
 
