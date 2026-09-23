@@ -619,30 +619,83 @@ def three_column_metric_selector(
     key_prefix: str,
     heading: str = "Comparison metrics",
 ) -> list[str]:
+    """
+    Three category pickers + one shared selection box.
+
+    The category controls are intentionally single-add selectors: choosing a
+    metric immediately moves it into the shared multiselect below. This keeps
+    the Defensive / Offensive / Passing columns visually clean even when many
+    metrics are selected. Metrics can be removed directly from the shared box.
+    """
     groups = split_field_metrics(available_metrics)
+    available_metrics = list(dict.fromkeys(available_metrics))
     default_set = set(default_metrics or [])
+    state_key = f"{key_prefix}_shared_metrics"
+
+    if state_key not in st.session_state:
+        initial = [metric for metric in available_metrics if metric in default_set]
+        if not initial and default_metrics is None:
+            # Useful but restrained defaults for cross-position views.
+            for category in ["Defensive", "Offensive", "Passing"]:
+                initial.extend(groups.get(category, [])[:2])
+        st.session_state[state_key] = list(dict.fromkeys(initial))
+    else:
+        # Drop stale selections when switching to a dataset where a metric is
+        # not available.
+        st.session_state[state_key] = [
+            metric for metric in st.session_state[state_key]
+            if metric in available_metrics
+        ]
+
+    placeholder = "Choose metric…"
+
+    def _add_metric(category: str):
+        picker_key = f"{key_prefix}_add_{category.lower()}"
+        picked = st.session_state.get(picker_key)
+        if not picked or picked == placeholder:
+            return
+
+        current = list(st.session_state.get(state_key, []))
+        if picked not in current:
+            current.append(picked)
+        st.session_state[state_key] = current
+        # Reset the small category picker so selected chips never accumulate
+        # inside the three top columns.
+        st.session_state[picker_key] = placeholder
 
     st.markdown(f"**{heading}**")
     cols = st.columns(3)
-    selected = []
+
+    current_selected = set(st.session_state.get(state_key, []))
+
     for col, category in zip(cols, ["Defensive", "Offensive", "Passing"]):
-        options = groups.get(category, [])
-        defaults = [metric for metric in options if metric in default_set]
-        # Cross-position views may have no position-specific defaults. Give each
-        # column a small useful starting selection without flooding the radar.
-        if not defaults and default_metrics is None:
-            defaults = options[: min(2, len(options))]
+        category_options = [
+            metric for metric in groups.get(category, [])
+            if metric not in current_selected
+        ]
+        picker_key = f"{key_prefix}_add_{category.lower()}"
+
         with col:
             st.caption(category)
-            picked = st.multiselect(
-                f"{category} metrics",
-                options,
-                default=defaults,
-                key=f"{key_prefix}_{category.lower()}",
+            st.selectbox(
+                f"Add {category.lower()} metric",
+                [placeholder] + category_options,
+                key=picker_key,
+                on_change=_add_metric,
+                args=(category,),
                 label_visibility="collapsed",
             )
-            selected.extend(picked)
-    return selected
+
+    st.caption("Selected metrics")
+    st.multiselect(
+        "Selected metrics",
+        available_metrics,
+        key=state_key,
+        label_visibility="collapsed",
+        placeholder="Selected metrics will appear here",
+    )
+
+    return list(st.session_state.get(state_key, []))
 
 
 def make_position_fit_radar(
